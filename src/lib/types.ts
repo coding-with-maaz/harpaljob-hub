@@ -17,4 +17,30 @@ export interface Job {
   applicationUrl?: string;
   companyDescription?: string;
   benefits?: string[];
+  companyWebsite?: string;
+  companySize?: string;
+  companyIndustry?: string;
+  companyFoundedYear?: number;
+  applicationDeadline?: string;
+  socialShareLinks?: {
+    twitter?: string;
+    linkedin?: string;
+    facebook?: string;
+  };
+}
+
+export interface SavedJob {
+  id: string;
+  savedAt: string;
+}
+
+export interface ApplicationData {
+  fullName: string;
+  email: string;
+  phone: string;
+  resumeUrl: string;
+  coverLetter: string;
+  portfolioUrl?: string;
+  availableStartDate?: string;
+  yearsOfExperience?: number;
 }

@@ -1,28 +1,66 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Briefcase, MapPin, Building, Clock, Calendar, Bookmark, Share2, ArrowLeft, CheckCircle, ChevronRight, ExternalLink } from 'lucide-react';
+import { 
+  Briefcase, 
+  MapPin, 
+  Building, 
+  Clock, 
+  Calendar, 
+  Bookmark, 
+  Share2, 
+  ArrowLeft, 
+  CheckCircle, 
+  ChevronRight, 
+  ExternalLink, 
+  BookmarkCheck,
+  Users,
+  Linkedin,
+  FileText,
+  Award
+} from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { getJobById, getLatestJobs } from '@/lib/jobs';
+import { getJobById, getLatestJobs, getJobsByCategory } from '@/lib/jobs';
 import { Job } from '@/lib/types';
 import JobCard from '@/components/JobCard';
 import { cn } from '@/lib/utils';
+import { toast } from '@/components/ui/use-toast';
+import { toggleSaveJob, isJobSaved } from '@/lib/savedJobs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import JobApplicationForm from '@/components/JobApplicationForm';
+import ShareJobModal from '@/components/ShareJobModal';
+import CompanyProfile from '@/components/CompanyProfile';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 const JobDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [job, setJob] = useState<Job | null>(null);
-  const [relatedJobs, setRelatedJobs] = useState<Job[]>([]);
+  const [similarJobs, setSimilarJobs] = useState<Job[]>([]);
+  const [companyJobs, setCompanyJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isSaved, setIsSaved] = useState(false);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [applicationDialogOpen, setApplicationDialogOpen] = useState(false);
   
   useEffect(() => {
     if (id) {
       const foundJob = getJobById(id);
       if (foundJob) {
         setJob(foundJob);
-        // Get related jobs (in a real app, these would be jobs with similar tags/category)
-        setRelatedJobs(getLatestJobs(3).filter(j => j.id !== id));
+        // Check if job is saved
+        setIsSaved(isJobSaved(id));
+        
+        // Get related jobs by category
+        const categoryJobs = getJobsByCategory(foundJob.category).filter(j => j.id !== id);
+        setSimilarJobs(categoryJobs.slice(0, 2));
+        
+        // Get jobs from same company
+        const jobsFromCompany = getLatestJobs().filter(j => j.company === foundJob.company && j.id !== id);
+        setCompanyJobs(jobsFromCompany.slice(0, 2));
       }
       setLoading(false);
     }
@@ -38,14 +76,32 @@ const JobDetail: React.FC = () => {
   };
   
   const handleBookmark = () => {
-    // In a real app, this would save the job to the user's bookmarks
-    alert('Job bookmarked!');
+    if (job) {
+      const newSavedStatus = toggleSaveJob(job.id);
+      setIsSaved(newSavedStatus);
+      
+      toast({
+        title: newSavedStatus ? "Job Saved" : "Job Removed",
+        description: newSavedStatus 
+          ? `${job.title} has been added to your saved jobs.` 
+          : `${job.title} has been removed from your saved jobs.`,
+      });
+    }
   };
   
   const handleShare = () => {
-    // In a real app, this would open a share dialog
-    navigator.clipboard.writeText(window.location.href);
-    alert('Job URL copied to clipboard!');
+    setShareModalOpen(true);
+  };
+  
+  const calculateDaysRemaining = (deadline?: string) => {
+    if (!deadline) return null;
+    
+    const deadlineDate = new Date(deadline);
+    const today = new Date();
+    const diffTime = deadlineDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    return diffDays > 0 ? diffDays : 0;
   };
   
   if (loading) {
@@ -84,6 +140,8 @@ const JobDetail: React.FC = () => {
       </div>
     );
   }
+
+  const daysRemaining = calculateDaysRemaining(job.applicationDeadline);
 
   return (
     <div className="min-h-screen flex flex-col page-transition">
@@ -128,6 +186,14 @@ const JobDetail: React.FC = () => {
                       />
                     </div>
                     <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
+                        <span className="text-sm font-medium text-job-blue">{job.company}</span>
+                        {job.featured && (
+                          <Badge variant="outline" className="bg-amber-50 text-amber-600 border-amber-200">
+                            Featured
+                          </Badge>
+                        )}
+                      </div>
                       <h1 className="text-2xl font-bold mb-2">{job.title}</h1>
                       <div className="flex flex-wrap gap-y-2 text-sm text-muted-foreground mb-4">
                         <div className="flex items-center mr-4">
@@ -154,104 +220,178 @@ const JobDetail: React.FC = () => {
                           </span>
                         ))}
                       </div>
+
+                      {/* Application deadline notice */}
+                      {job.applicationDeadline && daysRemaining !== null && (
+                        <div className={cn(
+                          "mb-4 px-3 py-2 rounded-md text-sm flex items-center",
+                          daysRemaining <= 3 
+                            ? "bg-red-50 text-red-600" 
+                            : daysRemaining <= 7 
+                              ? "bg-amber-50 text-amber-600" 
+                              : "bg-green-50 text-green-600"
+                        )}>
+                          <Calendar className="h-4 w-4 mr-2" />
+                          {daysRemaining === 0 ? (
+                            <span>Application closes today!</span>
+                          ) : daysRemaining === 1 ? (
+                            <span>Application closes tomorrow!</span>
+                          ) : (
+                            <span>Application closes in {daysRemaining} days ({formatDate(job.applicationDeadline)})</span>
+                          )}
+                        </div>
+                      )}
+                      
                       <div className="flex flex-wrap gap-3">
-                        <Link 
-                          to={job.applicationUrl || "#"} 
-                          className="px-4 py-2 bg-job-blue text-white rounded-lg hover:bg-job-indigo transition-colors"
-                        >
-                          Apply Now
-                        </Link>
-                        <button 
+                        <Dialog open={applicationDialogOpen} onOpenChange={setApplicationDialogOpen}>
+                          <DialogTrigger asChild>
+                            <Button 
+                              className="px-4 py-2 bg-job-blue text-white rounded-lg hover:bg-job-indigo transition-colors"
+                            >
+                              Apply Now
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="sm:max-w-[600px] p-0">
+                            <JobApplicationForm job={job} onClose={() => setApplicationDialogOpen(false)} />
+                          </DialogContent>
+                        </Dialog>
+                        
+                        <Button 
                           onClick={handleBookmark}
-                          className="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors flex items-center"
+                          variant="outline"
+                          className={cn(
+                            "px-4 py-2 rounded-lg transition-colors flex items-center",
+                            isSaved ? "bg-blue-50 text-job-blue border-job-blue/30" : "bg-secondary text-secondary-foreground"
+                          )}
                         >
-                          <Bookmark className="h-4 w-4 mr-2" />
-                          Save
-                        </button>
-                        <button 
+                          {isSaved ? (
+                            <>
+                              <BookmarkCheck className="h-4 w-4 mr-2" />
+                              Saved
+                            </>
+                          ) : (
+                            <>
+                              <Bookmark className="h-4 w-4 mr-2" />
+                              Save
+                            </>
+                          )}
+                        </Button>
+                        
+                        <Button 
                           onClick={handleShare}
+                          variant="outline"
                           className="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors flex items-center"
                         >
                           <Share2 className="h-4 w-4 mr-2" />
                           Share
-                        </button>
+                        </Button>
                       </div>
                     </div>
                   </div>
                 </div>
                 
-                {/* Job description */}
+                {/* Tabs for job information */}
                 <div className="glass-card rounded-xl p-6 mb-6">
-                  <h2 className="text-xl font-semibold mb-4">Job Description</h2>
-                  <p className="text-muted-foreground mb-6">{job.description}</p>
-                  
-                  <h3 className="text-lg font-semibold mb-3">Responsibilities</h3>
-                  <ul className="list-none space-y-2 mb-6">
-                    {job.responsibilities.map((item, index) => (
-                      <li key={index} className="flex items-start">
-                        <CheckCircle className="h-5 w-5 text-job-blue mt-0.5 mr-2 flex-shrink-0" />
-                        <span className="text-muted-foreground">{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  
-                  <h3 className="text-lg font-semibold mb-3">Requirements</h3>
-                  <ul className="list-none space-y-2 mb-6">
-                    {job.requirements.map((item, index) => (
-                      <li key={index} className="flex items-start">
-                        <CheckCircle className="h-5 w-5 text-job-blue mt-0.5 mr-2 flex-shrink-0" />
-                        <span className="text-muted-foreground">{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  
-                  {job.benefits && (
-                    <>
-                      <h3 className="text-lg font-semibold mb-3">Benefits</h3>
+                  <Tabs defaultValue="description" className="w-full">
+                    <TabsList className="mb-4">
+                      <TabsTrigger value="description">Description</TabsTrigger>
+                      <TabsTrigger value="company">Company</TabsTrigger>
+                      <TabsTrigger value="more-jobs">More Jobs</TabsTrigger>
+                    </TabsList>
+                    
+                    <TabsContent value="description">
+                      <h2 className="text-xl font-semibold mb-4">Job Description</h2>
+                      <p className="text-muted-foreground mb-6">{job.description}</p>
+                      
+                      <h3 className="text-lg font-semibold mb-3">Responsibilities</h3>
                       <ul className="list-none space-y-2 mb-6">
-                        {job.benefits.map((item, index) => (
+                        {job.responsibilities.map((item, index) => (
                           <li key={index} className="flex items-start">
                             <CheckCircle className="h-5 w-5 text-job-blue mt-0.5 mr-2 flex-shrink-0" />
                             <span className="text-muted-foreground">{item}</span>
                           </li>
                         ))}
                       </ul>
-                    </>
-                  )}
-                  
-                  <div className="mt-8">
-                    <Link 
-                      to={job.applicationUrl || "#"} 
-                      className="px-6 py-2.5 bg-job-blue text-white rounded-lg hover:bg-job-indigo transition-colors inline-flex items-center"
-                    >
-                      Apply for this position
-                      <ExternalLink className="h-4 w-4 ml-2" />
-                    </Link>
-                  </div>
+                      
+                      <h3 className="text-lg font-semibold mb-3">Requirements</h3>
+                      <ul className="list-none space-y-2 mb-6">
+                        {job.requirements.map((item, index) => (
+                          <li key={index} className="flex items-start">
+                            <CheckCircle className="h-5 w-5 text-job-blue mt-0.5 mr-2 flex-shrink-0" />
+                            <span className="text-muted-foreground">{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                      
+                      {job.benefits && (
+                        <>
+                          <h3 className="text-lg font-semibold mb-3">Benefits</h3>
+                          <ul className="list-none space-y-2 mb-6">
+                            {job.benefits.map((item, index) => (
+                              <li key={index} className="flex items-start">
+                                <CheckCircle className="h-5 w-5 text-job-blue mt-0.5 mr-2 flex-shrink-0" />
+                                <span className="text-muted-foreground">{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </>
+                      )}
+                      
+                      <div className="mt-8">
+                        <Dialog open={applicationDialogOpen} onOpenChange={setApplicationDialogOpen}>
+                          <DialogTrigger asChild>
+                            <Button className="px-6 py-2.5 bg-job-blue text-white rounded-lg hover:bg-job-indigo transition-colors inline-flex items-center">
+                              Apply for this position
+                              <ExternalLink className="h-4 w-4 ml-2" />
+                            </Button>
+                          </DialogTrigger>
+                        </Dialog>
+                      </div>
+                    </TabsContent>
+                    
+                    <TabsContent value="company">
+                      {job.companyDescription ? (
+                        <CompanyProfile job={job} />
+                      ) : (
+                        <div className="text-center py-8">
+                          <Building className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                          <h3 className="text-lg font-medium mb-2">Company Profile Not Available</h3>
+                          <p className="text-muted-foreground">
+                            Additional company information isn't available for {job.company}.
+                          </p>
+                        </div>
+                      )}
+                    </TabsContent>
+                    
+                    <TabsContent value="more-jobs">
+                      <h3 className="text-lg font-semibold mb-4">More jobs at {job.company}</h3>
+                      {companyJobs.length > 0 ? (
+                        <div className="grid gap-4">
+                          {companyJobs.map(job => (
+                            <JobCard key={job.id} job={job} />
+                          ))}
+                          <div className="mt-2 text-center">
+                            <Link 
+                              to="/jobs" 
+                              className="text-job-blue hover:text-job-indigo flex items-center justify-center"
+                            >
+                              Browse All Jobs
+                              <ChevronRight className="h-4 w-4 ml-1" />
+                            </Link>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="text-center py-8">
+                          <Briefcase className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                          <h3 className="text-lg font-medium mb-2">No Other Jobs Available</h3>
+                          <p className="text-muted-foreground">
+                            There are currently no other job listings from {job.company}.
+                          </p>
+                        </div>
+                      )}
+                    </TabsContent>
+                  </Tabs>
                 </div>
-                
-                {/* Company info */}
-                {job.companyDescription && (
-                  <div className="glass-card rounded-xl p-6">
-                    <h2 className="text-xl font-semibold mb-4">About {job.company}</h2>
-                    <div className="flex items-start gap-4 mb-4">
-                      <div className="h-12 w-12 overflow-hidden rounded-md bg-secondary flex-shrink-0">
-                        <img
-                          src={job.logo}
-                          alt={`${job.company} logo`}
-                          className="h-full w-full object-cover"
-                        />
-                      </div>
-                      <div>
-                        <h3 className="font-medium">{job.company}</h3>
-                        <Link to="#" className="text-sm text-job-blue hover:underline">
-                          Visit Website
-                        </Link>
-                      </div>
-                    </div>
-                    <p className="text-muted-foreground">{job.companyDescription}</p>
-                  </div>
-                )}
               </div>
               
               {/* Sidebar */}
@@ -288,24 +428,59 @@ const JobDetail: React.FC = () => {
                           {job.salary}
                         </div>
                       </div>
+                      
+                      {job.companySize && (
+                        <div>
+                          <div className="text-sm text-muted-foreground mb-1">Company Size</div>
+                          <div className="flex items-center">
+                            <Users className="h-4 w-4 mr-2 text-job-slate" />
+                            <span>{job.companySize}</span>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {job.applicationDeadline && (
+                        <div>
+                          <div className="text-sm text-muted-foreground mb-1">Apply Before</div>
+                          <div className="flex items-center">
+                            <Calendar className="h-4 w-4 mr-2 text-job-slate" />
+                            <span>{formatDate(job.applicationDeadline)}</span>
+                          </div>
+                        </div>
+                      )}
                     </div>
                     
                     <div className="mt-6 pt-6 border-t border-border">
-                      <Link 
-                        to={job.applicationUrl || "#"} 
-                        className="w-full py-2.5 bg-job-blue text-white rounded-lg hover:bg-job-indigo transition-colors flex items-center justify-center"
-                      >
-                        Apply Now
-                      </Link>
+                      <Dialog open={applicationDialogOpen} onOpenChange={setApplicationDialogOpen}>
+                        <DialogTrigger asChild>
+                          <Button className="w-full py-2.5 bg-job-blue text-white rounded-lg hover:bg-job-indigo transition-colors flex items-center justify-center">
+                            Apply Now
+                          </Button>
+                        </DialogTrigger>
+                      </Dialog>
                     </div>
                   </div>
                   
-                  {/* Related jobs */}
+                  {/* Required Skills */}
+                  {job.tags && job.tags.length > 0 && (
+                    <div className="glass-card rounded-xl p-6">
+                      <h2 className="text-lg font-semibold mb-4">Required Skills</h2>
+                      <div className="flex flex-wrap gap-2">
+                        {job.tags.map((tag, index) => (
+                          <Badge variant="secondary" key={index} className="text-sm rounded-full px-3 py-1">
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Similar jobs */}
                   <div className="glass-card rounded-xl p-6">
                     <h2 className="text-lg font-semibold mb-4">Similar Jobs</h2>
                     <div className="space-y-4">
-                      {relatedJobs.length > 0 ? (
-                        relatedJobs.map((relatedJob) => (
+                      {similarJobs.length > 0 ? (
+                        similarJobs.map((relatedJob) => (
                           <Link 
                             key={relatedJob.id} 
                             to={`/job/${relatedJob.id}`}
@@ -355,6 +530,13 @@ const JobDetail: React.FC = () => {
       </main>
       
       <Footer />
+      
+      {/* Share Modal */}
+      <ShareJobModal 
+        job={job} 
+        isOpen={shareModalOpen} 
+        onClose={() => setShareModalOpen(false)} 
+      />
     </div>
   );
 };
