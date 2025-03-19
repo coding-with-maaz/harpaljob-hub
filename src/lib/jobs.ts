@@ -1,0 +1,258 @@
+
+import { Job } from "./types";
+
+export const jobs: Job[] = [
+  {
+    id: "1",
+    title: "Senior Frontend Developer",
+    company: "TechVision Inc.",
+    location: "San Francisco, CA (Remote)",
+    type: "Full-time",
+    salary: "$120,000 - $150,000",
+    description: "TechVision is looking for a Senior Frontend Developer to join our growing team. You'll be responsible for building beautiful, responsive web applications using React and TypeScript. The ideal candidate has 5+ years of experience with modern frontend frameworks and a passion for clean, maintainable code.",
+    requirements: [
+      "5+ years of experience with React, TypeScript, and modern frontend tools",
+      "Strong understanding of web performance optimization",
+      "Experience with state management libraries (Redux, Zustand, etc.)",
+      "Knowledge of responsive design and accessibility standards",
+      "Bachelor's degree in Computer Science or related field (or equivalent experience)"
+    ],
+    responsibilities: [
+      "Develop new user-facing features using React and TypeScript",
+      "Build reusable components and libraries for future use",
+      "Optimize applications for maximum speed and scalability",
+      "Collaborate with backend developers and designers",
+      "Participate in code reviews and mentor junior developers"
+    ],
+    postedDate: "2023-06-15",
+    logo: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?q=80&w=100&auto=format&fit=crop",
+    category: "Technology",
+    featured: true,
+    tags: ["React", "TypeScript", "Redux", "Tailwind CSS"],
+    applicationUrl: "/apply/1",
+    companyDescription: "TechVision is a leading technology company specializing in innovative software solutions for businesses of all sizes. With a focus on user experience and cutting-edge technology, we're changing how companies interact with their customers.",
+    benefits: [
+      "Competitive salary and equity",
+      "Health, dental, and vision insurance",
+      "Unlimited PTO",
+      "Remote-first culture",
+      "Annual professional development budget"
+    ]
+  },
+  {
+    id: "2",
+    title: "UX/UI Designer",
+    company: "DesignHub",
+    location: "New York, NY",
+    type: "Full-time",
+    salary: "$90,000 - $120,000",
+    description: "DesignHub is seeking a talented UX/UI Designer to create amazing user experiences. You'll work closely with product managers and developers to design intuitive, engaging products that users love.",
+    requirements: [
+      "3+ years of experience in UX/UI design",
+      "Proficiency with design tools like Figma and Adobe Creative Suite",
+      "Portfolio demonstrating strong visual design skills",
+      "Experience with user research and usability testing",
+      "Excellent communication and collaboration skills"
+    ],
+    responsibilities: [
+      "Create wireframes, prototypes, and high-fidelity mockups",
+      "Conduct user research and usability testing",
+      "Develop user personas and journey maps",
+      "Collaborate with developers to ensure designs are implemented correctly",
+      "Stay up-to-date with design trends and best practices"
+    ],
+    postedDate: "2023-06-20",
+    logo: "https://images.unsplash.com/photo-1572044162444-ad60f128bdea?q=80&w=100&auto=format&fit=crop",
+    category: "Design",
+    tags: ["Figma", "UI/UX", "User Research", "Prototyping"],
+    applicationUrl: "/apply/2",
+    companyDescription: "DesignHub is a creative agency that specializes in building beautiful digital experiences. We work with clients across various industries to create meaningful, user-centered designs that drive business growth.",
+    benefits: [
+      "Competitive salary",
+      "Healthcare coverage",
+      "Flexible work hours",
+      "Annual design conference allowance",
+      "Creative workspace"
+    ]
+  },
+  {
+    id: "3",
+    title: "Full Stack Engineer",
+    company: "InnovateTech",
+    location: "Austin, TX (Hybrid)",
+    type: "Full-time",
+    salary: "$100,000 - $130,000",
+    description: "InnovateTech is looking for a Full Stack Engineer to help build our next generation of products. You'll work on both frontend and backend development, using a variety of technologies to create scalable, efficient applications.",
+    requirements: [
+      "4+ years of full stack development experience",
+      "Proficiency with React, Node.js, and SQL/NoSQL databases",
+      "Experience with cloud platforms (AWS, Azure, or GCP)",
+      "Knowledge of DevOps practices and CI/CD pipelines",
+      "Strong problem-solving skills and attention to detail"
+    ],
+    responsibilities: [
+      "Develop features across the full technology stack",
+      "Design and implement database schemas",
+      "Write clean, maintainable, and efficient code",
+      "Troubleshoot and debug applications",
+      "Collaborate with cross-functional teams to define and implement new features"
+    ],
+    postedDate: "2023-06-18",
+    logo: "https://images.unsplash.com/photo-1560179707-f14e90ef3623?q=80&w=100&auto=format&fit=crop",
+    category: "Technology",
+    featured: true,
+    tags: ["React", "Node.js", "AWS", "MongoDB"],
+    applicationUrl: "/apply/3",
+    companyDescription: "InnovateTech is a fast-growing startup that's revolutionizing the way businesses manage their operations. Our cloud-based platform helps companies streamline their workflows and increase productivity.",
+    benefits: [
+      "Competitive salary and equity package",
+      "Comprehensive health benefits",
+      "Flexible work arrangements",
+      "Weekly team lunches",
+      "Home office stipend"
+    ]
+  },
+  {
+    id: "4",
+    title: "Product Marketing Manager",
+    company: "GrowthLabs",
+    location: "Chicago, IL",
+    type: "Full-time",
+    salary: "$85,000 - $110,000",
+    description: "GrowthLabs is seeking a Product Marketing Manager to develop and execute marketing strategies for our products. You'll work closely with product, sales, and design teams to create compelling messaging and drive product adoption.",
+    requirements: [
+      "3+ years of experience in product marketing",
+      "Strong understanding of B2B SaaS marketing",
+      "Excellent writing and communication skills",
+      "Experience with market research and competitive analysis",
+      "Data-driven approach to marketing strategy"
+    ],
+    responsibilities: [
+      "Develop product positioning and messaging",
+      "Create marketing materials (website content, case studies, etc.)",
+      "Plan and execute product launches",
+      "Analyze marketing metrics and adjust strategies accordingly",
+      "Train sales team on product features and benefits"
+    ],
+    postedDate: "2023-06-22",
+    logo: "https://images.unsplash.com/photo-1571171637578-41bc2dd41cd2?q=80&w=100&auto=format&fit=crop",
+    category: "Marketing",
+    tags: ["B2B Marketing", "SaaS", "Product Launches", "Content Strategy"],
+    applicationUrl: "/apply/4",
+    companyDescription: "GrowthLabs is a marketing technology company that helps businesses attract, engage, and retain customers. Our platform provides tools for email marketing, social media management, and analytics.",
+    benefits: [
+      "Competitive salary",
+      "Health and dental insurance",
+      "401(k) matching",
+      "Professional development budget",
+      "Flexible work hours"
+    ]
+  },
+  {
+    id: "5",
+    title: "DevOps Engineer",
+    company: "CloudSecure",
+    location: "Seattle, WA (Remote)",
+    type: "Full-time",
+    salary: "$115,000 - $140,000",
+    description: "CloudSecure is looking for a DevOps Engineer to help us build and maintain our infrastructure. You'll be responsible for improving deployment processes, ensuring system reliability, and implementing security best practices.",
+    requirements: [
+      "4+ years of experience in DevOps or SRE roles",
+      "Strong knowledge of cloud platforms (AWS, GCP)",
+      "Experience with containerization (Docker, Kubernetes)",
+      "Proficiency with infrastructure as code (Terraform, CloudFormation)",
+      "Understanding of networking and security principles"
+    ],
+    responsibilities: [
+      "Design and implement CI/CD pipelines",
+      "Manage cloud infrastructure and optimize for cost and performance",
+      "Implement monitoring and alerting systems",
+      "Troubleshoot and resolve infrastructure issues",
+      "Collaborate with development teams to improve deployment processes"
+    ],
+    postedDate: "2023-06-17",
+    logo: "https://images.unsplash.com/photo-1551434678-e076c223a692?q=80&w=100&auto=format&fit=crop",
+    category: "Technology",
+    tags: ["AWS", "Kubernetes", "Terraform", "CI/CD"],
+    applicationUrl: "/apply/5",
+    companyDescription: "CloudSecure provides cloud security solutions for enterprises. Our platform helps companies protect their cloud infrastructure and comply with industry regulations.",
+    benefits: [
+      "Competitive salary",
+      "Comprehensive benefits package",
+      "Remote work options",
+      "Continuous learning opportunities",
+      "Team bonding events"
+    ]
+  },
+  {
+    id: "6",
+    title: "Data Scientist",
+    company: "AnalyticsPro",
+    location: "Boston, MA (Hybrid)",
+    type: "Full-time",
+    salary: "$110,000 - $135,000",
+    description: "AnalyticsPro is seeking a Data Scientist to join our team. You'll analyze complex data sets, build predictive models, and extract actionable insights to help our clients make data-driven decisions.",
+    requirements: [
+      "Master's or PhD in a quantitative field (Statistics, Computer Science, etc.)",
+      "3+ years of experience in data science or related field",
+      "Proficiency with Python and data science libraries (pandas, scikit-learn, etc.)",
+      "Experience with machine learning algorithms and statistical modeling",
+      "Strong problem-solving and communication skills"
+    ],
+    responsibilities: [
+      "Analyze large datasets to identify patterns and trends",
+      "Build and optimize machine learning models",
+      "Communicate findings to technical and non-technical stakeholders",
+      "Collaborate with engineering teams to implement data solutions",
+      "Stay current with latest developments in data science"
+    ],
+    postedDate: "2023-06-19",
+    logo: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=100&auto=format&fit=crop",
+    category: "Technology",
+    featured: true,
+    tags: ["Python", "Machine Learning", "Statistics", "Data Analysis"],
+    applicationUrl: "/apply/6",
+    companyDescription: "AnalyticsPro is a data analytics company that helps businesses make better decisions through data. We provide advanced analytics solutions across various industries, including finance, healthcare, and retail.",
+    benefits: [
+      "Competitive salary",
+      "Health, dental, and vision insurance",
+      "Flexible work arrangements",
+      "Continuing education stipend",
+      "Regular team events"
+    ]
+  }
+];
+
+export const getJobById = (id: string): Job | undefined => {
+  return jobs.find(job => job.id === id);
+};
+
+export const getFeaturedJobs = (): Job[] => {
+  return jobs.filter(job => job.featured);
+};
+
+export const getLatestJobs = (limit: number = 4): Job[] => {
+  return [...jobs]
+    .sort((a, b) => new Date(b.postedDate).getTime() - new Date(a.postedDate).getTime())
+    .slice(0, limit);
+};
+
+export const getAllJobs = (): Job[] => {
+  return [...jobs];
+};
+
+export const getJobsByCategory = (category: Job['category']): Job[] => {
+  return jobs.filter(job => job.category === category);
+};
+
+export const searchJobs = (query: string): Job[] => {
+  const lowercaseQuery = query.toLowerCase();
+  return jobs.filter(
+    job => 
+      job.title.toLowerCase().includes(lowercaseQuery) ||
+      job.company.toLowerCase().includes(lowercaseQuery) ||
+      job.description.toLowerCase().includes(lowercaseQuery) ||
+      job.location.toLowerCase().includes(lowercaseQuery) ||
+      job.tags?.some(tag => tag.toLowerCase().includes(lowercaseQuery))
+  );
+};
