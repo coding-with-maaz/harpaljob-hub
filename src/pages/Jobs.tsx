@@ -1,13 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Search, X, Filter, ChevronDown, Briefcase, MapPin } from 'lucide-react';
+import { Search, X, Filter, ChevronDown, Briefcase, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import JobCard from '@/components/JobCard';
 import { searchJobs, getAllJobs, getJobsByCategory } from '@/lib/jobs';
 import { Job } from '@/lib/types';
 import AdBanner from "@/components/ads/AdBanner";
-import { Card, CardHeader, CardTitle, CardContent, Label, Input, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Slider, Button, ChevronLeft, ChevronRight, Helmet } from '@radix-ui/react';
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
+import { Button } from "@/components/ui/button";
+import { Helmet } from "react-helmet";
+
+const formatSalary = (value: number): string => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0
+  }).format(value);
+};
 
 const Jobs: React.FC = () => {
   const location = useLocation();
