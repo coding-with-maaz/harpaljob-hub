@@ -42,22 +42,36 @@ const formatSalary = (amount: number) => {
   }).format(amount);
 };
 
+// Parse salary strings like "$120,000 - $150,000" into min and max numbers
+const parseSalaryRange = (salaryString: string): [number, number] => {
+  const matches = salaryString.match(/\$(\d+,*\d*)\s*-\s*\$(\d+,*\d*)/);
+  if (matches && matches.length >= 3) {
+    const min = parseInt(matches[1].replace(/,/g, ''), 10);
+    const max = parseInt(matches[2].replace(/,/g, ''), 10);
+    return [min, max];
+  }
+  return [0, 150000]; // Default range if parsing fails
+};
+
 // Structured data for job listings
 const jobsStructuredData = generateJobListingStructuredData(
-  jobs.map(job => ({
-    title: job.title,
-    description: job.description,
-    datePosted: job.postedAt,
-    validThrough: new Date(new Date(job.postedAt).setMonth(new Date(job.postedAt).getMonth() + 3)).toISOString(),
-    employmentType: job.jobType.toUpperCase(),
-    company: job.company,
-    companyLogo: job.companyLogo,
-    location: job.location,
-    salaryMin: job.salaryMin,
-    salaryMax: job.salaryMax,
-    currency: "USD",
-    salaryUnit: "YEAR"
-  }))
+  jobs.map(job => {
+    const [salaryMin, salaryMax] = parseSalaryRange(job.salary);
+    return {
+      title: job.title,
+      description: job.description,
+      datePosted: job.postedDate,
+      validThrough: new Date(new Date(job.postedDate).setMonth(new Date(job.postedDate).getMonth() + 3)).toISOString(),
+      employmentType: job.type.toUpperCase(),
+      company: job.company,
+      companyLogo: job.logo,
+      location: job.location,
+      salaryMin: salaryMin,
+      salaryMax: salaryMax,
+      currency: "USD",
+      salaryUnit: "YEAR"
+    }
+  })
 );
 
 const Jobs = () => {
@@ -83,23 +97,25 @@ const Jobs = () => {
     const locationMatch = !selectedLocation || job.location === selectedLocation;
     
     // Job type filter
-    const jobTypeMatch = !selectedJobType || job.jobType === selectedJobType;
+    const jobTypeMatch = !selectedJobType || job.type === selectedJobType;
     
     // Category filter
     const categoryMatch = !selectedCategory || job.category === selectedCategory;
     
     // Salary range filter
-    const salaryMatch = (job.salaryMin >= salaryRange[0] && job.salaryMax <= salaryRange[1]);
+    const [jobSalaryMin, jobSalaryMax] = parseSalaryRange(job.salary);
+    const salaryMatch = (jobSalaryMin >= salaryRange[0] && jobSalaryMax <= salaryRange[1]);
     
-    // Remote filter
-    const remoteMatch = !showRemoteOnly || job.remote;
+    // Remote filter - check if location contains "Remote"
+    const isRemote = job.location.toLowerCase().includes("remote");
+    const remoteMatch = !showRemoteOnly || isRemote;
     
     return searchMatch && locationMatch && jobTypeMatch && categoryMatch && salaryMatch && remoteMatch;
   });
   
   // Get unique locations, job types, and categories for filters
   const locations = Array.from(new Set(jobs.map(job => job.location)));
-  const jobTypes = Array.from(new Set(jobs.map(job => job.jobType)));
+  const jobTypes = Array.from(new Set(jobs.map(job => job.type)));
   const categories = Array.from(new Set(jobs.map(job => job.category)));
   
   return (
