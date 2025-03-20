@@ -113,6 +113,27 @@
   .hover-card {
     @apply transition-all duration-300 hover:shadow-elevated transform hover:-translate-y-1;
   }
+  
+  /* Responsive utilities */
+  .responsive-container {
+    @apply w-full px-4 sm:px-6 md:px-8 mx-auto max-w-7xl;
+  }
+  
+  .responsive-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6;
+  }
+  
+  .responsive-padding {
+    @apply p-4 sm:p-6 md:p-8;
+  }
+  
+  .responsive-text {
+    @apply text-base sm:text-lg md:text-xl;
+  }
+  
+  .responsive-heading {
+    @apply text-2xl sm:text-3xl md:text-4xl font-bold;
+  }
 }
 
 /* Custom scrollbar */
@@ -155,4 +176,47 @@
   opacity: 0;
   transform: translateY(-10px);
   transition: opacity 300ms, transform 300ms;
+}
+
+/* Responsive Utilities */
+@media (max-width: 640px) {
+  .hide-on-mobile {
+    display: none !important;
+  }
+}
+
+@media (min-width: 641px) {
+  .show-on-mobile-only {
+    display: none !important;
+  }
+}
+
+/* Ad-related styles */
+.ad-container {
+  @apply relative overflow-hidden rounded-md border border-slate-200;
+}
+
+.ad-indicator {
+  @apply absolute top-2 right-2 text-xs bg-white/80 px-1.5 py-0.5 rounded text-slate-500 font-medium;
+}
+
+/* Improve mobile experience */
+@media (max-width: 640px) {
+  input, select, textarea {
+    font-size: 16px !important; /* Prevents iOS zoom on focus */
+  }
+  
+  .mobile-full-width {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  
+  .mobile-stack {
+    flex-direction: column !important;
+  }
+  
+  .mobile-center {
+    text-align: center !important;
+    justify-content: center !important;
+  }
 }
