@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { 
@@ -202,7 +201,7 @@ const JobDetail: React.FC = () => {
                         </div>
                         <div className="flex items-center mr-4">
                           <MapPin className="h-4 w-4 mr-1 text-job-slate" />
-                          <span>{job.location}</span>
+                          <span>{job.location}, {job.country}</span>
                         </div>
                         <div className="flex items-center mr-4">
                           <Clock className="h-4 w-4 mr-1 text-job-slate" />

@@ -1,4 +1,3 @@
-
 import { Job } from "./types";
 
 export const jobs: Job[] = [
@@ -6,8 +5,9 @@ export const jobs: Job[] = [
     id: "1",
     title: "Senior Frontend Developer",
     company: "TechVision Inc.",
-    location: "San Francisco, CA (Remote)",
-    type: "Full-time",
+    location: "San Francisco",
+    country: "United States",
+    type: "full-time",
     salary: "$120,000 - $150,000",
     description: "TechVision is looking for a Senior Frontend Developer to join our growing team. You'll be responsible for building beautiful, responsive web applications using React and TypeScript. The ideal candidate has 5+ years of experience with modern frontend frameworks and a passion for clean, maintainable code.",
     requirements: [
@@ -27,24 +27,29 @@ export const jobs: Job[] = [
     postedDate: "2023-06-15",
     logo: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?q=80&w=100&auto=format&fit=crop",
     category: "Technology",
-    featured: true,
-    tags: ["React", "TypeScript", "Redux", "Tailwind CSS"],
-    applicationUrl: "/apply/1",
-    companyDescription: "TechVision is a leading technology company specializing in innovative software solutions for businesses of all sizes. With a focus on user experience and cutting-edge technology, we're changing how companies interact with their customers.",
+    experience: "5+ years",
     benefits: [
       "Competitive salary and equity",
       "Health, dental, and vision insurance",
       "Unlimited PTO",
       "Remote-first culture",
       "Annual professional development budget"
-    ]
+    ],
+    tags: ["React", "TypeScript", "Redux", "Tailwind CSS"],
+    companyDescription: "TechVision is a leading technology company specializing in innovative software solutions for businesses of all sizes. With a focus on user experience and cutting-edge technology, we're changing how companies interact with their customers.",
+    companySize: "50-200 employees",
+    status: "active",
+    featured: true,
+    views: 0,
+    userId: "1"
   },
   {
     id: "2",
     title: "UX/UI Designer",
     company: "DesignHub",
-    location: "New York, NY",
-    type: "Full-time",
+    location: "New York",
+    country: "United States",
+    type: "full-time",
     salary: "$90,000 - $120,000",
     description: "DesignHub is seeking a talented UX/UI Designer to create amazing user experiences. You'll work closely with product managers and developers to design intuitive, engaging products that users love.",
     requirements: [
@@ -64,23 +69,29 @@ export const jobs: Job[] = [
     postedDate: "2023-06-20",
     logo: "https://images.unsplash.com/photo-1572044162444-ad60f128bdea?q=80&w=100&auto=format&fit=crop",
     category: "Design",
-    tags: ["Figma", "UI/UX", "User Research", "Prototyping"],
-    applicationUrl: "/apply/2",
-    companyDescription: "DesignHub is a creative agency that specializes in building beautiful digital experiences. We work with clients across various industries to create meaningful, user-centered designs that drive business growth.",
+    experience: "3+ years",
     benefits: [
       "Competitive salary",
       "Healthcare coverage",
       "Flexible work hours",
       "Annual design conference allowance",
       "Creative workspace"
-    ]
+    ],
+    tags: ["Figma", "UI/UX", "User Research", "Prototyping"],
+    companyDescription: "DesignHub is a creative agency that specializes in building beautiful digital experiences. We work with clients across various industries to create meaningful, user-centered designs that drive business growth.",
+    companySize: "10-50 employees",
+    status: "active",
+    featured: false,
+    views: 0,
+    userId: "2"
   },
   {
     id: "3",
     title: "Full Stack Engineer",
     company: "InnovateTech",
-    location: "Austin, TX (Hybrid)",
-    type: "Full-time",
+    location: "Austin",
+    country: "United States",
+    type: "full-time",
     salary: "$100,000 - $130,000",
     description: "InnovateTech is looking for a Full Stack Engineer to help build our next generation of products. You'll work on both frontend and backend development, using a variety of technologies to create scalable, efficient applications.",
     requirements: [
@@ -100,24 +111,29 @@ export const jobs: Job[] = [
     postedDate: "2023-06-18",
     logo: "https://images.unsplash.com/photo-1560179707-f14e90ef3623?q=80&w=100&auto=format&fit=crop",
     category: "Technology",
-    featured: true,
-    tags: ["React", "Node.js", "AWS", "MongoDB"],
-    applicationUrl: "/apply/3",
-    companyDescription: "InnovateTech is a fast-growing startup that's revolutionizing the way businesses manage their operations. Our cloud-based platform helps companies streamline their workflows and increase productivity.",
+    experience: "4+ years",
     benefits: [
       "Competitive salary and equity package",
       "Comprehensive health benefits",
       "Flexible work arrangements",
       "Weekly team lunches",
       "Home office stipend"
-    ]
+    ],
+    tags: ["React", "Node.js", "AWS", "MongoDB"],
+    companyDescription: "InnovateTech is a fast-growing startup that's revolutionizing the way businesses manage their operations. Our cloud-based platform helps companies streamline their workflows and increase productivity.",
+    companySize: "200-500 employees",
+    status: "active",
+    featured: true,
+    views: 0,
+    userId: "3"
   },
   {
     id: "4",
     title: "Product Marketing Manager",
     company: "GrowthLabs",
-    location: "Chicago, IL",
-    type: "Full-time",
+    location: "Chicago",
+    country: "United States",
+    type: "full-time",
     salary: "$85,000 - $110,000",
     description: "GrowthLabs is seeking a Product Marketing Manager to develop and execute marketing strategies for our products. You'll work closely with product, sales, and design teams to create compelling messaging and drive product adoption.",
     requirements: [
@@ -137,23 +153,29 @@ export const jobs: Job[] = [
     postedDate: "2023-06-22",
     logo: "https://images.unsplash.com/photo-1571171637578-41bc2dd41cd2?q=80&w=100&auto=format&fit=crop",
     category: "Marketing",
-    tags: ["B2B Marketing", "SaaS", "Product Launches", "Content Strategy"],
-    applicationUrl: "/apply/4",
-    companyDescription: "GrowthLabs is a marketing technology company that helps businesses attract, engage, and retain customers. Our platform provides tools for email marketing, social media management, and analytics.",
+    experience: "3+ years",
     benefits: [
       "Competitive salary",
       "Health and dental insurance",
       "401(k) matching",
       "Professional development budget",
       "Flexible work hours"
-    ]
+    ],
+    tags: ["B2B Marketing", "SaaS", "Product Launches", "Content Strategy"],
+    companyDescription: "GrowthLabs is a marketing technology company that helps businesses attract, engage, and retain customers. Our platform provides tools for email marketing, social media management, and analytics.",
+    companySize: "100-500 employees",
+    status: "active",
+    featured: false,
+    views: 0,
+    userId: "4"
   },
   {
     id: "5",
     title: "DevOps Engineer",
     company: "CloudSecure",
-    location: "Seattle, WA (Remote)",
-    type: "Full-time",
+    location: "Seattle",
+    country: "United States",
+    type: "full-time",
     salary: "$115,000 - $140,000",
     description: "CloudSecure is looking for a DevOps Engineer to help us build and maintain our infrastructure. You'll be responsible for improving deployment processes, ensuring system reliability, and implementing security best practices.",
     requirements: [
@@ -173,23 +195,29 @@ export const jobs: Job[] = [
     postedDate: "2023-06-17",
     logo: "https://images.unsplash.com/photo-1551434678-e076c223a692?q=80&w=100&auto=format&fit=crop",
     category: "Technology",
-    tags: ["AWS", "Kubernetes", "Terraform", "CI/CD"],
-    applicationUrl: "/apply/5",
-    companyDescription: "CloudSecure provides cloud security solutions for enterprises. Our platform helps companies protect their cloud infrastructure and comply with industry regulations.",
+    experience: "4+ years",
     benefits: [
       "Competitive salary",
       "Comprehensive benefits package",
       "Remote work options",
       "Continuous learning opportunities",
       "Team bonding events"
-    ]
+    ],
+    tags: ["AWS", "Kubernetes", "Terraform", "CI/CD"],
+    companyDescription: "CloudSecure provides cloud security solutions for enterprises. Our platform helps companies protect their cloud infrastructure and comply with industry regulations.",
+    companySize: "500-1000 employees",
+    status: "active",
+    featured: false,
+    views: 0,
+    userId: "5"
   },
   {
     id: "6",
     title: "Data Scientist",
     company: "AnalyticsPro",
-    location: "Boston, MA (Hybrid)",
-    type: "Full-time",
+    location: "Boston",
+    country: "United States",
+    type: "full-time",
     salary: "$110,000 - $135,000",
     description: "AnalyticsPro is seeking a Data Scientist to join our team. You'll analyze complex data sets, build predictive models, and extract actionable insights to help our clients make data-driven decisions.",
     requirements: [
@@ -209,17 +237,21 @@ export const jobs: Job[] = [
     postedDate: "2023-06-19",
     logo: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=100&auto=format&fit=crop",
     category: "Technology",
-    featured: true,
-    tags: ["Python", "Machine Learning", "Statistics", "Data Analysis"],
-    applicationUrl: "/apply/6",
-    companyDescription: "AnalyticsPro is a data analytics company that helps businesses make better decisions through data. We provide advanced analytics solutions across various industries, including finance, healthcare, and retail.",
+    experience: "3+ years",
     benefits: [
       "Competitive salary",
       "Health, dental, and vision insurance",
       "Flexible work arrangements",
       "Continuing education stipend",
       "Regular team events"
-    ]
+    ],
+    tags: ["Python", "Machine Learning", "Statistics", "Data Analysis"],
+    companyDescription: "AnalyticsPro is a data analytics company that helps businesses make better decisions through data. We provide advanced analytics solutions across various industries, including finance, healthcare, and retail.",
+    companySize: "1000+ employees",
+    status: "active",
+    featured: true,
+    views: 0,
+    userId: "6"
   }
 ];
 

@@ -23,6 +23,10 @@ const Job = sequelize.define('Job', {
     type: DataTypes.STRING,
     allowNull: false
   },
+  country: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
   salary: {
     type: DataTypes.STRING,
     allowNull: true
@@ -31,21 +35,57 @@ const Job = sequelize.define('Job', {
     type: DataTypes.ENUM('full-time', 'part-time', 'contract', 'internship'),
     allowNull: false
   },
+  category: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
   experience: {
     type: DataTypes.STRING,
     allowNull: true
   },
   requirements: {
+    type: DataTypes.JSON,
+    allowNull: true,
+    defaultValue: []
+  },
+  responsibilities: {
+    type: DataTypes.JSON,
+    allowNull: true,
+    defaultValue: []
+  },
+  benefits: {
+    type: DataTypes.JSON,
+    allowNull: true,
+    defaultValue: []
+  },
+  tags: {
+    type: DataTypes.JSON,
+    allowNull: true,
+    defaultValue: []
+  },
+  logo: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  companyDescription: {
     type: DataTypes.TEXT,
     allowNull: true
   },
-  benefits: {
-    type: DataTypes.TEXT,
+  companySize: {
+    type: DataTypes.STRING,
     allowNull: true
   },
   status: {
     type: DataTypes.ENUM('active', 'closed', 'draft'),
     defaultValue: 'active'
+  },
+  featured: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  },
+  postedDate: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW
   },
   deadline: {
     type: DataTypes.DATE,

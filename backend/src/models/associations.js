@@ -1,15 +1,16 @@
 const User = require('./User');
 const Job = require('./Job');
 const Application = require('./Application');
+const SavedJob = require('./SavedJob');
 
 // User - Job associations
 User.hasMany(Job, {
-  foreignKey: 'userId',
+  foreignKey: 'employerId',
   as: 'postedJobs'
 });
 
 Job.belongsTo(User, {
-  foreignKey: 'userId',
+  foreignKey: 'employerId',
   as: 'employer'
 });
 
@@ -35,8 +36,27 @@ Application.belongsTo(Job, {
   as: 'job'
 });
 
+// User - SavedJob associations
+User.hasMany(SavedJob, {
+  foreignKey: 'userId'
+});
+
+SavedJob.belongsTo(User, {
+  foreignKey: 'userId'
+});
+
+// Job - SavedJob associations
+Job.hasMany(SavedJob, {
+  foreignKey: 'jobId'
+});
+
+SavedJob.belongsTo(Job, {
+  foreignKey: 'jobId'
+});
+
 module.exports = {
   User,
   Job,
-  Application
+  Application,
+  SavedJob
 }; 

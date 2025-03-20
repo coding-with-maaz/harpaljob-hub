@@ -1,32 +1,36 @@
+export interface User {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: 'user' | 'employer' | 'admin';
+}
 
 export interface Job {
   id: string;
   title: string;
+  description: string;
   company: string;
   location: string;
-  type: 'Full-time' | 'Part-time' | 'Contract' | 'Freelance' | 'Internship';
+  country: string;
   salary: string;
-  description: string;
+  type: 'full-time' | 'part-time' | 'contract' | 'internship';
+  category: string;
+  experience: string;
   requirements: string[];
   responsibilities: string[];
-  postedDate: string;
+  benefits: string[];
+  tags: string[];
   logo: string;
-  category: 'Technology' | 'Design' | 'Marketing' | 'Sales' | 'Customer Service' | 'Finance' | 'Other';
-  featured?: boolean;
-  tags?: string[];
-  applicationUrl?: string;
-  companyDescription?: string;
-  benefits?: string[];
-  companyWebsite?: string;
-  companySize?: string;
-  companyIndustry?: string;
-  companyFoundedYear?: number;
+  companyDescription: string;
+  companySize: string;
+  status: 'active' | 'closed' | 'draft';
+  featured: boolean;
+  postedDate: string;
   applicationDeadline?: string;
-  socialShareLinks?: {
-    twitter?: string;
-    linkedin?: string;
-    facebook?: string;
-  };
+  views: number;
+  userId: string;
+  employer?: User;
 }
 
 export interface SavedJob {

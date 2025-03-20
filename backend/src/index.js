@@ -5,6 +5,11 @@ require('dotenv').config();
 
 const { sequelize, testConnection } = require('./config/database');
 const { User, Job, Application } = require('./models/associations');
+const authRoutes = require('./routes/auth');
+const userRoutes = require('./routes/users');
+const jobRoutes = require('./routes/jobs');
+const applicationRoutes = require('./routes/applications');
+const savedJobRoutes = require('./routes/savedJobs');
 
 const app = express();
 
@@ -14,18 +19,20 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
-// Routes (to be implemented)
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/users', require('./routes/users'));
-app.use('/api/jobs', require('./routes/jobs'));
-app.use('/api/applications', require('./routes/applications'));
+// Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/jobs', jobRoutes);
+app.use('/api/applications', applicationRoutes);
+app.use('/api/saved-jobs', savedJobRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({
-    status: 'error',
-    message: 'Something went wrong!'
+    success: false,
+    message: 'Something went wrong!',
+    error: process.env.NODE_ENV === 'development' ? err.message : undefined
   });
 });
 
