@@ -12,6 +12,8 @@ import Dashboard from "./pages/Dashboard";
 import MobileApp from "./pages/MobileApp";
 import AdDemo from "./pages/AdDemo";
 import NotFound from "./pages/NotFound";
+import SEOAnalyzer from "./pages/SEOAnalyzer";
+import SitemapPage from "./pages/SitemapPage";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +31,8 @@ const App = () => (
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/mobile-app" element={<MobileApp />} />
           <Route path="/ad-demo" element={<AdDemo />} />
+          <Route path="/seo-analyzer" element={<SEOAnalyzer />} />
+          <Route path="/sitemap.xml" element={<SitemapPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
