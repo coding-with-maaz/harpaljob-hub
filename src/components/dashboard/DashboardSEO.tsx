@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,8 +8,23 @@ import {
   Check, 
   AlertTriangle,
   ArrowUpRight,
-  FileText
+  FileText,
+  X,
+  Plus,
+  Search,
+  Tag
 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+
+interface Keyword {
+  id: string;
+  name: string;
+  volume: number;
+  difficulty: number;
+  rank: number | null;
+}
 
 const DashboardSEO = () => {
   const { toast } = useToast();
@@ -23,6 +37,16 @@ const DashboardSEO = () => {
     "Discover your dream job with HarpalJobs - the leading job board for professionals."
   );
   const [sitemapGenerated, setSitemapGenerated] = useState("2023-11-25");
+  const [newKeyword, setNewKeyword] = useState("");
+  const [keywords, setKeywords] = useState<Keyword[]>([
+    { id: "1", name: "remote jobs", volume: 45600, difficulty: 89, rank: 12 },
+    { id: "2", name: "tech jobs", volume: 32400, difficulty: 76, rank: 8 },
+    { id: "3", name: "developer jobs", volume: 18900, difficulty: 65, rank: 5 },
+    { id: "4", name: "work from home jobs", volume: 74300, difficulty: 92, rank: 22 },
+    { id: "5", name: "entry level jobs", volume: 41000, difficulty: 71, rank: 14 },
+    { id: "6", name: "part time jobs", volume: 83600, difficulty: 88, rank: null },
+    { id: "7", name: "job search", volume: 110500, difficulty: 95, rank: null }
+  ]);
 
   const handleSaveMetadata = () => {
     toast({
@@ -37,6 +61,41 @@ const DashboardSEO = () => {
       title: "Sitemap Generated",
       description: "Your sitemap has been successfully generated and submitted to search engines.",
     });
+  };
+
+  const addKeyword = () => {
+    if (!newKeyword.trim()) return;
+    
+    const newKeywordObj: Keyword = {
+      id: Date.now().toString(),
+      name: newKeyword.trim().toLowerCase(),
+      volume: Math.floor(Math.random() * 50000) + 5000,
+      difficulty: Math.floor(Math.random() * 60) + 40,
+      rank: null
+    };
+    
+    setKeywords([...keywords, newKeywordObj]);
+    setNewKeyword("");
+    
+    toast({
+      title: "Keyword Added",
+      description: `"${newKeyword}" has been added to your tracked keywords.`,
+    });
+  };
+
+  const removeKeyword = (id: string) => {
+    setKeywords(keywords.filter(keyword => keyword.id !== id));
+    
+    toast({
+      title: "Keyword Removed",
+      description: "The keyword has been removed from tracking.",
+    });
+  };
+
+  const getDifficultyColor = (difficulty: number) => {
+    if (difficulty >= 80) return "text-red-500 bg-red-50";
+    if (difficulty >= 60) return "text-yellow-500 bg-yellow-50";
+    return "text-green-500 bg-green-50";
   };
 
   return (
@@ -121,6 +180,7 @@ const DashboardSEO = () => {
       <Tabs defaultValue="metadata" className="space-y-4">
         <TabsList>
           <TabsTrigger value="metadata">Metadata</TabsTrigger>
+          <TabsTrigger value="keywords">Keywords</TabsTrigger>
           <TabsTrigger value="sitemap">Sitemap</TabsTrigger>
           <TabsTrigger value="social">Social Media</TabsTrigger>
           <TabsTrigger value="tracking">Analytics</TabsTrigger>
@@ -192,6 +252,114 @@ const DashboardSEO = () => {
               <Button className="mt-4" onClick={handleSaveMetadata}>
                 Save Metadata
               </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="keywords" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Keyword Research & Tracking</CardTitle>
+              <CardDescription>
+                Track important keywords and monitor their performance
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex gap-2">
+                <Input 
+                  placeholder="Add a keyword to track..." 
+                  value={newKeyword}
+                  onChange={(e) => setNewKeyword(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && addKeyword()}
+                />
+                <Button onClick={addKeyword}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add
+                </Button>
+                <Button variant="outline">
+                  <ArrowUpRight className="h-4 w-4 mr-2" />
+                  Import
+                </Button>
+              </div>
+              
+              <div className="rounded-md border">
+                <div className="bg-muted/50 p-3">
+                  <div className="grid grid-cols-12 text-sm font-medium">
+                    <div className="col-span-5">Keyword</div>
+                    <div className="col-span-2 text-center">Search Volume</div>
+                    <div className="col-span-2 text-center">Difficulty</div>
+                    <div className="col-span-2 text-center">Rank</div>
+                    <div className="col-span-1"></div>
+                  </div>
+                </div>
+                <div className="divide-y">
+                  {keywords.map((keyword) => (
+                    <div key={keyword.id} className="p-3">
+                      <div className="grid grid-cols-12 items-center text-sm">
+                        <div className="col-span-5 font-medium">{keyword.name}</div>
+                        <div className="col-span-2 text-center">{keyword.volume.toLocaleString()}</div>
+                        <div className="col-span-2 text-center">
+                          <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs ${getDifficultyColor(keyword.difficulty)}`}>
+                            {keyword.difficulty}/100
+                          </span>
+                        </div>
+                        <div className="col-span-2 text-center">
+                          {keyword.rank 
+                            ? <span className="font-medium">{keyword.rank}</span> 
+                            : <span className="text-muted-foreground">-</span>}
+                        </div>
+                        <div className="col-span-1 flex justify-end">
+                          <Button variant="ghost" size="sm" onClick={() => removeKeyword(keyword.id)}>
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <h3 className="text-sm font-medium">Keyword Suggestions</h3>
+                <div className="flex flex-wrap gap-2">
+                  <Badge variant="outline" className="cursor-pointer hover:bg-muted">job search platform</Badge>
+                  <Badge variant="outline" className="cursor-pointer hover:bg-muted">find jobs online</Badge>
+                  <Badge variant="outline" className="cursor-pointer hover:bg-muted">career opportunities</Badge>
+                  <Badge variant="outline" className="cursor-pointer hover:bg-muted">job board</Badge>
+                  <Badge variant="outline" className="cursor-pointer hover:bg-muted">hiring near me</Badge>
+                  <Badge variant="outline" className="cursor-pointer hover:bg-muted">best job search site</Badge>
+                </div>
+              </div>
+              
+              <div className="grid gap-4 sm:grid-cols-3">
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm">Page Optimization</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">68%</div>
+                    <p className="text-xs text-muted-foreground">Average across all pages</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm">Keywords Ranking</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">4/7</div>
+                    <p className="text-xs text-muted-foreground">Keywords in top 20 results</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm">Organic Traffic</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">14.2K</div>
+                    <p className="text-xs text-muted-foreground">Monthly organic visits</p>
+                  </CardContent>
+                </Card>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

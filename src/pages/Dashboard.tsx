@@ -1,5 +1,4 @@
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Helmet } from "react-helmet";
 import { 
   SidebarProvider, 
@@ -46,6 +45,21 @@ const Dashboard = () => {
 
   // Set sidebar default open state based on device type
   const defaultSidebarOpen = !isMobile;
+
+  // Initialize ad settings in localStorage if they don't exist
+  useEffect(() => {
+    if (localStorage.getItem('adsEnabled') === null) {
+      localStorage.setItem('adsEnabled', 'true');
+    }
+    
+    if (localStorage.getItem('mobileAdsEnabled') === null) {
+      localStorage.setItem('mobileAdsEnabled', 'true');
+    }
+    
+    if (localStorage.getItem('googleAdsEnabled') === null) {
+      localStorage.setItem('googleAdsEnabled', 'true');
+    }
+  }, []);
 
   const handleLogout = () => {
     toast({

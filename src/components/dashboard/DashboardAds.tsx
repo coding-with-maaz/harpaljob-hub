@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,12 +16,17 @@ import {
   Smartphone,
   Trash2
 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 const DashboardAds = () => {
   const { toast } = useToast();
   const [adsEnabled, setAdsEnabled] = useState(true);
   const [mobileAdsEnabled, setMobileAdsEnabled] = useState(true);
   const [selectedAd, setSelectedAd] = useState<string | null>(null);
+  const [googleAdsEnabled, setGoogleAdsEnabled] = useState(true);
+  const [googleAdsId, setGoogleAdsId] = useState("ca-pub-1234567890123456");
+  const [googleAdsScript, setGoogleAdsScript] = useState("<script async src=\"https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1234567890123456\" crossorigin=\"anonymous\"></script>");
 
   const dummyAds = [
     {
@@ -87,6 +91,16 @@ const DashboardAds = () => {
     });
   };
 
+  const toggleGoogleAdsEnabled = () => {
+    setGoogleAdsEnabled(!googleAdsEnabled);
+    toast({
+      title: !googleAdsEnabled ? "Google Ads Enabled" : "Google Ads Disabled",
+      description: !googleAdsEnabled 
+        ? "Google Ads are now enabled on the website" 
+        : "Google Ads have been disabled on the website",
+    });
+  };
+
   const toggleAdStatus = (adId: string) => {
     toast({
       title: "Ad Status Updated",
@@ -98,6 +112,13 @@ const DashboardAds = () => {
     toast({
       title: "Create New Ad",
       description: "Open ad creation form",
+    });
+  };
+
+  const saveGoogleAdsSettings = () => {
+    toast({
+      title: "Google Ads Settings Saved",
+      description: "Your Google Ads configuration has been updated",
     });
   };
 
@@ -132,9 +153,10 @@ const DashboardAds = () => {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="active" className="space-y-4">
-            <TabsList className="grid w-full max-w-md grid-cols-3">
+            <TabsList className="grid w-full max-w-md grid-cols-4">
               <TabsTrigger value="active">Active Ads</TabsTrigger>
               <TabsTrigger value="all">All Ads</TabsTrigger>
+              <TabsTrigger value="google">Google Ads</TabsTrigger>
               <TabsTrigger value="settings">Settings</TabsTrigger>
             </TabsList>
             
@@ -210,6 +232,76 @@ const DashboardAds = () => {
               </div>
             </TabsContent>
             
+            <TabsContent value="google" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Google Ads Integration</CardTitle>
+                  <CardDescription>Configure Google AdSense and Google Ad Manager</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0 p-4 rounded-lg border">
+                    <div>
+                      <h3 className="font-medium">Google Ads Status</h3>
+                      <p className="text-sm text-muted-foreground">Enable or disable Google Ads on your website</p>
+                    </div>
+                    <Switch 
+                      checked={googleAdsEnabled} 
+                      onCheckedChange={toggleGoogleAdsEnabled}
+                    />
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Google AdSense Publisher ID</label>
+                      <Input 
+                        value={googleAdsId} 
+                        onChange={(e) => setGoogleAdsId(e.target.value)}
+                        placeholder="ca-pub-XXXXXXXXXXXXXXXX"
+                      />
+                      <p className="text-xs text-muted-foreground">Enter your Google AdSense publisher ID</p>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">AdSense Script</label>
+                      <Textarea 
+                        value={googleAdsScript}
+                        onChange={(e) => setGoogleAdsScript(e.target.value)}
+                        rows={3}
+                        className="font-mono text-xs"
+                      />
+                      <p className="text-xs text-muted-foreground">Copy the script provided by Google AdSense</p>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <h3 className="text-sm font-medium">Ad Placement Options</h3>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <div className="flex items-center space-x-2">
+                          <input type="checkbox" id="ad-placement-auto" className="rounded border-gray-300" defaultChecked />
+                          <label htmlFor="ad-placement-auto" className="text-sm">Auto ads (let Google decide)</label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <input type="checkbox" id="ad-placement-manual" className="rounded border-gray-300" />
+                          <label htmlFor="ad-placement-manual" className="text-sm">Manual placement</label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <input type="checkbox" id="ad-placement-responsive" className="rounded border-gray-300" defaultChecked />
+                          <label htmlFor="ad-placement-responsive" className="text-sm">Responsive ads</label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <input type="checkbox" id="ad-placement-inart" className="rounded border-gray-300" defaultChecked />
+                          <label htmlFor="ad-placement-inart" className="text-sm">In-article ads</label>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <Button onClick={saveGoogleAdsSettings}>
+                      Save Google Ads Settings
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
             <TabsContent value="settings" className="space-y-4">
               <Card>
                 <CardHeader>
@@ -243,6 +335,19 @@ const DashboardAds = () => {
                         <option value={3}>3 ads per page</option>
                         <option value={0}>No limit</option>
                       </select>
+                    </div>
+                    
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0 p-4 rounded-lg border">
+                      <div>
+                        <h3 className="font-medium">Mobile-Specific Ads</h3>
+                        <p className="text-sm text-muted-foreground">Configure ads specifically for mobile devices</p>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        <Button size="sm" variant="outline">Banner</Button>
+                        <Button size="sm" variant="outline">Interstitial</Button>
+                        <Button size="sm" variant="outline">Native</Button>
+                        <Button size="sm" variant="outline">Rewarded</Button>
+                      </div>
                     </div>
                     
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0 p-4 rounded-lg border">

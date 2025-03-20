@@ -5,12 +5,15 @@ import { X } from "lucide-react";
 
 export type AdSize = 'small' | 'medium' | 'large' | 'responsive';
 export type AdPosition = 'inline' | 'sidebar' | 'header' | 'footer';
+export type AdType = 'internal' | 'google';
 
 interface AdBannerProps {
   id: string;
   size?: AdSize;
   position?: AdPosition;
+  type?: AdType;
   className?: string;
+  googleAdSlot?: string;
 }
 
 // This would typically come from a central ad management system
@@ -26,11 +29,18 @@ const isMobileAdEnabled = () => {
   return enabledFromStorage !== 'false'; // Default to true if not set
 };
 
+const isGoogleAdsEnabled = () => {
+  const enabledFromStorage = localStorage.getItem('googleAdsEnabled');
+  return enabledFromStorage !== 'false'; // Default to true if not set
+};
+
 const AdBanner: React.FC<AdBannerProps> = ({ 
   id, 
   size = 'medium', 
   position = 'inline',
-  className = ''
+  type = 'internal',
+  className = '',
+  googleAdSlot = '1234567890'
 }) => {
   const [dismissed, setDismissed] = useState(false);
   const [adEnabled, setAdEnabled] = useState(true);
@@ -40,17 +50,27 @@ const AdBanner: React.FC<AdBannerProps> = ({
   useEffect(() => {
     const enabled = isAdEnabled();
     const mobileEnabled = isMobileAdEnabled();
-    setAdEnabled(isMobile ? (enabled && mobileEnabled) : enabled);
+    const googleEnabled = type === 'google' ? isGoogleAdsEnabled() : true;
+    
+    setAdEnabled(
+      (isMobile ? (enabled && mobileEnabled) : enabled) && 
+      (type === 'google' ? googleEnabled : true)
+    );
     
     const handleStorageChange = () => {
       const updatedEnabled = isAdEnabled();
       const updatedMobileEnabled = isMobileAdEnabled();
-      setAdEnabled(isMobile ? (updatedEnabled && updatedMobileEnabled) : updatedEnabled);
+      const updatedGoogleEnabled = type === 'google' ? isGoogleAdsEnabled() : true;
+      
+      setAdEnabled(
+        (isMobile ? (updatedEnabled && updatedMobileEnabled) : updatedEnabled) &&
+        (type === 'google' ? updatedGoogleEnabled : true)
+      );
     };
     
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
-  }, [isMobile]);
+  }, [isMobile, type]);
   
   // Don't render if ad is globally disabled or this specific one was dismissed
   if (!adEnabled || dismissed) return null;
@@ -66,7 +86,41 @@ const AdBanner: React.FC<AdBannerProps> = ({
     }
   };
   
-  // Get ad content based on position
+  // If it's a Google ad, return the Google ad code
+  if (type === 'google') {
+    return (
+      <div 
+        className={`relative ${getHeight()} w-full border border-slate-100 rounded-md overflow-hidden ${className}`}
+        data-ad-id={id}
+        data-ad-type="google"
+      >
+        <button 
+          className="absolute top-1 right-1 z-10 p-1 rounded-full bg-white/80 hover:bg-white text-slate-500 hover:text-slate-700 transition-colors"
+          onClick={() => setDismissed(true)}
+          aria-label="Dismiss ad"
+        >
+          <X className="h-3 w-3" />
+        </button>
+        
+        <div className="flex items-center justify-center h-full">
+          <div className="text-xs text-slate-400">
+            Google Ad (slot: {googleAdSlot}) would render here
+          </div>
+        </div>
+        
+        {/* In a real implementation, you would have something like:
+        <ins className="adsbygoogle"
+          style={{display: 'block'}}
+          data-ad-client="ca-pub-XXXXXXXXX"
+          data-ad-slot={googleAdSlot}
+          data-ad-format="auto"
+          data-full-width-responsive="true"></ins>
+        */}
+      </div>
+    );
+  }
+  
+  // Get ad content based on position for internal ads
   const getAdContent = () => {
     switch (position) {
       case 'header':
@@ -106,6 +160,7 @@ const AdBanner: React.FC<AdBannerProps> = ({
     <div 
       className={`relative rounded-md overflow-hidden shadow-sm border border-slate-200 ${getHeight()} w-full ${content.bgColor} ${className}`} 
       data-ad-id={id}
+      data-ad-type="internal"
     >
       <button 
         className="absolute top-1 right-1 p-1 rounded-full bg-white/80 hover:bg-white text-slate-500 hover:text-slate-700 transition-colors"

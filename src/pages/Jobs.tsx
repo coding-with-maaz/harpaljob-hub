@@ -122,6 +122,7 @@ const Jobs: React.FC = () => {
       <Helmet>
         <title>Find Jobs | HarpalJobs</title>
         <meta name="description" content="Browse thousands of job opportunities across various industries and locations." />
+        <meta name="keywords" content="jobs, careers, job search, employment, remote jobs, tech jobs, developer jobs, work from home" />
       </Helmet>
       
       <Navbar />
@@ -232,6 +233,8 @@ const Jobs: React.FC = () => {
             </Card>
             
             <AdBanner id="jobs-sidebar-ad" position="sidebar" size="small" />
+            
+            <AdBanner id="google-sidebar-ad" type="google" size="medium" googleAdSlot="3456789012" />
           </div>
           
           <div className="lg:col-span-9">
@@ -278,12 +281,18 @@ const Jobs: React.FC = () => {
                 </div>
               ) : (
                 <>
+                  <AdBanner id="google-top-results" type="google" size="large" googleAdSlot="2345678901" className="mb-4" />
+                  
                   {filteredJobs.map((job, index) => (
                     <React.Fragment key={job.id}>
                       <JobCard job={job} />
                       
                       {(index + 1) % 3 === 0 && index < filteredJobs.length - 1 && (
                         <AdBanner id={`inline-ad-${index}`} position="inline" size="medium" />
+                      )}
+                      
+                      {(index + 1) % 5 === 0 && index < filteredJobs.length - 1 && (
+                        <AdBanner id={`google-inline-ad-${index}`} type="google" size="medium" googleAdSlot={`${1234567890 + index}`} />
                       )}
                     </React.Fragment>
                   ))}
@@ -327,6 +336,8 @@ const Jobs: React.FC = () => {
         </div>
         
         <AdBanner id="jobs-bottom-banner" position="footer" className="mt-8" />
+        
+        <AdBanner id="google-bottom-ad" type="google" size="large" googleAdSlot="9876543210" className="mt-4" />
       </main>
       
       <Footer />
