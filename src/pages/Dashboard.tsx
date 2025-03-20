@@ -23,6 +23,7 @@ import DashboardJobsList from "@/components/dashboard/DashboardJobsList";
 import DashboardStats from "@/components/dashboard/DashboardStats";
 import DashboardSEO from "@/components/dashboard/DashboardSEO";
 import DashboardSettings from "@/components/dashboard/DashboardSettings";
+import DashboardMobileApp from "@/components/dashboard/DashboardMobileApp";
 import { 
   LayoutDashboard, 
   Briefcase, 
@@ -30,7 +31,8 @@ import {
   Settings, 
   Search, 
   Plus, 
-  LogOut 
+  LogOut,
+  Smartphone
 } from "lucide-react";
 
 const Dashboard = () => {
@@ -84,6 +86,16 @@ const Dashboard = () => {
                       >
                         <UserCircle />
                         <span>Applicants</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton 
+                        onClick={() => setActiveTab("mobile-app")}
+                        isActive={activeTab === "mobile-app"}
+                        tooltip="Mobile App Management"
+                      >
+                        <Smartphone />
+                        <span>Mobile App</span>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   </SidebarMenu>
@@ -143,6 +155,7 @@ const Dashboard = () => {
                   {activeTab === "overview" && "Dashboard Overview"}
                   {activeTab === "jobs" && "Manage Jobs"}
                   {activeTab === "applicants" && "Manage Applicants"}
+                  {activeTab === "mobile-app" && "Mobile App Management"}
                   {activeTab === "seo" && "SEO Settings"}
                   {activeTab === "settings" && "General Settings"}
                 </h1>
@@ -150,6 +163,7 @@ const Dashboard = () => {
                   {activeTab === "overview" && "View statistics and recent activity"}
                   {activeTab === "jobs" && "Create, edit and delete job listings"}
                   {activeTab === "applicants" && "Review and manage job applications"}
+                  {activeTab === "mobile-app" && "Configure and monitor the mobile application"}
                   {activeTab === "seo" && "Optimize search engine visibility"}
                   {activeTab === "settings" && "Configure system settings"}
                 </p>
@@ -176,6 +190,7 @@ const Dashboard = () => {
                 </CardContent>
               </Card>
             )}
+            {activeTab === "mobile-app" && <DashboardMobileApp />}
             {activeTab === "seo" && <DashboardSEO />}
             {activeTab === "settings" && <DashboardSettings />}
           </SidebarInset>

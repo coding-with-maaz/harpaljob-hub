@@ -1,8 +1,17 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, ChevronDown, Briefcase } from 'lucide-react';
+import { Menu, X, ChevronDown, Briefcase, Smartphone } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { 
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger
+} from "@/components/ui/navigation-menu";
+import { Button } from '@/components/ui/button';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -64,21 +73,94 @@ const Navbar: React.FC = () => {
           >
             Find Jobs
           </Link>
-          <div className="relative group">
-            <button className="flex items-center text-sm font-medium text-foreground transition-colors hover:text-job-blue">
-              Categories
-              <ChevronDown className="ml-1 h-4 w-4" />
-            </button>
-            <div className="absolute left-0 mt-2 w-48 origin-top-left rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform scale-95 group-hover:scale-100">
-              <div className="py-1 divide-y divide-border">
-                <Link to="/jobs?category=Technology" className="block px-4 py-2 text-sm hover:bg-secondary">Technology</Link>
-                <Link to="/jobs?category=Design" className="block px-4 py-2 text-sm hover:bg-secondary">Design</Link>
-                <Link to="/jobs?category=Marketing" className="block px-4 py-2 text-sm hover:bg-secondary">Marketing</Link>
-                <Link to="/jobs?category=Sales" className="block px-4 py-2 text-sm hover:bg-secondary">Sales</Link>
-                <Link to="/jobs?category=Finance" className="block px-4 py-2 text-sm hover:bg-secondary">Finance</Link>
-              </div>
-            </div>
-          </div>
+          
+          <NavigationMenu>
+            <NavigationMenuList>
+              <NavigationMenuItem>
+                <NavigationMenuTrigger className="text-sm font-medium transition-colors hover:text-job-blue">
+                  Categories
+                </NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <ul className="grid w-[200px] gap-1 p-2">
+                    <li>
+                      <Link 
+                        to="/jobs?category=Technology" 
+                        className="block select-none rounded-md p-2 text-sm outline-none hover:bg-secondary"
+                        onClick={closeMenu}
+                      >
+                        Technology
+                      </Link>
+                    </li>
+                    <li>
+                      <Link 
+                        to="/jobs?category=Design" 
+                        className="block select-none rounded-md p-2 text-sm outline-none hover:bg-secondary"
+                        onClick={closeMenu}
+                      >
+                        Design
+                      </Link>
+                    </li>
+                    <li>
+                      <Link 
+                        to="/jobs?category=Marketing" 
+                        className="block select-none rounded-md p-2 text-sm outline-none hover:bg-secondary"
+                        onClick={closeMenu}
+                      >
+                        Marketing
+                      </Link>
+                    </li>
+                    <li>
+                      <Link 
+                        to="/jobs?category=Sales" 
+                        className="block select-none rounded-md p-2 text-sm outline-none hover:bg-secondary"
+                        onClick={closeMenu}
+                      >
+                        Sales
+                      </Link>
+                    </li>
+                    <li>
+                      <Link 
+                        to="/jobs?category=Finance" 
+                        className="block select-none rounded-md p-2 text-sm outline-none hover:bg-secondary"
+                        onClick={closeMenu}
+                      >
+                        Finance
+                      </Link>
+                    </li>
+                  </ul>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+              
+              <NavigationMenuItem>
+                <NavigationMenuTrigger className="text-sm font-medium transition-colors hover:text-job-blue">
+                  <Smartphone className="mr-1 h-4 w-4" />
+                  Mobile App
+                </NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <div className="w-[300px] p-4">
+                    <div className="text-sm font-medium mb-2">Get the HarpalJobs App</div>
+                    <p className="text-xs text-muted-foreground mb-4">
+                      Download our mobile app for iOS and Android to search and apply for jobs on the go.
+                    </p>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button variant="outline" size="sm" className="w-full justify-center">
+                        App Store
+                      </Button>
+                      <Button variant="outline" size="sm" className="w-full justify-center">
+                        Google Play
+                      </Button>
+                    </div>
+                    <div className="mt-4 pt-4 border-t border-border">
+                      <div className="text-xs text-muted-foreground mb-2">Scan QR code to download</div>
+                      <div className="h-24 w-24 mx-auto bg-muted flex items-center justify-center rounded-md">
+                        <span className="text-xs">QR Code</span>
+                      </div>
+                    </div>
+                  </div>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+          </NavigationMenu>
         </nav>
         
         <div className="hidden md:flex items-center space-x-4">
@@ -166,6 +248,29 @@ const Navbar: React.FC = () => {
                 >
                   Finance
                 </Link>
+              </div>
+            </div>
+            
+            <div className="space-y-4">
+              <p className="text-lg font-medium flex items-center">
+                <Smartphone className="mr-2 h-5 w-5" />
+                Mobile App
+              </p>
+              <div className="ml-4 space-y-3">
+                <a 
+                  href="#" 
+                  className="block text-base hover:text-job-blue"
+                  onClick={(e) => { e.preventDefault(); closeMenu(); }}
+                >
+                  Download for iOS
+                </a>
+                <a 
+                  href="#" 
+                  className="block text-base hover:text-job-blue"
+                  onClick={(e) => { e.preventDefault(); closeMenu(); }}
+                >
+                  Download for Android
+                </a>
               </div>
             </div>
           </nav>
