@@ -1,18 +1,20 @@
-
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Briefcase, Building, MapPin, Bookmark, ArrowRight } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import JobCard from '@/components/JobCard';
-import { getFeaturedJobs, getLatestJobs } from '@/lib/jobs';
+import { useGetFeaturedJobsQuery, useGetLatestJobsQuery, useGetCategoriesQuery } from '@/lib/store/api';
+import type { Job } from '@/lib/store/types';
 
 const Index: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [location, setLocation] = useState('');
   
-  const featuredJobs = getFeaturedJobs();
-  const latestJobs = getLatestJobs(6);
+  // Fetch data using RTK Query hooks
+  const { data: featuredJobsData, isLoading: isLoadingFeatured } = useGetFeaturedJobsQuery({ limit: 2 });
+  const { data: latestJobsData, isLoading: isLoadingLatest } = useGetLatestJobsQuery({ limit: 6 });
+  const { data: categoriesData, isLoading: isLoadingCategories } = useGetCategoriesQuery();
   
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -114,11 +116,25 @@ const Index: React.FC = () => {
             </Link>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {featuredJobs.map((job) => (
-              <JobCard key={job.id} job={job} featured={true} />
-            ))}
-          </div>
+          {isLoadingFeatured ? (
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-job-blue mx-auto"></div>
+            </div>
+          ) : featuredJobsData?.data ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {featuredJobsData.data.map((job) => (
+                <JobCard key={job.id} job={job} featured={true} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 bg-slate-50 rounded-xl">
+              <Briefcase className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-xl font-semibold mb-2">No Featured Jobs</h3>
+              <p className="text-muted-foreground">
+                Check back later for featured job opportunities.
+              </p>
+            </div>
+          )}
         </div>
       </section>
       
@@ -132,23 +148,37 @@ const Index: React.FC = () => {
             </p>
           </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-            {categories.map((category, index) => (
-              <Link 
-                key={index} 
-                to={`/jobs?category=${category.name}`}
-                className="glass-card rounded-xl p-6 text-center hover-card"
-              >
-                <div className={`h-14 w-14 rounded-full ${category.color} flex items-center justify-center mx-auto mb-4`}>
-                  {category.icon}
-                </div>
-                <h3 className="font-medium mb-1">{category.name}</h3>
-                <p className="text-sm text-muted-foreground">
-                  {category.count} jobs
-                </p>
-              </Link>
-            ))}
-          </div>
+          {isLoadingCategories ? (
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-job-blue mx-auto"></div>
+            </div>
+          ) : categoriesData?.data ? (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+              {categoriesData.data.map((category) => (
+                <Link 
+                  key={category.id} 
+                  to={`/jobs?category=${category.id}`}
+                  className="glass-card rounded-xl p-6 text-center hover-card"
+                >
+                  <div className={`h-14 w-14 rounded-full bg-blue-50 text-job-blue flex items-center justify-center mx-auto mb-4`}>
+                    <Briefcase className="h-6 w-6" />
+                  </div>
+                  <h3 className="font-medium mb-1">{category.name}</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {category.jobCount} jobs
+                  </p>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 bg-slate-50 rounded-xl">
+              <Briefcase className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-xl font-semibold mb-2">No Categories Available</h3>
+              <p className="text-muted-foreground">
+                Check back later for job categories.
+              </p>
+            </div>
+          )}
         </div>
       </section>
       
@@ -163,11 +193,25 @@ const Index: React.FC = () => {
             </Link>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {latestJobs.map((job) => (
-              <JobCard key={job.id} job={job} />
-            ))}
-          </div>
+          {isLoadingLatest ? (
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-job-blue mx-auto"></div>
+            </div>
+          ) : latestJobsData?.data ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {latestJobsData.data.map((job) => (
+                <JobCard key={job.id} job={job} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 bg-slate-50 rounded-xl">
+              <Briefcase className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-xl font-semibold mb-2">No Latest Jobs</h3>
+              <p className="text-muted-foreground">
+                Check back later for new job opportunities.
+              </p>
+            </div>
+          )}
         </div>
       </section>
       

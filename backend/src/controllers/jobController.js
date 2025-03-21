@@ -311,10 +311,13 @@ const getJobsByCategory = async (req, res) => {
   }
 };
 
-// Get a single job
+// Get job by ID or slug
 const getJob = async (req, res) => {
   try {
-    const job = await Job.findByPk(req.params.id, {
+    const { id } = req.params;
+    
+    // Try to find by ID first
+    let job = await Job.findByPk(id, {
       include: [
         {
           model: User,
@@ -328,17 +331,36 @@ const getJob = async (req, res) => {
         }
       ]
     });
-
+    
+    // If not found by ID, try to find by slug
+    if (!job) {
+      job = await Job.findOne({
+        where: { slug: id },
+        include: [
+          {
+            model: User,
+            as: 'employer',
+            attributes: ['id', 'firstName', 'lastName', 'email', 'companyName']
+          },
+          {
+            model: JobCategory,
+            as: 'jobCategory',
+            attributes: ['id', 'name', 'icon']
+          }
+        ]
+      });
+    }
+    
     if (!job) {
       return res.status(404).json({
         success: false,
         message: 'Job not found'
       });
     }
-
+    
     // Increment view count
     await job.increment('views');
-
+    
     // Get similar jobs
     const similarJobs = await Job.findAll({
       where: {
@@ -358,9 +380,10 @@ const getJob = async (req, res) => {
           attributes: ['id', 'name', 'icon']
         }
       ],
-      limit: 3
+      limit: 3,
+      order: [['postedDate', 'DESC']]
     });
-
+    
     res.json({
       success: true,
       data: {

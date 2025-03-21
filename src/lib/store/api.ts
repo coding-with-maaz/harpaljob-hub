@@ -67,15 +67,17 @@ export const api = createApi({
       providesTags: ['Jobs'],
     }),
 
-    getFeaturedJobs: builder.query<{ success: boolean; data: Job[] }, void>({
-      query: () => ({
+    getFeaturedJobs: builder.query<{ success: boolean; data: Job[] }, { limit?: number }>({
+      query: ({ limit } = {}) => ({
         url: 'jobs/featured',
+        params: { limit },
       }),
     }),
 
-    getLatestJobs: builder.query<{ success: boolean; data: Job[] }, void>({
-      query: () => ({
+    getLatestJobs: builder.query<{ success: boolean; data: Job[] }, { limit?: number }>({
+      query: ({ limit } = {}) => ({
         url: 'jobs/latest',
+        params: { limit },
       }),
     }),
 
