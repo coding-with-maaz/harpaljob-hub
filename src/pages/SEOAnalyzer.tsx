@@ -26,7 +26,9 @@ import {
   Globe, 
   Type, 
   Gauge, 
-  Microscope 
+  Microscope,
+  ScrollText,
+  Brain
 } from "lucide-react";
 
 const SEOAnalyzer: React.FC = () => {
@@ -215,77 +217,122 @@ const SEOAnalyzer: React.FC = () => {
       <div className="flex min-h-screen flex-col">
         <Navbar />
         
-        <main className="flex-1 py-8">
+        <main className="flex-1 py-16 bg-gradient-to-b from-white to-slate-50">
           <div className="container mx-auto px-4">
-            <h1 className="text-3xl font-bold mb-2">SEO Analyzer</h1>
-            <p className="text-gray-600 mb-8">Analyze various SEO factors to improve your website's search engine ranking.</p>
+            <div className="max-w-4xl mx-auto text-center mb-12">
+              <h1 className="text-4xl font-bold mb-3 text-job-blue">SEO Analyzer</h1>
+              <div className="h-1 w-20 bg-job-blue mx-auto mb-6 rounded-full"></div>
+              <p className="text-slate-600 text-lg max-w-2xl mx-auto">
+                Analyze your website's SEO factors to improve search engine rankings and drive more organic traffic.
+              </p>
+            </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="md:col-span-1">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Analysis Tools</CardTitle>
+                <Card className="border-t-4 border-t-job-blue shadow-md hover:shadow-lg transition-shadow">
+                  <CardHeader className="bg-gradient-to-r from-slate-50 to-white pb-4">
+                    <div className="flex items-center mb-2">
+                      <Brain className="h-5 w-5 text-job-blue mr-2" />
+                      <CardTitle>Analysis Tools</CardTitle>
+                    </div>
                     <CardDescription>Enter information to analyze</CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-4">
+                  <CardContent className="space-y-4 pt-6">
                     <div className="space-y-2">
-                      <label htmlFor="url" className="text-sm font-medium">URL to Analyze</label>
+                      <label htmlFor="url" className="text-sm font-medium flex items-center">
+                        <Globe className="h-4 w-4 text-job-blue mr-2" /> 
+                        URL to Analyze
+                      </label>
                       <div className="flex space-x-2">
                         <Input 
                           id="url" 
                           value={url} 
                           onChange={(e) => setUrl(e.target.value)} 
                           placeholder="https://example.com/page"
+                          className="focus-visible:ring-job-blue"
                         />
-                        <Button size="icon" onClick={handleAnalyzeURL} disabled={isAnalyzing}>
+                        <Button 
+                          size="icon" 
+                          onClick={handleAnalyzeURL} 
+                          disabled={isAnalyzing}
+                          className="bg-job-blue hover:bg-job-indigo text-white"
+                        >
                           <LinkIcon className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>
                     
                     <div className="space-y-2">
-                      <label htmlFor="keyword" className="text-sm font-medium">Primary Keyword</label>
+                      <label htmlFor="keyword" className="text-sm font-medium flex items-center">
+                        <Search className="h-4 w-4 text-job-blue mr-2" />
+                        Primary Keyword
+                      </label>
                       <Input 
                         id="keyword" 
                         value={keyword} 
                         onChange={(e) => setKeyword(e.target.value)} 
                         placeholder="Enter target keyword"
+                        className="focus-visible:ring-job-blue"
                       />
                     </div>
                     
                     <div className="space-y-2">
-                      <label htmlFor="content" className="text-sm font-medium">Page Content</label>
+                      <label htmlFor="content" className="text-sm font-medium flex items-center">
+                        <ScrollText className="h-4 w-4 text-job-blue mr-2" />
+                        Page Content
+                      </label>
                       <Textarea 
                         id="content" 
                         value={content} 
                         onChange={(e) => setContent(e.target.value)} 
                         placeholder="Paste page content here"
                         rows={4}
+                        className="focus-visible:ring-job-blue"
                       />
                     </div>
                     
                     <div className="space-y-2">
-                      <label htmlFor="html" className="text-sm font-medium">HTML Structure (optional)</label>
+                      <label htmlFor="html" className="text-sm font-medium flex items-center">
+                        <Type className="h-4 w-4 text-job-blue mr-2" />
+                        HTML Structure (optional)
+                      </label>
                       <Textarea 
                         id="html" 
                         value={htmlContent} 
                         onChange={(e) => setHtmlContent(e.target.value)} 
                         placeholder="Paste HTML content for heading analysis"
                         rows={4}
+                        className="focus-visible:ring-job-blue"
                       />
                     </div>
                     
-                    <div className="space-y-2 pt-4">
-                      <Button onClick={handleFullAnalysis} disabled={isAnalyzing} className="w-full">
+                    <div className="pt-4 space-y-3">
+                      <Button 
+                        onClick={handleFullAnalysis} 
+                        disabled={isAnalyzing} 
+                        className="w-full bg-job-blue hover:bg-job-indigo text-white"
+                      >
                         {isAnalyzing ? "Analyzing..." : "Run Full Analysis"}
                       </Button>
                       
-                      <div className="flex space-x-2">
-                        <Button variant="outline" size="sm" onClick={handleAnalyzeKeyword} disabled={isAnalyzing}>
+                      <div className="grid grid-cols-2 gap-3">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={handleAnalyzeKeyword} 
+                          disabled={isAnalyzing}
+                          className="w-full border-job-blue text-job-blue hover:bg-job-blue/10"
+                        >
                           <Search className="mr-2 h-4 w-4" />
                           Keyword Only
                         </Button>
-                        <Button variant="outline" size="sm" onClick={handleAnalyzeHeadings} disabled={isAnalyzing}>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={handleAnalyzeHeadings} 
+                          disabled={isAnalyzing}
+                          className="w-full border-job-blue text-job-blue hover:bg-job-blue/10"
+                        >
                           <Type className="mr-2 h-4 w-4" />
                           Headings Only
                         </Button>
@@ -293,55 +340,97 @@ const SEOAnalyzer: React.FC = () => {
                     </div>
                   </CardContent>
                 </Card>
+                
+                <Card className="mt-6 bg-gradient-to-br from-blue-50 to-white shadow-md">
+                  <CardHeader>
+                    <CardTitle className="text-base text-job-blue">SEO Analysis Tips</CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-sm text-slate-600 space-y-3">
+                    <div className="flex items-start">
+                      <Check className="h-4 w-4 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
+                      <p>Include your keyword in title, description and headings</p>
+                    </div>
+                    <div className="flex items-start">
+                      <Check className="h-4 w-4 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
+                      <p>Aim for keyword density between 0.5% and 3%</p>
+                    </div>
+                    <div className="flex items-start">
+                      <Check className="h-4 w-4 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
+                      <p>Use concise, descriptive URLs with keywords</p>
+                    </div>
+                    <div className="flex items-start">
+                      <Check className="h-4 w-4 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
+                      <p>Proper heading structure (H1 → H2 → H3)</p>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
               
               <div className="md:col-span-2">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Analysis Results</CardTitle>
+                <Card className="shadow-md hover:shadow-lg transition-shadow h-full border-t-4 border-t-job-blue">
+                  <CardHeader className="bg-gradient-to-r from-slate-50 to-white">
+                    <div className="flex items-center mb-2">
+                      <Gauge className="h-5 w-5 text-job-blue mr-2" />
+                      <CardTitle>Analysis Results</CardTitle>
+                    </div>
                     <CardDescription>SEO analysis details and recommendations</CardDescription>
                   </CardHeader>
                   <CardContent>
                     {isAnalyzing ? (
-                      <div className="py-8 text-center">
-                        <p className="mb-2 text-sm text-gray-500">Analyzing your content...</p>
-                        <Progress value={45} className="w-full max-w-md mx-auto" />
+                      <div className="py-12 text-center">
+                        <div className="animate-pulse mb-6">
+                          <Microscope className="h-16 w-16 text-job-blue/40 mx-auto" />
+                        </div>
+                        <p className="mb-4 text-slate-500">Analyzing your content...</p>
+                        <Progress value={45} className="w-full max-w-md mx-auto h-2 bg-slate-200" />
                       </div>
                     ) : seoScore ? (
-                      <Tabs defaultValue="overview">
-                        <TabsList>
-                          <TabsTrigger value="overview">
+                      <Tabs defaultValue="overview" className="mt-2">
+                        <TabsList className="grid grid-cols-4 mb-6 bg-slate-100">
+                          <TabsTrigger 
+                            value="overview"
+                            className="data-[state=active]:bg-job-blue data-[state=active]:text-white"
+                          >
                             <Gauge className="mr-2 h-4 w-4" />
                             Overview
                           </TabsTrigger>
-                          <TabsTrigger value="keyword">
+                          <TabsTrigger 
+                            value="keyword"
+                            className="data-[state=active]:bg-job-blue data-[state=active]:text-white"
+                          >
                             <Search className="mr-2 h-4 w-4" />
                             Keyword
                           </TabsTrigger>
-                          <TabsTrigger value="url">
+                          <TabsTrigger 
+                            value="url"
+                            className="data-[state=active]:bg-job-blue data-[state=active]:text-white"
+                          >
                             <LinkIcon className="mr-2 h-4 w-4" />
                             URL
                           </TabsTrigger>
-                          <TabsTrigger value="structure">
+                          <TabsTrigger 
+                            value="structure"
+                            className="data-[state=active]:bg-job-blue data-[state=active]:text-white"
+                          >
                             <Type className="mr-2 h-4 w-4" />
                             Structure
                           </TabsTrigger>
                         </TabsList>
                         
                         <TabsContent value="overview" className="space-y-4 mt-4">
-                          <div className="flex flex-col items-center justify-center py-4">
+                          <div className="flex flex-col items-center justify-center py-6">
                             <div className="relative">
                               <div 
-                                className={`h-32 w-32 rounded-full flex items-center justify-center border-8 ${
+                                className={`h-36 w-36 rounded-full flex items-center justify-center border-8 ${
                                   seoScore.score >= 80 ? 'border-green-500' : 
                                   seoScore.score >= 60 ? 'border-yellow-500' : 
                                   'border-red-500'
                                 }`}
                               >
-                                <span className="text-3xl font-bold">{seoScore.score}</span>
+                                <span className="text-4xl font-bold">{seoScore.score}</span>
                               </div>
                               <span 
-                                className={`text-sm font-semibold absolute -bottom-2 left-1/2 transform -translate-x-1/2 px-3 py-1 rounded-full ${
+                                className={`text-sm font-semibold absolute -bottom-2 left-1/2 transform -translate-x-1/2 px-4 py-1 rounded-full ${
                                   seoScore.rating === 'Excellent' ? 'bg-green-100 text-green-800' : 
                                   seoScore.rating === 'Good' ? 'bg-blue-100 text-blue-800' : 
                                   seoScore.rating === 'Average' ? 'bg-yellow-100 text-yellow-800' : 
@@ -352,26 +441,34 @@ const SEOAnalyzer: React.FC = () => {
                               </span>
                             </div>
                             
-                            <p className="mt-6 text-sm text-gray-500">
+                            <p className="mt-8 text-sm text-slate-600">
                               Your SEO score is {seoScore.score} out of {seoScore.maxScore} points.
                             </p>
                           </div>
                           
-                          <div className="bg-gray-50 rounded-lg p-4">
-                            <h3 className="font-medium mb-2">Improvement Suggestions</h3>
+                          <div className="bg-slate-50 rounded-lg p-6 shadow-inner">
+                            <h3 className="font-medium mb-4 flex items-center text-job-blue">
+                              <AlertTriangle className="h-5 w-5 mr-2" />
+                              Improvement Suggestions
+                            </h3>
                             {seoScore.suggestions.length > 0 ? (
-                              <ul className="space-y-2">
+                              <ul className="space-y-3">
                                 {seoScore.suggestions.map((suggestion: string, index: number) => (
-                                  <li key={index} className="flex items-start">
-                                    <AlertTriangle className="h-5 w-5 text-yellow-500 mr-2 flex-shrink-0 mt-0.5" />
+                                  <li key={index} className="flex items-start bg-white p-3 rounded-lg shadow-sm">
+                                    <AlertTriangle className="h-5 w-5 text-yellow-500 mr-3 flex-shrink-0 mt-0.5" />
                                     <span className="text-sm">{suggestion}</span>
                                   </li>
                                 ))}
                               </ul>
                             ) : (
-                              <p className="text-sm text-gray-600">
-                                Great job! No major SEO issues were found.
-                              </p>
+                              <div className="bg-green-50 p-4 rounded-lg border border-green-100">
+                                <div className="flex">
+                                  <Check className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
+                                  <p className="text-sm text-green-800">
+                                    Great job! No major SEO issues were found.
+                                  </p>
+                                </div>
+                              </div>
                             )}
                           </div>
                         </TabsContent>
@@ -538,12 +635,32 @@ const SEOAnalyzer: React.FC = () => {
                         </TabsContent>
                       </Tabs>
                     ) : (
-                      <div className="py-12 text-center">
-                        <Microscope className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                        <h3 className="text-xl font-medium mb-2">Ready to Analyze</h3>
-                        <p className="text-sm text-gray-500 max-w-md mx-auto">
-                          Enter your page URL, content, and target keyword, then run the analysis to get detailed SEO insights and recommendations.
+                      <div className="py-16 text-center">
+                        <div className="bg-blue-50 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
+                          <Microscope className="h-12 w-12 text-job-blue mx-auto" />
+                        </div>
+                        <h3 className="text-xl font-medium mb-3 text-job-blue">Ready to Analyze</h3>
+                        <p className="text-sm text-slate-600 max-w-md mx-auto">
+                          Enter your page URL, content, and target keyword, then run the analysis 
+                          to get detailed SEO insights and recommendations.
                         </p>
+                        <div className="mt-8">
+                          <Button 
+                            variant="outline" 
+                            onClick={() => {
+                              setUrl("https://example.com/my-page");
+                              setKeyword("digital marketing");
+                              setContent("This is a sample page about digital marketing strategies...");
+                              toast({
+                                title: "Example data added",
+                                description: "Sample data has been added to the fields",
+                              });
+                            }}
+                            className="border-job-blue text-job-blue hover:bg-job-blue/10"
+                          >
+                            Use Example Data
+                          </Button>
+                        </div>
                       </div>
                     )}
                   </CardContent>
