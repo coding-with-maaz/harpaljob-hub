@@ -11,7 +11,6 @@ const JobCategory = sequelize.define('JobCategory', {
   name: {
     type: DataTypes.STRING,
     allowNull: false,
-    unique: true,
     validate: {
       notEmpty: true
     }
@@ -19,7 +18,6 @@ const JobCategory = sequelize.define('JobCategory', {
   slug: {
     type: DataTypes.STRING,
     allowNull: false,
-    unique: true,
     validate: {
       notEmpty: true
     }
@@ -54,25 +52,34 @@ const JobCategory = sequelize.define('JobCategory', {
   indexes: [
     {
       unique: true,
-      fields: ['name']
-    },
-    {
-      unique: true,
       fields: ['slug']
-    },
-    {
-      fields: ['name', 'description'],
-      type: 'FULLTEXT'
     }
   ],
   hooks: {
     beforeCreate: async (category) => {
       if (category.name) {
+        // Check if name already exists
+        const existingCategory = await JobCategory.findOne({
+          where: { name: category.name }
+        });
+        if (existingCategory) {
+          throw new Error('A category with this name already exists');
+        }
         category.slug = slugify(category.name, { lower: true });
       }
     },
     beforeUpdate: async (category) => {
       if (category.changed('name')) {
+        // Check if new name already exists
+        const existingCategory = await JobCategory.findOne({
+          where: { 
+            name: category.name,
+            id: { [Op.ne]: category.id }
+          }
+        });
+        if (existingCategory) {
+          throw new Error('A category with this name already exists');
+        }
         category.slug = slugify(category.name, { lower: true });
       }
     }

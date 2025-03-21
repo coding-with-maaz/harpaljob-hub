@@ -1,11 +1,9 @@
-
 import React, { useState } from "react";
 import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import JobCard from "@/components/JobCard";
-import { jobs } from "@/lib/jobs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
@@ -28,80 +26,47 @@ import {
   ChevronDown,
   ArrowUpDown,
   Clock,
-  Building2
+  Building2,
+  SlidersHorizontal,
+  X
 } from "lucide-react";
-
-interface SearchFilters {
-  query: string;
-  location: string;
-  category: string;
-  employmentType: string;
-  sortBy: string;
-}
+import { useGetJobsQuery, useGetCategoriesQuery } from "@/lib/store/api";
+import type { JobFilters } from "@/lib/store/types";
 
 const Jobs = () => {
-  const [filters, setFilters] = useState<SearchFilters>({
+  const [filters, setFilters] = useState<JobFilters>({
     query: "",
     location: "",
     category: "",
     employmentType: "",
-    sortBy: "relevance"
+    sortBy: "relevance",
+    page: 1,
+    limit: 10
   });
   
-  const [filtersVisible, setFiltersVisible] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
   
-  // Filter jobs based on search criteria
-  const filteredJobs = jobs.filter(job => {
-    if (filters.query && !job.title.toLowerCase().includes(filters.query.toLowerCase()) && 
-        !job.company.toLowerCase().includes(filters.query.toLowerCase()) &&
-        !job.description.toLowerCase().includes(filters.query.toLowerCase())) {
-      return false;
-    }
-    
-    if (filters.location && job.location !== filters.location) {
-      return false;
-    }
-    
-    if (filters.category && job.category !== filters.category) {
-      return false;
-    }
-    
-    if (filters.employmentType && job.type !== filters.employmentType) {
-      return false;
-    }
-    
-    return true;
-  });
-  
-  // Sort jobs based on selected sort option
-  const sortedJobs = [...filteredJobs].sort((a, b) => {
-    if (filters.sortBy === "recent") {
-      return new Date(b.postedDate).getTime() - new Date(a.postedDate).getTime();
-    } else if (filters.sortBy === "salary-high") {
-      // Parse salary as string and compare
-      const salaryA = parseFloat(a.salary.replace(/[^0-9.-]+/g, "")) || 0;
-      const salaryB = parseFloat(b.salary.replace(/[^0-9.-]+/g, "")) || 0;
-      return salaryB - salaryA;
-    } else if (filters.sortBy === "salary-low") {
-      // Parse salary as string and compare
-      const salaryA = parseFloat(a.salary.replace(/[^0-9.-]+/g, "")) || 0;
-      const salaryB = parseFloat(b.salary.replace(/[^0-9.-]+/g, "")) || 0;
-      return salaryA - salaryB;
-    }
-    
-    // Default: relevance (no specific sorting)
-    return 0;
-  });
+  // Fetch jobs and categories using RTK Query
+  const { data: jobsData, isLoading, error } = useGetJobsQuery(filters);
+  const { data: categoriesData } = useGetCategoriesQuery();
   
   const toggleFilters = () => {
-    setFiltersVisible(!filtersVisible);
+    setShowFilters(!showFilters);
   };
   
-  const handleFilterChange = (key: keyof SearchFilters, value: string) => {
-    setFilters({
-      ...filters,
-      [key]: value
-    });
+  const handleFilterChange = (key: keyof JobFilters, value: string) => {
+    setFilters(prev => ({
+      ...prev,
+      [key]: value,
+      page: 1 // Reset to first page when filters change
+    }));
+  };
+  
+  const handlePageChange = (newPage: number) => {
+    setFilters(prev => ({
+      ...prev,
+      page: newPage
+    }));
   };
   
   return (
@@ -149,7 +114,7 @@ const Jobs = () => {
                     </Button>
                   </div>
                   
-                  <div className={`${filtersVisible ? 'block' : 'hidden'} mt-4 pt-4 border-t`}>
+                  <div className={`${showFilters ? 'block' : 'hidden'} mt-4 pt-4 border-t`}>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div className="space-y-2">
                         <label className="text-sm font-medium">Location</label>
@@ -175,11 +140,11 @@ const Jobs = () => {
                             <SelectValue placeholder="All Categories" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="Technology">Technology</SelectItem>
-                            <SelectItem value="Design">Design</SelectItem>
-                            <SelectItem value="Marketing">Marketing</SelectItem>
-                            <SelectItem value="Business">Business</SelectItem>
-                            <SelectItem value="Healthcare">Healthcare</SelectItem>
+                            {categoriesData?.data.map((category) => (
+                              <SelectItem key={category.id} value={category.id}>
+                                {category.name}
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </div>
@@ -212,14 +177,14 @@ const Jobs = () => {
                       className="text-muted-foreground"
                     >
                       <Filter className="h-4 w-4 mr-2" />
-                      {filtersVisible ? 'Hide Filters' : 'Show Filters'}
+                      {showFilters ? 'Hide Filters' : 'Show Filters'}
                     </Button>
                     
                     <div className="flex items-center space-x-2">
                       <span className="text-sm text-muted-foreground">Sort by:</span>
                       <Select
                         value={filters.sortBy}
-                        onValueChange={(value) => handleFilterChange('sortBy', value)}
+                        onValueChange={(value) => handleFilterChange('sortBy', value as JobFilters['sortBy'])}
                       >
                         <SelectTrigger className="w-[160px] h-8 text-sm">
                           <SelectValue placeholder="Relevance" />
@@ -246,7 +211,7 @@ const Jobs = () => {
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
                     <h2 className="text-xl font-semibold">
-                      {sortedJobs.length} Jobs Found
+                      {jobsData?.pagination.total || 0} Jobs Found
                     </h2>
                     <div className="flex items-center text-sm text-muted-foreground">
                       <Clock className="h-4 w-4 mr-2" />
@@ -254,9 +219,20 @@ const Jobs = () => {
                     </div>
                   </div>
                   
-                  {sortedJobs.length > 0 ? (
+                  {isLoading ? (
+                    <div className="text-center py-12">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-job-blue mx-auto"></div>
+                    </div>
+                  ) : error ? (
+                    <div className="text-center py-12 bg-red-50 rounded-xl">
+                      <h3 className="text-xl font-semibold mb-2 text-red-600">Error Loading Jobs</h3>
+                      <p className="text-red-600 mb-6">
+                        There was an error loading the jobs. Please try again later.
+                      </p>
+                    </div>
+                  ) : jobsData?.data.jobs.length ? (
                     <div className="space-y-4">
-                      {sortedJobs.map((job) => (
+                      {jobsData.data.jobs.map((job) => (
                         <JobCard key={job.id} job={job} />
                       ))}
                     </div>
@@ -274,7 +250,9 @@ const Jobs = () => {
                           location: "",
                           category: "",
                           employmentType: "",
-                          sortBy: "relevance"
+                          sortBy: "relevance",
+                          page: 1,
+                          limit: 10
                         })}
                       >
                         Clear Filters
@@ -282,15 +260,34 @@ const Jobs = () => {
                     </div>
                   )}
                   
-                  {sortedJobs.length > 0 && (
+                  {jobsData?.pagination.pages > 1 && (
                     <div className="flex justify-center mt-8">
-                      <Button variant="outline" className="mr-2">Previous</Button>
-                      <Button variant="outline" className="mx-1">1</Button>
-                      <Button className="mx-1">2</Button>
-                      <Button variant="outline" className="mx-1">3</Button>
-                      <div className="mx-1 flex items-center">...</div>
-                      <Button variant="outline" className="mx-1">10</Button>
-                      <Button variant="outline" className="ml-2">Next</Button>
+                      <Button 
+                        variant="outline" 
+                        className="mr-2"
+                        onClick={() => handlePageChange(filters.page - 1)}
+                        disabled={filters.page === 1}
+                      >
+                        Previous
+                      </Button>
+                      {Array.from({ length: jobsData.pagination.pages }, (_, i) => i + 1).map((page) => (
+                        <Button
+                          key={page}
+                          variant={filters.page === page ? "default" : "outline"}
+                          className="mx-1"
+                          onClick={() => handlePageChange(page)}
+                        >
+                          {page}
+                        </Button>
+                      ))}
+                      <Button 
+                        variant="outline" 
+                        className="ml-2"
+                        onClick={() => handlePageChange(filters.page + 1)}
+                        disabled={filters.page === jobsData.pagination.pages}
+                      >
+                        Next
+                      </Button>
                     </div>
                   )}
                 </div>
@@ -311,18 +308,14 @@ const Jobs = () => {
                             Top Companies Hiring
                           </h3>
                           <ul className="space-y-2 text-sm">
-                            <li className="flex items-center justify-between">
-                              <span>TechCorp</span>
-                              <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">24 jobs</span>
-                            </li>
-                            <li className="flex items-center justify-between">
-                              <span>DesignHub</span>
-                              <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">18 jobs</span>
-                            </li>
-                            <li className="flex items-center justify-between">
-                              <span>Marketing Pro</span>
-                              <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">15 jobs</span>
-                            </li>
+                            {jobsData?.data.trending.companies.map((company) => (
+                              <li key={company.company} className="flex items-center justify-between">
+                                <span>{company.company}</span>
+                                <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                                  {company.jobCount} jobs
+                                </span>
+                              </li>
+                            ))}
                           </ul>
                         </div>
                         
@@ -332,21 +325,17 @@ const Jobs = () => {
                             Popular Job Searches
                           </h3>
                           <div className="flex flex-wrap gap-2">
-                            <Button variant="outline" size="sm" className="rounded-full text-xs">
-                              Remote Jobs
-                            </Button>
-                            <Button variant="outline" size="sm" className="rounded-full text-xs">
-                              Software Engineer
-                            </Button>
-                            <Button variant="outline" size="sm" className="rounded-full text-xs">
-                              UX Designer
-                            </Button>
-                            <Button variant="outline" size="sm" className="rounded-full text-xs">
-                              Marketing Manager
-                            </Button>
-                            <Button variant="outline" size="sm" className="rounded-full text-xs">
-                              Data Analyst
-                            </Button>
+                            {jobsData?.data.trending.searches.map((search) => (
+                              <Button 
+                                key={search.title}
+                                variant="outline" 
+                                size="sm" 
+                                className="rounded-full text-xs"
+                                onClick={() => handleFilterChange('query', search.title)}
+                              >
+                                {search.title}
+                              </Button>
+                            ))}
                           </div>
                         </div>
                       </div>
@@ -356,36 +345,17 @@ const Jobs = () => {
                       <div className="bg-slate-50 p-4 rounded-lg">
                         <h3 className="font-medium mb-3">Job Categories</h3>
                         <ul className="space-y-2 text-sm">
-                          <li>
-                            <Link to="/category/technology" className="flex items-center justify-between hover:text-job-blue transition-colors">
-                              <span>Technology</span>
-                              <ArrowRight className="h-4 w-4" />
-                            </Link>
-                          </li>
-                          <li>
-                            <Link to="/category/design" className="flex items-center justify-between hover:text-job-blue transition-colors">
-                              <span>Design</span>
-                              <ArrowRight className="h-4 w-4" />
-                            </Link>
-                          </li>
-                          <li>
-                            <Link to="/category/marketing" className="flex items-center justify-between hover:text-job-blue transition-colors">
-                              <span>Marketing</span>
-                              <ArrowRight className="h-4 w-4" />
-                            </Link>
-                          </li>
-                          <li>
-                            <Link to="/category/business" className="flex items-center justify-between hover:text-job-blue transition-colors">
-                              <span>Business</span>
-                              <ArrowRight className="h-4 w-4" />
-                            </Link>
-                          </li>
-                          <li>
-                            <Link to="/category/healthcare" className="flex items-center justify-between hover:text-job-blue transition-colors">
-                              <span>Healthcare</span>
-                              <ArrowRight className="h-4 w-4" />
-                            </Link>
-                          </li>
+                          {categoriesData?.data.map((category) => (
+                            <li key={category.id}>
+                              <Link 
+                                to={`/category/${category.id}`} 
+                                className="flex items-center justify-between hover:text-job-blue transition-colors"
+                              >
+                                <span>{category.name}</span>
+                                <ArrowRight className="h-4 w-4" />
+                              </Link>
+                            </li>
+                          ))}
                         </ul>
                         <div className="mt-3 pt-3 border-t">
                           <Link 

@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { CalendarDays, MapPin, Building, Clock } from 'lucide-react';
-import { Job } from '@/lib/types';
+import { Job } from '@/lib/store/types';
 import { cn } from '@/lib/utils';
 
 interface JobCardProps {

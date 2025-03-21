@@ -23,17 +23,17 @@ const getJobs = async (req, res) => {
     // Search query (title, company, or description)
     if (query) {
       where[Op.or] = [
-        { title: { [Op.iLike]: `%${query}%` } },
-        { company: { [Op.iLike]: `%${query}%` } },
-        { description: { [Op.iLike]: `%${query}%` } }
+        { title: { [Op.like]: `%${query}%` } },
+        { company: { [Op.like]: `%${query}%` } },
+        { description: { [Op.like]: `%${query}%` } }
       ];
     }
 
     // Location filter
     if (location) {
       where[Op.or] = [
-        { location: { [Op.iLike]: `%${location}%` } },
-        { country: { [Op.iLike]: `%${location}%` } }
+        { location: { [Op.like]: `%${location}%` } },
+        { country: { [Op.like]: `%${location}%` } }
       ];
     }
 
@@ -62,17 +62,19 @@ const getJobs = async (req, res) => {
         order = [['postedDate', 'DESC']];
         break;
       case 'salary-high':
-        // Using a custom sorting for salary strings
-        order = [[literal(`CAST(REGEXP_REPLACE(salary, '[^0-9]', '', 'g') AS INTEGER)`), 'DESC']];
+        order = [['salary', 'DESC']];
         break;
       case 'salary-low':
-        order = [[literal(`CAST(REGEXP_REPLACE(salary, '[^0-9]', '', 'g') AS INTEGER)`), 'ASC']];
+        order = [['salary', 'ASC']];
         break;
       case 'relevance':
       default:
         if (query) {
-          // If there's a search query, order by relevance using similarity
-          order = [[literal(`similarity(title, '${query}') + similarity(description, '${query}')`), 'DESC']];
+          // If there's a search query, order by title match first, then by date
+          order = [
+            [literal(`CASE WHEN title LIKE '%${query}%' THEN 1 ELSE 2 END`)],
+            ['postedDate', 'DESC']
+          ];
         } else {
           // Default to most recent if no search query
           order = [['postedDate', 'DESC']];
@@ -108,7 +110,7 @@ const getJobs = async (req, res) => {
         [literal('COUNT(*)'), 'jobCount']
       ],
       group: ['company'],
-      order: [[literal('jobCount'), 'DESC']],
+      order: [[literal('COUNT(*)'), 'DESC']],
       limit: 5
     });
 
@@ -120,7 +122,7 @@ const getJobs = async (req, res) => {
         [literal('COUNT(*)'), 'count']
       ],
       group: ['title'],
-      order: [[literal('count'), 'DESC']],
+      order: [[literal('COUNT(*)'), 'DESC']],
       limit: 5
     });
 
