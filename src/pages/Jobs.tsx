@@ -66,7 +66,7 @@ const Jobs = () => {
       return false;
     }
     
-    if (filters.employmentType && job.employmentType !== filters.employmentType) {
+    if (filters.employmentType && job.type !== filters.employmentType) {
       return false;
     }
     
@@ -78,9 +78,15 @@ const Jobs = () => {
     if (filters.sortBy === "recent") {
       return new Date(b.postedDate).getTime() - new Date(a.postedDate).getTime();
     } else if (filters.sortBy === "salary-high") {
-      return (b.salaryMax || 0) - (a.salaryMax || 0);
+      // Parse salary as string and compare
+      const salaryA = parseFloat(a.salary.replace(/[^0-9.-]+/g, "")) || 0;
+      const salaryB = parseFloat(b.salary.replace(/[^0-9.-]+/g, "")) || 0;
+      return salaryB - salaryA;
     } else if (filters.sortBy === "salary-low") {
-      return (a.salaryMin || 0) - (b.salaryMin || 0);
+      // Parse salary as string and compare
+      const salaryA = parseFloat(a.salary.replace(/[^0-9.-]+/g, "")) || 0;
+      const salaryB = parseFloat(b.salary.replace(/[^0-9.-]+/g, "")) || 0;
+      return salaryA - salaryB;
     }
     
     // Default: relevance (no specific sorting)
@@ -169,7 +175,6 @@ const Jobs = () => {
                             <SelectValue placeholder="All Categories" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="">All Categories</SelectItem>
                             <SelectItem value="Technology">Technology</SelectItem>
                             <SelectItem value="Design">Design</SelectItem>
                             <SelectItem value="Marketing">Marketing</SelectItem>
@@ -189,7 +194,6 @@ const Jobs = () => {
                             <SelectValue placeholder="All Types" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="">All Types</SelectItem>
                             <SelectItem value="full-time">Full-time</SelectItem>
                             <SelectItem value="part-time">Part-time</SelectItem>
                             <SelectItem value="contract">Contract</SelectItem>

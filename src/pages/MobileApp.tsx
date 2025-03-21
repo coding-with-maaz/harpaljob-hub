@@ -20,7 +20,8 @@ import {
   Download,
   Zap,
   Users,
-  Shield
+  Shield,
+  Briefcase
 } from "lucide-react";
 
 const MobileApp = () => {
