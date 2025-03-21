@@ -92,6 +92,20 @@ const Jobs = () => {
     }));
   };
   
+  // Type guard for sort parameter
+  const isValidSortBy = (value: string): value is 'relevance' | 'recent' | 'salary-high' | 'salary-low' | 'popular' | 'deadline' => {
+    return ['relevance', 'recent', 'salary-high', 'salary-low', 'popular', 'deadline'].includes(value);
+  };
+  
+  // Get URL parameters
+  const page = parseInt(searchParams.get('page') || '1');
+  const searchTerm = searchParams.get('search') || '';
+  const location = searchParams.get('location') || '';
+  const jobType = searchParams.get('type') || '';
+  const sortParam = searchParams.get('sort') || 'recent';
+  const sortBy = isValidSortBy(sortParam) ? sortParam : 'recent';
+  const remoteOnly = searchParams.get('remote') === 'true';
+  
   return (
     <>
       <Helmet>

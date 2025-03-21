@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useSearchParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import JobCard from "@/components/JobCard";
@@ -35,8 +34,8 @@ import {
   LayoutGrid,
   List
 } from "lucide-react";
-import { jobs, getJobsByCategory } from "@/lib/jobs";
-import { Job } from "@/lib/types";
+import { useGetJobsByCategoryQuery } from "@/lib/store/api";
+import type { Job } from "@/lib/store/types";
 
 // Category metadata with icons and colors
 const categoryMetadata: Record<string, { 
@@ -141,29 +140,22 @@ const formatSalary = (amount: number) => {
   }).format(amount);
 };
 
-// Parse salary strings like "$120,000 - $150,000" into min and max numbers
-const parseSalaryRange = (salaryString: string): [number, number] => {
-  const matches = salaryString.match(/\$(\d+,*\d*)\s*-\s*\$(\d+,*\d*)/);
-  if (matches && matches.length >= 3) {
-    const min = parseInt(matches[1].replace(/,/g, ''), 10);
-    const max = parseInt(matches[2].replace(/,/g, ''), 10);
-    return [min, max];
-  }
-  return [0, 150000]; // Default range if parsing fails
-};
-
 const CategoryResults = () => {
   const { categoryId } = useParams<{ categoryId: string }>();
+  const [searchParams, setSearchParams] = useSearchParams();
   const isMobile = useIsMobile();
   
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedLocation, setSelectedLocation] = useState("");
-  const [selectedJobType, setSelectedJobType] = useState("");
-  const [salaryRange, setSalaryRange] = useState([0, 150000]);
-  const [showRemoteOnly, setShowRemoteOnly] = useState(false);
+  // Get URL parameters
+  const page = parseInt(searchParams.get('page') || '1');
+  const searchTerm = searchParams.get('search') || '';
+  const location = searchParams.get('location') || '';
+  const jobType = searchParams.get('type') || '';
+  const sortBy = searchParams.get('sort') || 'recent';
+  const remoteOnly = searchParams.get('remote') === 'true';
+  
+  // State for filters
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
-  const [isLoading, setIsLoading] = useState(true);
   
   // Get category metadata or set fallback values
   const categoryMeta = categoryId && categoryMetadata[categoryId] 
@@ -179,72 +171,49 @@ const CategoryResults = () => {
   // Set title and SEO metadata
   const pageTitle = `${categoryMeta.name} Jobs | Find Your Next Career`;
   
-  // Simulate loading
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 800);
-    
-    return () => clearTimeout(timer);
-  }, []);
-  
-  // Get all jobs
-  const allJobs = jobs;
-  
-  // Filter jobs based on category and other filters
-  const filteredJobs = allJobs.filter((job) => {
-    // Category filter - basic fuzzy match
-    const categoryMatch = !categoryId || 
-      job.category.toLowerCase() === categoryId.toLowerCase() ||
-      job.category.toLowerCase().includes(categoryId.toLowerCase()) ||
-      categoryId.toLowerCase().includes(job.category.toLowerCase());
-    
-    // Text search (title, company, description)
-    const searchMatch = !searchTerm || 
-      job.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-      job.company.toLowerCase().includes(searchTerm.toLowerCase()) || 
-      job.description.toLowerCase().includes(searchTerm.toLowerCase());
-      
-    // Location filter
-    const locationMatch = !selectedLocation || job.location === selectedLocation;
-    
-    // Job type filter
-    const jobTypeMatch = !selectedJobType || job.type === selectedJobType;
-    
-    // Salary range filter
-    const [jobSalaryMin, jobSalaryMax] = parseSalaryRange(job.salary);
-    const salaryMatch = (jobSalaryMin >= salaryRange[0] && jobSalaryMax <= salaryRange[1]);
-    
-    // Remote filter - check if location contains "Remote"
-    const isRemote = job.location.toLowerCase().includes("remote");
-    const remoteMatch = !showRemoteOnly || isRemote;
-    
-    return categoryMatch && searchMatch && locationMatch && jobTypeMatch && salaryMatch && remoteMatch;
+  // Fetch jobs using RTK Query
+  const { data: jobsData, isLoading, error } = useGetJobsByCategoryQuery({
+    categoryId: categoryId || '',
+    page,
+    limit: 10,
+    sortBy,
+    query: searchTerm,
+    location,
+    employmentType: jobType,
+    remoteOnly
   });
   
-  // Get unique locations and job types for filters
-  const locations = Array.from(new Set(jobs.map(job => job.location)));
-  const jobTypes = Array.from(new Set(jobs.map(job => job.type)));
+  // Get jobs and pagination info
+  const jobs = jobsData?.data.jobs || [];
+  const totalJobs = jobsData?.data.pagination.total || 0;
+  const totalPages = jobsData?.data.pagination.pages || 1;
+  
+  // Handle filter changes
+  const handleFilterChange = (newParams: Record<string, string>) => {
+    const currentParams = Object.fromEntries(searchParams.entries());
+    setSearchParams({
+      ...currentParams,
+      ...newParams,
+      page: '1' // Reset to first page when filters change
+    });
+  };
   
   // Create structured data for job listings
   const jobsStructuredData = generateJobListingStructuredData(
-    filteredJobs.map(job => {
-      const [salaryMin, salaryMax] = parseSalaryRange(job.salary);
-      return {
-        title: job.title,
-        description: job.description,
-        datePosted: job.postedDate,
-        validThrough: new Date(new Date(job.postedDate).setMonth(new Date(job.postedDate).getMonth() + 3)).toISOString(),
-        employmentType: job.type.toUpperCase(),
-        company: job.company,
-        companyLogo: job.logo,
-        location: job.location,
-        salaryMin: salaryMin,
-        salaryMax: salaryMax,
-        currency: "USD",
-        salaryUnit: "YEAR"
-      }
-    })
+    jobs.map(job => ({
+      title: job.title,
+      description: job.description,
+      datePosted: job.postedDate,
+      validThrough: new Date(new Date(job.postedDate).setMonth(new Date(job.postedDate).getMonth() + 3)).toISOString(),
+      employmentType: job.type.toUpperCase(),
+      company: job.company,
+      companyLogo: job.logo || '',
+      location: job.location,
+      salaryMin: job.salaryMin,
+      salaryMax: job.salaryMax,
+      currency: "USD",
+      salaryUnit: "YEAR"
+    }))
   );
 
   // Category icon component
@@ -298,7 +267,7 @@ const CategoryResults = () => {
                     placeholder="Search job titles or keywords"
                     className="pl-10"
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onChange={(e) => handleFilterChange({ search: e.target.value })}
                   />
                 </div>
                 <div className="flex gap-2">
@@ -330,60 +299,43 @@ const CategoryResults = () => {
                 
                 <div className="p-4 border-b border-gray-200">
                   <h3 className="font-medium mb-3">Location</h3>
-                  <Select value={selectedLocation} onValueChange={setSelectedLocation}>
+                  <Select value={location} onValueChange={(value) => handleFilterChange({ location: value })}>
                     <SelectTrigger>
                       <SelectValue placeholder="Any Location" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="">Any Location</SelectItem>
-                      {locations.map((location) => (
-                        <SelectItem key={location} value={location}>
-                          {location}
-                        </SelectItem>
-                      ))}
+                      <SelectItem value="remote">Remote</SelectItem>
+                      <SelectItem value="new-york">New York</SelectItem>
+                      <SelectItem value="san-francisco">San Francisco</SelectItem>
+                      <SelectItem value="los-angeles">Los Angeles</SelectItem>
+                      <SelectItem value="chicago">Chicago</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 
                 <div className="p-4 border-b border-gray-200">
                   <h3 className="font-medium mb-3">Job Type</h3>
-                  <Select value={selectedJobType} onValueChange={setSelectedJobType}>
+                  <Select value={jobType} onValueChange={(value) => handleFilterChange({ type: value })}>
                     <SelectTrigger>
                       <SelectValue placeholder="Any Job Type" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="">Any Job Type</SelectItem>
-                      {jobTypes.map((type) => (
-                        <SelectItem key={type} value={type}>
-                          {type.charAt(0).toUpperCase() + type.slice(1)}
-                        </SelectItem>
-                      ))}
+                      <SelectItem value="full-time">Full Time</SelectItem>
+                      <SelectItem value="part-time">Part Time</SelectItem>
+                      <SelectItem value="contract">Contract</SelectItem>
+                      <SelectItem value="internship">Internship</SelectItem>
                     </SelectContent>
                   </Select>
-                </div>
-                
-                <div className="p-4 border-b border-gray-200">
-                  <h3 className="font-medium mb-4">Salary Range</h3>
-                  <Slider
-                    value={salaryRange}
-                    min={0}
-                    max={200000}
-                    step={10000}
-                    onValueChange={setSalaryRange}
-                    className="my-6"
-                  />
-                  <div className="flex justify-between text-sm text-gray-500">
-                    <span>{formatSalary(salaryRange[0])}</span>
-                    <span>{formatSalary(salaryRange[1])}</span>
-                  </div>
                 </div>
                 
                 <div className="p-4">
                   <div className="flex items-center space-x-2">
                     <Checkbox 
                       id="remote-only" 
-                      checked={showRemoteOnly}
-                      onCheckedChange={(checked) => setShowRemoteOnly(checked as boolean)}
+                      checked={remoteOnly}
+                      onCheckedChange={(checked) => handleFilterChange({ remote: checked ? 'true' : 'false' })}
                     />
                     <label
                       htmlFor="remote-only"
@@ -411,7 +363,7 @@ const CategoryResults = () => {
                     {isLoading ? (
                       <Skeleton className="h-6 w-40" />
                     ) : (
-                      `${filteredJobs.length} Jobs Found`
+                      `${totalJobs} Jobs Found`
                     )}
                   </h2>
                   <div className="flex items-center gap-3">
@@ -433,15 +385,18 @@ const CategoryResults = () => {
                         <LayoutGrid className="h-4 w-4" />
                       </Button>
                     </div>
-                    <Select defaultValue="newest">
+                    <Select 
+                      value={sortBy} 
+                      onValueChange={(value) => handleFilterChange({ sort: value })}
+                    >
                       <SelectTrigger className="w-[180px]">
                         <SelectValue placeholder="Sort by" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="newest">Newest First</SelectItem>
-                        <SelectItem value="oldest">Oldest First</SelectItem>
+                        <SelectItem value="recent">Newest First</SelectItem>
                         <SelectItem value="salary-high">Highest Salary</SelectItem>
                         <SelectItem value="salary-low">Lowest Salary</SelectItem>
+                        <SelectItem value="relevance">Most Relevant</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -467,17 +422,24 @@ const CategoryResults = () => {
                       </div>
                     ))}
                   </div>
+                ) : error ? (
+                  <div className="text-center py-12 bg-red-50 rounded-xl">
+                    <h3 className="text-xl font-semibold mb-2 text-red-600">Error Loading Jobs</h3>
+                    <p className="text-red-600 mb-6">
+                      There was an error loading the job listings. Please try again later.
+                    </p>
+                  </div>
                 ) : (
                   <>
                     {viewMode === "list" ? (
                       // List view
                       <div className="space-y-6">
-                        {filteredJobs.map((job: Job, index: number) => (
+                        {jobs.map((job: Job, index: number) => (
                           <React.Fragment key={job.id}>
                             <JobCard job={job} />
                             
                             {/* Insert ad after every 3 job listings */}
-                            {(index + 1) % 3 === 0 && index < filteredJobs.length - 1 && (
+                            {(index + 1) % 3 === 0 && index < jobs.length - 1 && (
                               <AdBanner
                                 id={`inline-ad-${Math.floor(index / 3)}`}
                                 position="inline"
@@ -492,12 +454,12 @@ const CategoryResults = () => {
                     ) : (
                       // Grid view
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {filteredJobs.map((job: Job, index: number) => (
+                        {jobs.map((job: Job, index: number) => (
                           <React.Fragment key={job.id}>
                             <JobCard job={job} featured={true} />
                             
                             {/* Insert ad after every 4 job listings */}
-                            {(index + 1) % 4 === 0 && index < filteredJobs.length - 1 && (
+                            {(index + 1) % 4 === 0 && index < jobs.length - 1 && (
                               <div className="md:col-span-2">
                                 <AdBanner
                                   id={`inline-grid-ad-${Math.floor(index / 4)}`}
@@ -513,20 +475,47 @@ const CategoryResults = () => {
                       </div>
                     )}
                     
-                    {filteredJobs.length === 0 && (
+                    {jobs.length === 0 && (
                       <div className="text-center py-12 bg-gray-50 rounded-lg">
                         <p className="text-gray-500 mb-2">No jobs match your search criteria</p>
                         <Button 
                           variant="outline" 
                           onClick={() => {
-                            setSearchTerm("");
-                            setSelectedLocation("");
-                            setSelectedJobType("");
-                            setSalaryRange([0, 150000]);
-                            setShowRemoteOnly(false);
+                            setSearchParams({});
                           }}
                         >
                           Clear Filters
+                        </Button>
+                      </div>
+                    )}
+                    
+                    {/* Pagination */}
+                    {totalPages > 1 && (
+                      <div className="flex justify-center gap-2 mt-8">
+                        <Button
+                          variant="outline"
+                          onClick={() => handleFilterChange({ page: (page - 1).toString() })}
+                          disabled={page === 1}
+                        >
+                          Previous
+                        </Button>
+                        <div className="flex items-center gap-1">
+                          {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                            <Button
+                              key={pageNum}
+                              variant={pageNum === page ? "default" : "outline"}
+                              onClick={() => handleFilterChange({ page: pageNum.toString() })}
+                            >
+                              {pageNum}
+                            </Button>
+                          ))}
+                        </div>
+                        <Button
+                          variant="outline"
+                          onClick={() => handleFilterChange({ page: (page + 1).toString() })}
+                          disabled={page === totalPages}
+                        >
+                          Next
                         </Button>
                       </div>
                     )}

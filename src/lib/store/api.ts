@@ -42,6 +42,20 @@ interface UserResponse {
   data: User;
 }
 
+interface JobsByCategoryResponse {
+  success: boolean;
+  data: {
+    jobs: Job[];
+    category: JobCategory;
+    pagination: {
+      total: number;
+      page: number;
+      pages: number;
+      hasMore: boolean;
+    };
+  };
+}
+
 // Create the API
 export const api = createApi({
   reducerPath: 'api',
@@ -63,6 +77,32 @@ export const api = createApi({
         url: 'jobs',
         method: 'GET',
         params: filters,
+      }),
+      providesTags: ['Jobs'],
+    }),
+
+    getJobsByCategory: builder.query<JobsByCategoryResponse, { 
+      categoryId: string;
+      page?: number;
+      limit?: number;
+      sortBy?: string;
+      query?: string;
+      location?: string;
+      employmentType?: string;
+      remoteOnly?: boolean;
+    }>({
+      query: (params) => ({
+        url: `jobs/category/${params.categoryId}`,
+        method: 'GET',
+        params: {
+          page: params.page,
+          limit: params.limit,
+          sortBy: params.sortBy,
+          query: params.query,
+          location: params.location,
+          employmentType: params.employmentType,
+          remoteOnly: params.remoteOnly
+        },
       }),
       providesTags: ['Jobs'],
     }),
@@ -150,6 +190,7 @@ export const api = createApi({
 // Export hooks
 export const {
   useGetJobsQuery,
+  useGetJobsByCategoryQuery,
   useGetFeaturedJobsQuery,
   useGetLatestJobsQuery,
   useGetJobQuery,

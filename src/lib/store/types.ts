@@ -4,32 +4,28 @@ export interface Job {
   description: string;
   company: string;
   location: string;
-  country: string;
-  salary: string;
-  type: 'full-time' | 'part-time' | 'contract' | 'internship';
-  categoryId: string;
-  categoryName: string;
-  requirements: string[];
-  responsibilities: string[];
-  benefits: string[];
-  status: 'active' | 'inactive' | 'draft';
-  featured: boolean;
-  views: number;
+  type: string;
+  salary: number;
+  salaryMin: number;
+  salaryMax: number;
+  logo?: string;
   postedDate: string;
-  deadline: string;
+  categoryId: string;
   employerId: string;
-  employer?: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    companyName: string;
-  };
-  jobCategory?: {
-    id: string;
-    name: string;
-    icon: string;
-  };
+  requirements: string[];
+  benefits: string[];
+  status: 'active' | 'closed' | 'draft';
+  isFeatured: boolean;
+  isRemote: boolean;
+  experience: string;
+  education: string;
+  skills: string[];
+  applicationsCount: number;
+  viewsCount: number;
+  createdAt: string;
+  updatedAt: string;
+  category?: JobCategory;
+  employer?: User;
 }
 
 export interface JobResponse {
@@ -77,10 +73,11 @@ export interface JobFilters {
   location?: string;
   category?: string;
   employmentType?: string;
-  sortBy?: 'relevance' | 'recent' | 'salary-high' | 'salary-low';
+  sortBy?: 'relevance' | 'recent' | 'salary-high' | 'salary-low' | 'popular' | 'deadline';
   page?: number;
   limit?: number;
   featured?: boolean;
+  remoteOnly?: boolean;
 }
 
 export interface Pagination {

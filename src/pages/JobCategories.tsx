@@ -1,18 +1,48 @@
-
 import React, { useState } from "react";
 import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import JobCategoriesList from "@/components/JobCategoriesList";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Briefcase, SearchIcon, Lightbulb } from "lucide-react";
+import { Briefcase, SearchIcon, Lightbulb, Building2, Code2, Palette, BarChart3, Headphones, PiggyBank } from "lucide-react";
+import { useGetCategoriesQuery } from "@/lib/store/api";
+import type { JobCategory } from "@/lib/store/types";
 
 const JobCategories = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [layout, setLayout] = useState<"grid" | "list" | "pills">("grid");
+  
+  // Fetch categories using RTK Query
+  const { data: categoriesData, isLoading, error } = useGetCategoriesQuery();
+  
+  // Filter categories based on search term
+  const filteredCategories = categoriesData?.data.filter(category => 
+    category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    category.description.toLowerCase().includes(searchTerm.toLowerCase())
+  ) || [];
+  
+  // Get category icon based on name
+  const getCategoryIcon = (categoryName: string) => {
+    const name = categoryName.toLowerCase();
+    if (name.includes('tech') || name.includes('software') || name.includes('developer')) {
+      return <Code2 className="h-6 w-6" />;
+    }
+    if (name.includes('design') || name.includes('creative')) {
+      return <Palette className="h-6 w-6" />;
+    }
+    if (name.includes('marketing') || name.includes('sales')) {
+      return <BarChart3 className="h-6 w-6" />;
+    }
+    if (name.includes('customer') || name.includes('support')) {
+      return <Headphones className="h-6 w-6" />;
+    }
+    if (name.includes('finance') || name.includes('accounting')) {
+      return <PiggyBank className="h-6 w-6" />;
+    }
+    return <Building2 className="h-6 w-6" />;
+  };
   
   return (
     <>
@@ -81,7 +111,75 @@ const JobCategories = () => {
                 </div>
               </div>
               
-              <JobCategoriesList layout={layout} searchTerm={searchTerm} />
+              {isLoading ? (
+                <div className="text-center py-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-job-blue mx-auto"></div>
+                </div>
+              ) : error ? (
+                <div className="text-center py-12 bg-red-50 rounded-xl">
+                  <h3 className="text-xl font-semibold mb-2 text-red-600">Error Loading Categories</h3>
+                  <p className="text-red-600 mb-6">
+                    There was an error loading the job categories. Please try again later.
+                  </p>
+                </div>
+              ) : filteredCategories.length > 0 ? (
+                <div className={`grid gap-6 ${
+                  layout === "grid" ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" :
+                  layout === "list" ? "grid-cols-1" :
+                  "grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+                }`}>
+                  {filteredCategories.map((category) => (
+                    <Link
+                      key={category.id}
+                      to={`/jobs?category=${category.id}`}
+                      className={`group ${
+                        layout === "pills" 
+                          ? "bg-white rounded-full px-6 py-3 text-center hover:bg-job-blue hover:text-white transition-colors"
+                          : "bg-white rounded-xl p-6 hover:shadow-md transition-shadow"
+                      }`}
+                    >
+                      <div className={`flex items-center gap-4 ${
+                        layout === "pills" ? "justify-center" : ""
+                      }`}>
+                        <div className={`p-3 rounded-full ${
+                          layout === "pills" 
+                            ? "bg-job-blue/10 text-job-blue group-hover:bg-white/20 group-hover:text-white"
+                            : "bg-job-blue/10 text-job-blue"
+                        }`}>
+                          {getCategoryIcon(category.name)}
+                        </div>
+                        <div className="flex-1">
+                          <h3 className={`font-medium ${
+                            layout === "pills" ? "text-sm" : "text-lg"
+                          }`}>
+                            {category.name}
+                          </h3>
+                          {layout !== "pills" && (
+                            <p className="text-sm text-muted-foreground mt-1">
+                              {category.description}
+                            </p>
+                          )}
+                        </div>
+                        <div className={`text-sm ${
+                          layout === "pills" 
+                            ? "bg-job-blue/10 text-job-blue group-hover:bg-white/20 group-hover:text-white"
+                            : "text-muted-foreground"
+                        }`}>
+                          {category.jobCount} jobs
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12 bg-slate-50 rounded-xl">
+                  <Briefcase className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold mb-2">No Categories Found</h3>
+                  <p className="text-muted-foreground">
+                    We couldn't find any categories matching your search.
+                  </p>
+                </div>
+              )}
             </div>
           </section>
           
