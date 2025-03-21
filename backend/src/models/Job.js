@@ -35,7 +35,15 @@ const Job = sequelize.define('Job', {
     type: DataTypes.ENUM('full-time', 'part-time', 'contract', 'internship'),
     allowNull: false
   },
-  category: {
+  categoryId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: 'job_categories',
+      key: 'id'
+    }
+  },
+  categoryName: {
     type: DataTypes.STRING,
     allowNull: false
   },
@@ -94,6 +102,32 @@ const Job = sequelize.define('Job', {
   views: {
     type: DataTypes.INTEGER,
     defaultValue: 0
+  }
+}, {
+  tableName: 'jobs',
+  timestamps: true,
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+});
+
+// Add hooks to sync category name with JobCategory
+Job.beforeCreate(async (job) => {
+  if (job.categoryId) {
+    const JobCategory = require('./JobCategory');
+    const category = await JobCategory.findByPk(job.categoryId);
+    if (category) {
+      job.categoryName = category.name;
+    }
+  }
+});
+
+Job.beforeUpdate(async (job) => {
+  if (job.changed('categoryId')) {
+    const JobCategory = require('./JobCategory');
+    const category = await JobCategory.findByPk(job.categoryId);
+    if (category) {
+      job.categoryName = category.name;
+    }
   }
 });
 

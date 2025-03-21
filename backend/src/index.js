@@ -10,6 +10,7 @@ const userRoutes = require('./routes/users');
 const jobRoutes = require('./routes/jobs');
 const applicationRoutes = require('./routes/applications');
 const savedJobRoutes = require('./routes/savedJobs');
+const jobCategoryRoutes = require('./routes/jobCategoryRoutes');
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/jobs', jobRoutes);
 app.use('/api/applications', applicationRoutes);
 app.use('/api/saved-jobs', savedJobRoutes);
+app.use('/api/job-categories', jobCategoryRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

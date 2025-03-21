@@ -6,11 +6,15 @@ const {
   getJob,
   createJob,
   updateJob,
-  deleteJob
+  deleteJob,
+  getFeaturedJobs,
+  getLatestJobs
 } = require('../controllers/jobController');
 
 // Public routes
 router.get('/', getJobs);
+router.get('/featured', getFeaturedJobs);
+router.get('/latest', getLatestJobs);
 router.get('/:id', getJob);
 
 // Protected routes (employers only)
