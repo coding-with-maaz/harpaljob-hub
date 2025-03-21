@@ -26,6 +26,11 @@ const Navbar: React.FC = () => {
     return location.pathname === path;
   };
   
+  // Add a function to check if a path is included in the current path
+  const isPartOfPath = (path: string) => {
+    return location.pathname.includes(path);
+  };
+  
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 10) {
@@ -68,63 +73,55 @@ const Navbar: React.FC = () => {
             to="/jobs" 
             className={cn(
               "text-sm font-medium transition-colors hover:text-job-blue",
-              isActive('/jobs') ? "text-job-blue" : "text-foreground"
+              isActive('/jobs') || isPartOfPath('/job/') ? "text-job-blue" : "text-foreground"
             )}
           >
             Find Jobs
+          </Link>
+          
+          <Link 
+            to="/job-categories" 
+            className={cn(
+              "text-sm font-medium transition-colors hover:text-job-blue",
+              isActive('/job-categories') || isPartOfPath('/category/') ? "text-job-blue" : "text-foreground"
+            )}
+          >
+            Job Categories
           </Link>
           
           <NavigationMenu>
             <NavigationMenuList>
               <NavigationMenuItem>
                 <NavigationMenuTrigger className="text-sm font-medium transition-colors hover:text-job-blue">
-                  Categories
+                  Resources
                 </NavigationMenuTrigger>
                 <NavigationMenuContent>
                   <ul className="grid w-[200px] gap-1 p-2">
                     <li>
                       <Link 
-                        to="/jobs?category=Technology" 
+                        to="/saved-jobs" 
                         className="block select-none rounded-md p-2 text-sm outline-none hover:bg-secondary"
                         onClick={closeMenu}
                       >
-                        Technology
+                        Saved Jobs
                       </Link>
                     </li>
                     <li>
                       <Link 
-                        to="/jobs?category=Design" 
+                        to="/mobile-app" 
                         className="block select-none rounded-md p-2 text-sm outline-none hover:bg-secondary"
                         onClick={closeMenu}
                       >
-                        Design
+                        Mobile App
                       </Link>
                     </li>
                     <li>
                       <Link 
-                        to="/jobs?category=Marketing" 
+                        to="/seo-analyzer" 
                         className="block select-none rounded-md p-2 text-sm outline-none hover:bg-secondary"
                         onClick={closeMenu}
                       >
-                        Marketing
-                      </Link>
-                    </li>
-                    <li>
-                      <Link 
-                        to="/jobs?category=Sales" 
-                        className="block select-none rounded-md p-2 text-sm outline-none hover:bg-secondary"
-                        onClick={closeMenu}
-                      >
-                        Sales
-                      </Link>
-                    </li>
-                    <li>
-                      <Link 
-                        to="/jobs?category=Finance" 
-                        className="block select-none rounded-md p-2 text-sm outline-none hover:bg-secondary"
-                        onClick={closeMenu}
-                      >
-                        Finance
+                        SEO Analyzer
                       </Link>
                     </li>
                   </ul>
@@ -210,43 +207,50 @@ const Navbar: React.FC = () => {
             >
               Find Jobs
             </Link>
+            <Link 
+              to="/job-categories" 
+              className="block text-lg font-medium hover:text-job-blue"
+              onClick={closeMenu}
+            >
+              Job Categories
+            </Link>
             <div className="space-y-4">
-              <p className="text-lg font-medium">Categories</p>
+              <p className="text-lg font-medium">Popular Categories</p>
               <div className="ml-4 space-y-3">
                 <Link 
-                  to="/jobs?category=Technology" 
+                  to="/category/technology" 
                   className="block text-base hover:text-job-blue"
                   onClick={closeMenu}
                 >
                   Technology
                 </Link>
                 <Link 
-                  to="/jobs?category=Design" 
+                  to="/category/design" 
                   className="block text-base hover:text-job-blue"
                   onClick={closeMenu}
                 >
                   Design
                 </Link>
                 <Link 
-                  to="/jobs?category=Marketing" 
+                  to="/category/marketing" 
                   className="block text-base hover:text-job-blue"
                   onClick={closeMenu}
                 >
                   Marketing
                 </Link>
                 <Link 
-                  to="/jobs?category=Sales" 
+                  to="/category/business" 
                   className="block text-base hover:text-job-blue"
                   onClick={closeMenu}
                 >
-                  Sales
+                  Business
                 </Link>
                 <Link 
-                  to="/jobs?category=Finance" 
+                  to="/category/healthcare" 
                   className="block text-base hover:text-job-blue"
                   onClick={closeMenu}
                 >
-                  Finance
+                  Healthcare
                 </Link>
               </div>
             </div>

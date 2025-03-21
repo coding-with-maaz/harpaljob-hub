@@ -30,12 +30,14 @@ interface JobCategoriesListProps {
   limit?: number;
   layout?: "grid" | "list" | "pills";
   showCounts?: boolean;
+  searchTerm?: string;
 }
 
 const JobCategoriesList: React.FC<JobCategoriesListProps> = ({ 
-  limit = 6, 
+  limit = 12, 
   layout = "grid",
-  showCounts = true
+  showCounts = true,
+  searchTerm = ""
 }) => {
   // Count jobs by category
   const categoryCounts = React.useMemo(() => {
@@ -138,12 +140,20 @@ const JobCategoriesList: React.FC<JobCategoriesListProps> = ({
     }
   ];
 
+  // Filter categories based on search term
+  const filteredCategories = categories.filter(category => 
+    searchTerm ? 
+      category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      category.description.toLowerCase().includes(searchTerm.toLowerCase())
+    : true
+  );
+
   // Limit categories to display
-  const displayCategories = categories.slice(0, limit);
+  const displayCategories = filteredCategories.slice(0, limit);
 
   if (layout === "pills") {
     return (
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-wrap justify-center gap-3">
         {displayCategories.map(category => {
           const CategoryIcon = category.icon;
           const count = categoryCounts[category.name] || 0;
@@ -202,7 +212,7 @@ const JobCategoriesList: React.FC<JobCategoriesListProps> = ({
 
   // Default grid layout
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       {displayCategories.map(category => {
         const CategoryIcon = category.icon;
         const count = categoryCounts[category.name] || 0;
