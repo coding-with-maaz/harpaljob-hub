@@ -1,3 +1,4 @@
+
 export interface User {
   id: string;
   firstName: string;
@@ -24,6 +25,9 @@ export interface Job {
   logo: string;
   companyDescription: string;
   companySize: string;
+  companyWebsite?: string;
+  companyIndustry?: string;
+  companyFoundedYear?: string;
   status: 'active' | 'closed' | 'draft';
   featured: boolean;
   postedDate: string;
