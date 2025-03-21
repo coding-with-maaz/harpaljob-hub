@@ -1,8 +1,17 @@
 const { Job, JobCategory, User } = require('../models/associations');
 
+// Function to generate a URL-friendly slug
+const generateSlug = (title) => {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+};
+
 const sampleJobs = [
   {
     title: 'Senior Frontend Developer',
+    slug: 'senior-frontend-developer',
     company: 'TechCorp Inc.',
     location: 'San Francisco, CA',
     country: 'United States',
@@ -35,6 +44,7 @@ const sampleJobs = [
   },
   {
     title: 'Backend Engineer',
+    slug: 'backend-engineer',
     company: 'DataFlow Systems',
     location: 'Remote',
     country: 'United States',
@@ -67,6 +77,7 @@ const sampleJobs = [
   },
   {
     title: 'UI/UX Designer',
+    slug: 'ui-ux-designer',
     company: 'Creative Design Co.',
     location: 'New York, NY',
     country: 'United States',
@@ -99,6 +110,7 @@ const sampleJobs = [
   },
   {
     title: 'DevOps Engineer',
+    slug: 'devops-engineer',
     company: 'CloudTech Solutions',
     location: 'Seattle, WA',
     country: 'United States',
@@ -131,6 +143,7 @@ const sampleJobs = [
   },
   {
     title: 'Mobile App Developer',
+    slug: 'mobile-app-developer',
     company: 'AppInnovate',
     location: 'Remote',
     country: 'United States',
@@ -190,8 +203,12 @@ const seedJobs = async () => {
       // Randomly assign a category
       const randomCategory = categories[Math.floor(Math.random() * categories.length)];
       
+      // Generate a unique slug if not provided
+      const slug = jobData.slug || generateSlug(jobData.title);
+      
       await Job.create({
         ...jobData,
+        slug,
         employerId: employer.id,
         categoryId: randomCategory.id,
         categoryName: randomCategory.name

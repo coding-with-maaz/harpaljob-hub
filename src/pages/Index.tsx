@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Search, Briefcase, Building, MapPin, Bookmark, ArrowRight } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -10,6 +10,7 @@ import type { Job } from '@/lib/store/types';
 const Index: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [location, setLocation] = useState('');
+  const navigate = useNavigate();
   
   // Fetch data using RTK Query hooks
   const { data: featuredJobsData, isLoading: isLoadingFeatured } = useGetFeaturedJobsQuery({ limit: 2 });
@@ -18,8 +19,10 @@ const Index: React.FC = () => {
   
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, we would redirect to the jobs page with the search params
-    window.location.href = `/jobs?search=${searchTerm}&location=${location}`;
+    const searchParams = new URLSearchParams();
+    if (searchTerm) searchParams.set('search', searchTerm);
+    if (location) searchParams.set('location', location);
+    navigate(`/jobs?${searchParams.toString()}`);
   };
   
   const categories = [

@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Helmet } from "react-helmet";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import JobCard from "@/components/JobCard";
@@ -34,13 +34,15 @@ import { useGetJobsQuery, useGetCategoriesQuery } from "@/lib/store/api";
 import type { JobFilters } from "@/lib/store/types";
 
 const Jobs = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [filters, setFilters] = useState<JobFilters>({
-    query: "",
-    location: "",
-    category: "",
-    employmentType: "",
-    sortBy: "relevance",
-    page: 1,
+    query: searchParams.get('search') || "",
+    location: searchParams.get('location') || "",
+    category: searchParams.get('category') || "",
+    employmentType: searchParams.get('type') || "",
+    sortBy: searchParams.get('sort') || "relevance",
+    page: Number(searchParams.get('page')) || 1,
     limit: 10
   });
   
@@ -49,6 +51,19 @@ const Jobs = () => {
   // Fetch jobs and categories using RTK Query
   const { data: jobsData, isLoading, error } = useGetJobsQuery(filters);
   const { data: categoriesData } = useGetCategoriesQuery();
+  
+  // Update URL when filters change
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (filters.query) params.set('search', filters.query);
+    if (filters.location) params.set('location', filters.location);
+    if (filters.category) params.set('category', filters.category);
+    if (filters.employmentType) params.set('type', filters.employmentType);
+    if (filters.sortBy !== 'relevance') params.set('sort', filters.sortBy);
+    if (filters.page > 1) params.set('page', filters.page.toString());
+    
+    setSearchParams(params);
+  }, [filters, setSearchParams]);
   
   const toggleFilters = () => {
     setShowFilters(!showFilters);
@@ -66,6 +81,14 @@ const Jobs = () => {
     setFilters(prev => ({
       ...prev,
       page: newPage
+    }));
+  };
+  
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setFilters(prev => ({
+      ...prev,
+      page: 1
     }));
   };
   
@@ -97,7 +120,7 @@ const Jobs = () => {
               
               <div className="max-w-4xl mx-auto bg-white shadow-md rounded-xl overflow-hidden border border-slate-200">
                 <div className="p-4 md:p-6">
-                  <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-4">
+                  <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-4">
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
                       <Input 
@@ -108,11 +131,11 @@ const Jobs = () => {
                         onChange={(e) => handleFilterChange('query', e.target.value)}
                       />
                     </div>
-                    <Button className="w-full md:w-auto gap-2">
+                    <Button type="submit" className="w-full md:w-auto gap-2">
                       Search Jobs
                       <ArrowRight className="h-4 w-4" />
                     </Button>
-                  </div>
+                  </form>
                   
                   <div className={`${showFilters ? 'block' : 'hidden'} mt-4 pt-4 border-t`}>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

@@ -1,4 +1,4 @@
-const { DataTypes } = require('sequelize');
+const { DataTypes, Op } = require('sequelize');
 const { sequelize } = require('../config/database');
 const slugify = require('slugify');
 
@@ -154,7 +154,7 @@ const Job = sequelize.define('Job', {
           const existingJob = await Job.findOne({ 
             where: { 
               slug,
-              id: { [sequelize.Op.ne]: job.id } // Exclude current job
+              id: { [Op.ne]: job.id } // Exclude current job
             }
           });
           if (!existingJob) break;
@@ -180,6 +180,76 @@ const Job = sequelize.define('Job', {
 // Add class methods
 Job.findBySlug = async function(slug) {
   return await this.findOne({ where: { slug } });
+};
+
+// Add a method to handle the slug column addition
+Job.addSlugColumn = async function() {
+  try {
+    // First, check if the slug column exists
+    const [results] = await sequelize.query('SHOW COLUMNS FROM jobs LIKE "slug"');
+    if (results.length === 0) {
+      // Add the column without unique constraint first
+      await sequelize.query('ALTER TABLE jobs ADD COLUMN slug VARCHAR(255) NOT NULL DEFAULT ""');
+      
+      // Update existing records with unique slugs
+      const jobs = await this.findAll();
+      for (const job of jobs) {
+        let baseSlug = slugify(job.title, { lower: true });
+        let slug = baseSlug;
+        let counter = 1;
+        
+        while (true) {
+          const existingJob = await this.findOne({ 
+            where: { 
+              slug,
+              id: { [Op.ne]: job.id }
+            }
+          });
+          if (!existingJob) break;
+          slug = `${baseSlug}-${counter}`;
+          counter++;
+        }
+        
+        await job.update({ slug });
+      }
+      
+      // Finally, add the unique constraint
+      await sequelize.query('ALTER TABLE jobs ADD UNIQUE INDEX jobs_slug_unique (slug)');
+    } else {
+      // If column exists but has empty values, update them
+      const jobs = await this.findAll({
+        where: {
+          [Op.or]: [
+            { slug: null },
+            { slug: '' }
+          ]
+        }
+      });
+
+      for (const job of jobs) {
+        let baseSlug = slugify(job.title, { lower: true });
+        let slug = baseSlug;
+        let counter = 1;
+        
+        while (true) {
+          const existingJob = await this.findOne({ 
+            where: { 
+              slug,
+              id: { [Op.ne]: job.id }
+            }
+          });
+          if (!existingJob) break;
+          slug = `${baseSlug}-${counter}`;
+          counter++;
+        }
+        
+        await job.update({ slug });
+      }
+    }
+  } catch (error) {
+    console.error('Error adding slug column:', error);
+    throw error;
+  }
 };
 
 module.exports = Job; 

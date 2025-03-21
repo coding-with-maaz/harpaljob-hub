@@ -46,7 +46,10 @@ const startServer = async () => {
     // Test database connection
     await testConnection();
     
-    // Sync database (force: true will drop existing tables)
+    // First, handle the slug column addition
+    await Job.addSlugColumn();
+    
+    // Then sync the rest of the database
     await sequelize.sync({ alter: true });
     console.log('Database synced successfully');
 
