@@ -1,3 +1,4 @@
+
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/database');
 
@@ -26,6 +27,14 @@ const Application = sequelize.define('Application', {
   resume: {
     type: DataTypes.STRING,
     allowNull: false
+  },
+  resumeFileName: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  resumeFileType: {
+    type: DataTypes.STRING,
+    allowNull: true
   },
   coverLetter: {
     type: DataTypes.TEXT,

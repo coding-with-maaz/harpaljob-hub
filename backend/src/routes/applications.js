@@ -1,3 +1,4 @@
+
 const express = require('express');
 const router = express.Router();
 const { body, validationResult } = require('express-validator');
@@ -71,6 +72,44 @@ router.get('/job/:jobId', protect, authorize('employer'), getJobApplications);
 
 // Create a new application
 router.post('/job/:jobId', protect, createApplication);
+
+// Get user's previous CVs
+router.get('/user-cvs', protect, async (req, res) => {
+  try {
+    const applications = await Application.findAll({
+      where: { userId: req.user.id },
+      attributes: ['resume', 'resumeFileName', 'resumeFileType', 'appliedAt'],
+      order: [['appliedAt', 'DESC']]
+    });
+
+    // Extract unique CVs
+    const uniqueCVs = [];
+    const seenCVs = new Set();
+    
+    applications.forEach(app => {
+      if (!seenCVs.has(app.resume)) {
+        seenCVs.add(app.resume);
+        uniqueCVs.push({
+          url: app.resume,
+          name: app.resumeFileName || 'CV_Document.pdf',
+          type: app.resumeFileType || 'application/pdf',
+          uploadedAt: app.appliedAt
+        });
+      }
+    });
+
+    res.json({
+      status: 'success',
+      data: uniqueCVs
+    });
+  } catch (error) {
+    console.error('Error fetching user CVs:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Error fetching user CVs'
+    });
+  }
+});
 
 // Update application status (employer only)
 router.put('/:id/status', protect, authorize('employer'), updateApplicationStatus);
