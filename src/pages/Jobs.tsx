@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import JobCard from "@/components/JobCard";
+import JobCategoriesList from "@/components/JobCategoriesList";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -30,7 +31,9 @@ import {
   X, 
   ChevronDown,
   ChevronRight,
-  Star
+  Star,
+  Grid2x2,
+  PanelRight
 } from "lucide-react";
 
 // Salary formatting function
@@ -165,6 +168,21 @@ const Jobs = () => {
                   </div>
                 </div>
               </div>
+            </div>
+          </section>
+
+          {/* Job Categories Section */}
+          <section className="bg-gray-50 py-8">
+            <div className="container mx-auto px-4">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold">Browse by Category</h2>
+                <Link to="/job-categories" className="text-job-blue hover:underline flex items-center gap-1 text-sm font-medium">
+                  View all categories
+                  <ChevronRight className="h-4 w-4" />
+                </Link>
+              </div>
+              
+              <JobCategoriesList layout="pills" limit={8} />
             </div>
           </section>
 
