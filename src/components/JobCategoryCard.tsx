@@ -22,9 +22,9 @@ const JobCategoryCard: React.FC<JobCategoryCardProps> = ({
 }) => {
   return (
     <Link to={`/category/${id}`} className="group">
-      <Card className="h-full hover:shadow-md transition-all duration-200 hover:-translate-y-1 overflow-hidden border-t-4 border-t-job-blue">
+      <Card className="h-full hover:shadow-md transition-all duration-300 hover:-translate-y-1 overflow-hidden rounded-xl border-t-4 border-t-job-blue">
         <CardContent className="p-6">
-          <div className={`w-12 h-12 rounded-lg ${color} flex items-center justify-center mb-4`}>
+          <div className={`w-12 h-12 rounded-xl ${color} flex items-center justify-center mb-4 transition-transform group-hover:scale-110 duration-300`}>
             {icon}
           </div>
           <h3 className="text-xl font-semibold mb-2 group-hover:text-job-blue transition-colors">
@@ -34,10 +34,10 @@ const JobCategoryCard: React.FC<JobCategoryCardProps> = ({
             {description}
           </p>
           <div className="flex justify-between items-center">
-            <span className="text-sm font-medium">
+            <span className="text-sm font-medium bg-slate-100 px-2 py-1 rounded-full">
               {count} {count === 1 ? 'job' : 'jobs'}
             </span>
-            <span className="text-xs font-medium text-job-blue opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+            <span className="text-xs font-medium text-job-blue opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-1 transform">
               View Jobs →
             </span>
           </div>

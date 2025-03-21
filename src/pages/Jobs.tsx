@@ -5,373 +5,422 @@ import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import JobCard from "@/components/JobCard";
-import JobCategoriesList from "@/components/JobCategoriesList";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Slider } from "@/components/ui/slider";
-import AdBanner from "@/components/ads/AdBanner";
-import SEOHead from "@/components/SEOHead";
-import { generateJobListingStructuredData } from "@/utils/seo";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { jobs } from "@/lib/jobs";
-import { Job } from "@/lib/types";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
-  Search, 
-  MapPin, 
-  Briefcase, 
-  Filter, 
-  X, 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
+import {
+  Search,
+  MapPin,
+  Briefcase,
+  Filter,
+  ArrowRight,
+  Bookmark,
+  Share2,
   ChevronDown,
-  ChevronRight,
-  Star,
-  Grid2x2,
-  PanelRight
+  ArrowUpDown,
+  Clock,
+  Building2
 } from "lucide-react";
 
-// Salary formatting function
-const formatSalary = (amount: number) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: 0,
-  }).format(amount);
-};
-
-// Parse salary strings like "$120,000 - $150,000" into min and max numbers
-const parseSalaryRange = (salaryString: string): [number, number] => {
-  const matches = salaryString.match(/\$(\d+,*\d*)\s*-\s*\$(\d+,*\d*)/);
-  if (matches && matches.length >= 3) {
-    const min = parseInt(matches[1].replace(/,/g, ''), 10);
-    const max = parseInt(matches[2].replace(/,/g, ''), 10);
-    return [min, max];
-  }
-  return [0, 150000]; // Default range if parsing fails
-};
-
-// Structured data for job listings
-const jobsStructuredData = generateJobListingStructuredData(
-  jobs.map(job => {
-    const [salaryMin, salaryMax] = parseSalaryRange(job.salary);
-    return {
-      title: job.title,
-      description: job.description,
-      datePosted: job.postedDate,
-      validThrough: new Date(new Date(job.postedDate).setMonth(new Date(job.postedDate).getMonth() + 3)).toISOString(),
-      employmentType: job.type.toUpperCase(),
-      company: job.company,
-      companyLogo: job.logo,
-      location: job.location,
-      salaryMin: salaryMin,
-      salaryMax: salaryMax,
-      currency: "USD",
-      salaryUnit: "YEAR"
-    }
-  })
-);
+interface SearchFilters {
+  query: string;
+  location: string;
+  category: string;
+  employmentType: string;
+  sortBy: string;
+}
 
 const Jobs = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedLocation, setSelectedLocation] = useState("");
-  const [selectedJobType, setSelectedJobType] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [salaryRange, setSalaryRange] = useState([0, 150000]);
-  const [showRemoteOnly, setShowRemoteOnly] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
-  const isMobile = useIsMobile();
-  
-  // Filter jobs based on search criteria
-  const filteredJobs = jobs.filter((job) => {
-    // Text search (title, company, description, location)
-    const searchMatch = !searchTerm || 
-      job.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-      job.company.toLowerCase().includes(searchTerm.toLowerCase()) || 
-      job.description.toLowerCase().includes(searchTerm.toLowerCase()) || 
-      job.location.toLowerCase().includes(searchTerm.toLowerCase());
-      
-    // Location filter
-    const locationMatch = !selectedLocation || job.location === selectedLocation;
-    
-    // Job type filter
-    const jobTypeMatch = !selectedJobType || job.type === selectedJobType;
-    
-    // Category filter
-    const categoryMatch = !selectedCategory || job.category === selectedCategory;
-    
-    // Salary range filter
-    const [jobSalaryMin, jobSalaryMax] = parseSalaryRange(job.salary);
-    const salaryMatch = (jobSalaryMin >= salaryRange[0] && jobSalaryMax <= salaryRange[1]);
-    
-    // Remote filter - check if location contains "Remote"
-    const isRemote = job.location.toLowerCase().includes("remote");
-    const remoteMatch = !showRemoteOnly || isRemote;
-    
-    return searchMatch && locationMatch && jobTypeMatch && categoryMatch && salaryMatch && remoteMatch;
+  const [filters, setFilters] = useState<SearchFilters>({
+    query: "",
+    location: "",
+    category: "",
+    employmentType: "",
+    sortBy: "relevance"
   });
   
-  // Get unique locations, job types, and categories for filters
-  const locations = Array.from(new Set(jobs.map(job => job.location)));
-  const jobTypes = Array.from(new Set(jobs.map(job => job.type)));
-  const categories = Array.from(new Set(jobs.map(job => job.category)));
+  const [filtersVisible, setFiltersVisible] = useState(false);
+  
+  // Filter jobs based on search criteria
+  const filteredJobs = jobs.filter(job => {
+    if (filters.query && !job.title.toLowerCase().includes(filters.query.toLowerCase()) && 
+        !job.company.toLowerCase().includes(filters.query.toLowerCase()) &&
+        !job.description.toLowerCase().includes(filters.query.toLowerCase())) {
+      return false;
+    }
+    
+    if (filters.location && job.location !== filters.location) {
+      return false;
+    }
+    
+    if (filters.category && job.category !== filters.category) {
+      return false;
+    }
+    
+    if (filters.employmentType && job.employmentType !== filters.employmentType) {
+      return false;
+    }
+    
+    return true;
+  });
+  
+  // Sort jobs based on selected sort option
+  const sortedJobs = [...filteredJobs].sort((a, b) => {
+    if (filters.sortBy === "recent") {
+      return new Date(b.postedDate).getTime() - new Date(a.postedDate).getTime();
+    } else if (filters.sortBy === "salary-high") {
+      return (b.salaryMax || 0) - (a.salaryMax || 0);
+    } else if (filters.sortBy === "salary-low") {
+      return (a.salaryMin || 0) - (b.salaryMin || 0);
+    }
+    
+    // Default: relevance (no specific sorting)
+    return 0;
+  });
+  
+  const toggleFilters = () => {
+    setFiltersVisible(!filtersVisible);
+  };
+  
+  const handleFilterChange = (key: keyof SearchFilters, value: string) => {
+    setFilters({
+      ...filters,
+      [key]: value
+    });
+  };
   
   return (
     <>
-      <SEOHead
-        title="Find Your Next Career | Job Listings"
-        description="Browse thousands of job opportunities across various industries and locations. Filter by job type, location, and salary to find your perfect match."
-        keywords="jobs, careers, employment, job search, job listings, remote work, full-time jobs, part-time jobs"
-        ogType="website"
-        structuredData={jobsStructuredData}
-      />
-  
+      <Helmet>
+        <title>Find Jobs | HarpalJobs</title>
+        <meta 
+          name="description" 
+          content="Search and find the perfect job opportunity from thousands of listings across all industries and locations."
+        />
+      </Helmet>
+      
       <div className="flex min-h-screen flex-col">
         <Navbar />
         
         <main className="flex-1">
-          {/* Hero Section with search */}
-          <section className="bg-gradient-to-r from-blue-600 to-indigo-700 py-12 md:py-20">
-            <div className="container mx-auto px-4">
-              <h1 className="text-3xl md:text-4xl font-bold text-white mb-6 text-center">
-                Find Your Dream Job Today
-              </h1>
-              <p className="text-blue-100 text-center max-w-2xl mx-auto mb-8">
-                Search through thousands of job listings to find the perfect opportunity for your skills and experience.
-              </p>
+          {/* Hero Section */}
+          <section className="pt-28 pb-16 bg-gradient-to-b from-job-blue/10 to-transparent">
+            <div className="container px-4 mx-auto">
+              <div className="text-center max-w-3xl mx-auto mb-12">
+                <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
+                  Find Your <span className="text-job-blue">Dream Job</span>
+                </h1>
+                <p className="text-lg text-muted-foreground">
+                  Search through thousands of job listings to find the perfect opportunity for your career growth.
+                </p>
+              </div>
               
-              <div className="max-w-4xl mx-auto">
-                <div className="bg-white p-3 rounded-lg shadow-lg flex flex-col md:flex-row gap-2">
-                  <div className="flex-grow relative">
-                    <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-                    <Input
-                      type="text"
-                      placeholder="Job title, company, or keywords"
-                      className="pl-10"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                  </div>
-                  <div className="flex gap-2">
-                    <Button variant="outline" className="flex-shrink-0" onClick={() => setShowFilters(!showFilters)}>
-                      <Filter className="mr-2 h-4 w-4" />
-                      Filters
-                    </Button>
-                    <Button className="flex-shrink-0">
+              <div className="max-w-4xl mx-auto bg-white shadow-md rounded-xl overflow-hidden border border-slate-200">
+                <div className="p-4 md:p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-4">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
+                      <Input 
+                        type="text" 
+                        placeholder="Job title, company, or keywords" 
+                        className="pl-10"
+                        value={filters.query}
+                        onChange={(e) => handleFilterChange('query', e.target.value)}
+                      />
+                    </div>
+                    <Button className="w-full md:w-auto gap-2">
                       Search Jobs
+                      <ArrowRight className="h-4 w-4" />
                     </Button>
                   </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* Job Categories Section */}
-          <section className="bg-gray-50 py-8">
-            <div className="container mx-auto px-4">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold">Browse by Category</h2>
-                <Link to="/job-categories" className="text-job-blue hover:underline flex items-center gap-1 text-sm font-medium">
-                  View all categories
-                  <ChevronRight className="h-4 w-4" />
-                </Link>
-              </div>
-              
-              <JobCategoriesList layout="pills" limit={8} />
-            </div>
-          </section>
-
-          {/* Google Ad Banner in header */}
-          <div className="container mx-auto px-4 py-4">
-            <AdBanner
-              id="jobs-header-ad"
-              position="header"
-              size="responsive"
-              type="google"
-              googleAdSlot="jobs_header_12345"
-            />
-          </div>
-          
-          {/* Main content */}
-          <section className="container mx-auto px-4 py-8">
-            <div className="flex flex-col lg:flex-row gap-6">
-              {/* Filters Sidebar for desktop */}
-              <aside className={`lg:w-1/4 rounded-lg border border-gray-200 h-fit ${showFilters || !isMobile ? 'block' : 'hidden'}`}>
-                <div className="p-4 border-b border-gray-200 flex justify-between items-center">
-                  <h2 className="font-semibold">Filters</h2>
-                  {isMobile && (
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => setShowFilters(false)}>
-                      <X className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-                
-                <div className="p-4 border-b border-gray-200">
-                  <h3 className="font-medium mb-3">Location</h3>
-                  <Select value={selectedLocation} onValueChange={setSelectedLocation}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Any Location" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">Any Location</SelectItem>
-                      {locations.map((location) => (
-                        <SelectItem key={location} value={location}>
-                          {location}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="p-4 border-b border-gray-200">
-                  <h3 className="font-medium mb-3">Job Type</h3>
-                  <Select value={selectedJobType} onValueChange={setSelectedJobType}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Any Job Type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">Any Job Type</SelectItem>
-                      {jobTypes.map((type) => (
-                        <SelectItem key={type} value={type}>
-                          {type}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="p-4 border-b border-gray-200">
-                  <h3 className="font-medium mb-3">Category</h3>
-                  <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Any Category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">Any Category</SelectItem>
-                      {categories.map((category) => (
-                        <SelectItem key={category} value={category}>
-                          {category}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="p-4 border-b border-gray-200">
-                  <h3 className="font-medium mb-4">Salary Range</h3>
-                  <Slider
-                    value={salaryRange}
-                    min={0}
-                    max={200000}
-                    step={10000}
-                    onValueChange={setSalaryRange}
-                    className="my-6"
-                  />
-                  <div className="flex justify-between text-sm text-gray-500">
-                    <span>{formatSalary(salaryRange[0])}</span>
-                    <span>{formatSalary(salaryRange[1])}</span>
-                  </div>
-                </div>
-                
-                <div className="p-4">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox 
-                      id="remote-only" 
-                      checked={showRemoteOnly}
-                      onCheckedChange={(checked) => setShowRemoteOnly(checked as boolean)}
-                    />
-                    <label
-                      htmlFor="remote-only"
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                      Remote Only
-                    </label>
-                  </div>
-                </div>
-                
-                {/* Sidebar Ad */}
-                <div className="p-4 mt-6">
-                  <AdBanner
-                    id="filter-sidebar-ad"
-                    position="sidebar"
-                    size="medium"
-                  />
-                </div>
-              </aside>
-
-              {/* Job Listings */}
-              <div className="lg:w-3/4">
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-xl font-semibold">
-                    {filteredJobs.length} Jobs Found
-                  </h2>
-                  <Select defaultValue="newest">
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Sort by" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="newest">Newest First</SelectItem>
-                      <SelectItem value="oldest">Oldest First</SelectItem>
-                      <SelectItem value="salary-high">Highest Salary</SelectItem>
-                      <SelectItem value="salary-low">Lowest Salary</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="space-y-6">
-                  {filteredJobs.map((job: Job, index: number) => (
-                    <React.Fragment key={job.id}>
-                      <JobCard job={job} />
-                      
-                      {/* Insert ad after every 3 job listings */}
-                      {(index + 1) % 3 === 0 && index < filteredJobs.length - 1 && (
-                        <AdBanner
-                          id={`inline-ad-${Math.floor(index / 3)}`}
-                          position="inline"
-                          size="responsive"
-                          type={index % 6 === 0 ? "google" : "internal"}
-                          googleAdSlot={`jobs_inline_${Math.floor(index / 3)}`}
-                        />
-                      )}
-                    </React.Fragment>
-                  ))}
                   
-                  {filteredJobs.length === 0 && (
-                    <div className="text-center py-12 bg-gray-50 rounded-lg">
-                      <p className="text-gray-500 mb-2">No jobs match your search criteria</p>
+                  <div className={`${filtersVisible ? 'block' : 'hidden'} mt-4 pt-4 border-t`}>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Location</label>
+                        <div className="relative">
+                          <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                          <Input 
+                            type="text" 
+                            placeholder="City or remote" 
+                            className="pl-10"
+                            value={filters.location}
+                            onChange={(e) => handleFilterChange('location', e.target.value)}
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Category</label>
+                        <Select
+                          value={filters.category}
+                          onValueChange={(value) => handleFilterChange('category', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="All Categories" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="">All Categories</SelectItem>
+                            <SelectItem value="Technology">Technology</SelectItem>
+                            <SelectItem value="Design">Design</SelectItem>
+                            <SelectItem value="Marketing">Marketing</SelectItem>
+                            <SelectItem value="Business">Business</SelectItem>
+                            <SelectItem value="Healthcare">Healthcare</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Employment Type</label>
+                        <Select
+                          value={filters.employmentType}
+                          onValueChange={(value) => handleFilterChange('employmentType', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="All Types" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="">All Types</SelectItem>
+                            <SelectItem value="full-time">Full-time</SelectItem>
+                            <SelectItem value="part-time">Part-time</SelectItem>
+                            <SelectItem value="contract">Contract</SelectItem>
+                            <SelectItem value="internship">Internship</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between mt-4">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={toggleFilters}
+                      className="text-muted-foreground"
+                    >
+                      <Filter className="h-4 w-4 mr-2" />
+                      {filtersVisible ? 'Hide Filters' : 'Show Filters'}
+                    </Button>
+                    
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm text-muted-foreground">Sort by:</span>
+                      <Select
+                        value={filters.sortBy}
+                        onValueChange={(value) => handleFilterChange('sortBy', value)}
+                      >
+                        <SelectTrigger className="w-[160px] h-8 text-sm">
+                          <SelectValue placeholder="Relevance" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="relevance">Relevance</SelectItem>
+                          <SelectItem value="recent">Most Recent</SelectItem>
+                          <SelectItem value="salary-high">Highest Salary</SelectItem>
+                          <SelectItem value="salary-low">Lowest Salary</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+          
+          {/* Main Content */}
+          <section className="py-12">
+            <div className="container px-4 mx-auto">
+              <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8">
+                {/* Jobs List */}
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-xl font-semibold">
+                      {sortedJobs.length} Jobs Found
+                    </h2>
+                    <div className="flex items-center text-sm text-muted-foreground">
+                      <Clock className="h-4 w-4 mr-2" />
+                      <span>Updated 10 minutes ago</span>
+                    </div>
+                  </div>
+                  
+                  {sortedJobs.length > 0 ? (
+                    <div className="space-y-4">
+                      {sortedJobs.map((job) => (
+                        <JobCard key={job.id} job={job} />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-12 bg-slate-50 rounded-xl">
+                      <Briefcase className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                      <h3 className="text-xl font-semibold mb-2">No Jobs Found</h3>
+                      <p className="text-muted-foreground mb-6">
+                        We couldn't find any jobs matching your search criteria.
+                      </p>
                       <Button 
                         variant="outline" 
-                        onClick={() => {
-                          setSearchTerm("");
-                          setSelectedLocation("");
-                          setSelectedJobType("");
-                          setSelectedCategory("");
-                          setSalaryRange([0, 150000]);
-                          setShowRemoteOnly(false);
-                        }}
+                        onClick={() => setFilters({
+                          query: "",
+                          location: "",
+                          category: "",
+                          employmentType: "",
+                          sortBy: "relevance"
+                        })}
                       >
                         Clear Filters
                       </Button>
                     </div>
                   )}
+                  
+                  {sortedJobs.length > 0 && (
+                    <div className="flex justify-center mt-8">
+                      <Button variant="outline" className="mr-2">Previous</Button>
+                      <Button variant="outline" className="mx-1">1</Button>
+                      <Button className="mx-1">2</Button>
+                      <Button variant="outline" className="mx-1">3</Button>
+                      <div className="mx-1 flex items-center">...</div>
+                      <Button variant="outline" className="mx-1">10</Button>
+                      <Button variant="outline" className="ml-2">Next</Button>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Sidebar */}
+                <div className="space-y-6">
+                  <Tabs defaultValue="trending">
+                    <TabsList className="grid w-full grid-cols-2">
+                      <TabsTrigger value="trending">Trending</TabsTrigger>
+                      <TabsTrigger value="categories">Categories</TabsTrigger>
+                    </TabsList>
+                    
+                    <TabsContent value="trending" className="pt-4">
+                      <div className="space-y-4">
+                        <div className="bg-slate-50 p-4 rounded-lg">
+                          <h3 className="font-medium mb-2 flex items-center">
+                            <Building2 className="h-4 w-4 mr-2" />
+                            Top Companies Hiring
+                          </h3>
+                          <ul className="space-y-2 text-sm">
+                            <li className="flex items-center justify-between">
+                              <span>TechCorp</span>
+                              <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">24 jobs</span>
+                            </li>
+                            <li className="flex items-center justify-between">
+                              <span>DesignHub</span>
+                              <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">18 jobs</span>
+                            </li>
+                            <li className="flex items-center justify-between">
+                              <span>Marketing Pro</span>
+                              <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">15 jobs</span>
+                            </li>
+                          </ul>
+                        </div>
+                        
+                        <div className="bg-slate-50 p-4 rounded-lg">
+                          <h3 className="font-medium mb-2 flex items-center">
+                            <Briefcase className="h-4 w-4 mr-2" />
+                            Popular Job Searches
+                          </h3>
+                          <div className="flex flex-wrap gap-2">
+                            <Button variant="outline" size="sm" className="rounded-full text-xs">
+                              Remote Jobs
+                            </Button>
+                            <Button variant="outline" size="sm" className="rounded-full text-xs">
+                              Software Engineer
+                            </Button>
+                            <Button variant="outline" size="sm" className="rounded-full text-xs">
+                              UX Designer
+                            </Button>
+                            <Button variant="outline" size="sm" className="rounded-full text-xs">
+                              Marketing Manager
+                            </Button>
+                            <Button variant="outline" size="sm" className="rounded-full text-xs">
+                              Data Analyst
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </TabsContent>
+                    
+                    <TabsContent value="categories" className="pt-4">
+                      <div className="bg-slate-50 p-4 rounded-lg">
+                        <h3 className="font-medium mb-3">Job Categories</h3>
+                        <ul className="space-y-2 text-sm">
+                          <li>
+                            <Link to="/category/technology" className="flex items-center justify-between hover:text-job-blue transition-colors">
+                              <span>Technology</span>
+                              <ArrowRight className="h-4 w-4" />
+                            </Link>
+                          </li>
+                          <li>
+                            <Link to="/category/design" className="flex items-center justify-between hover:text-job-blue transition-colors">
+                              <span>Design</span>
+                              <ArrowRight className="h-4 w-4" />
+                            </Link>
+                          </li>
+                          <li>
+                            <Link to="/category/marketing" className="flex items-center justify-between hover:text-job-blue transition-colors">
+                              <span>Marketing</span>
+                              <ArrowRight className="h-4 w-4" />
+                            </Link>
+                          </li>
+                          <li>
+                            <Link to="/category/business" className="flex items-center justify-between hover:text-job-blue transition-colors">
+                              <span>Business</span>
+                              <ArrowRight className="h-4 w-4" />
+                            </Link>
+                          </li>
+                          <li>
+                            <Link to="/category/healthcare" className="flex items-center justify-between hover:text-job-blue transition-colors">
+                              <span>Healthcare</span>
+                              <ArrowRight className="h-4 w-4" />
+                            </Link>
+                          </li>
+                        </ul>
+                        <div className="mt-3 pt-3 border-t">
+                          <Link 
+                            to="/job-categories" 
+                            className="text-sm text-job-blue flex items-center hover:underline"
+                          >
+                            <span>View all categories</span>
+                            <ChevronDown className="h-4 w-4 ml-1" />
+                          </Link>
+                        </div>
+                      </div>
+                      
+                      <div className="mt-4 bg-job-blue/10 p-4 rounded-lg border border-job-blue/20">
+                        <h3 className="font-medium mb-2">Can't find what you need?</h3>
+                        <p className="text-sm text-muted-foreground mb-3">
+                          Create a job alert and we'll notify you when new jobs match your criteria.
+                        </p>
+                        <Button size="sm" className="w-full">
+                          Create Job Alert
+                        </Button>
+                      </div>
+                    </TabsContent>
+                  </Tabs>
+                  
+                  <div className="bg-gradient-to-br from-job-blue to-job-indigo text-white p-6 rounded-xl">
+                    <h3 className="font-bold text-lg mb-3">Mobile Job Search</h3>
+                    <p className="text-sm mb-4 text-white/90">
+                      Take your job search on the go with our mobile app. Apply to jobs, track applications, and more.
+                    </p>
+                    <Link to="/mobile-app">
+                      <Button variant="secondary" size="sm" className="w-full">
+                        Get the App
+                      </Button>
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
           </section>
-          
-          {/* Footer Ad Banner */}
-          <div className="container mx-auto px-4 py-8">
-            <AdBanner
-              id="jobs-footer-ad"
-              position="footer"
-              size="responsive"
-            />
-          </div>
         </main>
         
         <Footer />
