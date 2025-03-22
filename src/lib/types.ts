@@ -7,6 +7,14 @@ export interface User {
   role: 'user' | 'employer' | 'admin';
 }
 
+export interface JobCategory {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  jobCount: number;
+}
+
 export interface Job {
   id: string;
   title: string;
@@ -15,7 +23,7 @@ export interface Job {
   description: string;
   requirements: string[];
   type: string;
-  category: string;
+  category: string | JobCategory;
   salary: string;
   salaryMin: number;
   salaryMax: number;

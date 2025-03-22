@@ -1,3 +1,4 @@
+
 export interface Job {
   id: string;
   title: string;
@@ -30,8 +31,20 @@ export interface Job {
   applications: number;
   slug: string;
   companyId: string;
-  category?: JobCategory;
+  category?: JobCategory | string;
   employer?: User;
+  
+  // Additional properties to match with main types
+  companyDescription?: string;
+  companySize?: string;
+  companyWebsite?: string;
+  companyIndustry?: string;
+  companyFoundedYear?: string;
+  tags?: string[];
+  responsibilities?: string[];
+  applicationDeadline?: string;
+  country?: string;
+  userId?: string;
 }
 
 export interface JobResponse {
