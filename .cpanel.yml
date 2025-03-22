@@ -2,6 +2,16 @@
 deployment:
   tasks:
     - export DEPLOYPATH=/home/harpaljob/public_html/
+    # Clear the deployment directory first
+    - /bin/rm -rf $DEPLOYPATH/*
+    # Copy build files
     - /bin/cp -R build/* $DEPLOYPATH
+    # Copy and set permissions for .htaccess
     - /bin/cp .htaccess $DEPLOYPATH
+    - /bin/chmod 644 $DEPLOYPATH/.htaccess
+    # Copy backend files
     - /bin/cp -R backend/* $DEPLOYPATH/backend/
+    # Set proper permissions
+    - /bin/chmod -R 755 $DEPLOYPATH
+    - /bin/find $DEPLOYPATH -type f -exec chmod 644 {} \;
+    - /bin/find $DEPLOYPATH -type d -exec chmod 755 {} \;

@@ -2,7 +2,7 @@
 RewriteEngine On
 
 # Handle Front Controller Pattern
-RewriteBase /harpaljob-hub/
+RewriteBase /
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^ index.html [QSA,L]
@@ -14,19 +14,58 @@ AddType text/javascript .jsx
 AddType application/javascript .ts
 AddType application/javascript .tsx
 AddType text/css .css
+AddType application/json .json
+
+# Set proper encoding
+AddCharset UTF-8 .js .css .json .html
 
 # Enable CORS
 Header set Access-Control-Allow-Origin "*"
 Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
 Header set Access-Control-Allow-Headers "Content-Type, Authorization"
 
-# Cache Control
-<FilesMatch "\.(js|jsx|ts|tsx|css|json)$">
+# Force HTTPS
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Cache Control for static assets
+<FilesMatch "\.(js|jsx|ts|tsx|css|json|ico|png|jpg|jpeg|gif|svg)$">
     Header set Cache-Control "max-age=31536000, public"
+    Header unset ETag
+    FileETag None
 </FilesMatch>
 
 # Prevent directory listing
 Options -Indexes
 
-# Custom error pages
-ErrorDocument 404 /harpaljob-hub/index.html 
+# Enable mod_headers
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+</IfModule>
+
+# Handle errors
+ErrorDocument 404 /index.html
+
+# Handle specific file types
+<Files "*.js">
+    ForceType application/javascript
+</Files>
+
+<Files "*.css">
+    ForceType text/css
+</Files>
+
+<Files "*.json">
+    ForceType application/json
+</Files>
+
+# Disable PHP execution in uploads directory if exists
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+
+# Prevent access to sensitive files
+<FilesMatch "^\.">
+    Order allow,deny
+    Deny from all
+</FilesMatch> 
