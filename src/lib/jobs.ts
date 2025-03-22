@@ -41,6 +41,13 @@ export const jobs: Job[] = [
     status: "active",
     featured: true,
     views: 0,
+    applications: 0,
+    deadline: "2023-08-15",
+    slug: "senior-frontend-developer-techvision",
+    skills: ["React", "TypeScript", "Redux"],
+    categoryId: "1",
+    employerId: "1",
+    companyId: "1",
     userId: "1"
   },
   {
@@ -83,6 +90,13 @@ export const jobs: Job[] = [
     status: "active",
     featured: false,
     views: 0,
+    applications: 0,
+    deadline: "2023-07-20",
+    slug: "ux-ui-designer-designhub",
+    skills: ["Figma", "UI/UX", "User Research"],
+    categoryId: "2",
+    employerId: "2",
+    companyId: "2",
     userId: "2"
   },
   {
@@ -125,6 +139,13 @@ export const jobs: Job[] = [
     status: "active",
     featured: true,
     views: 0,
+    applications: 0,
+    deadline: "2023-07-18",
+    slug: "full-stack-engineer-innovatetech",
+    skills: ["React", "Node.js", "AWS"],
+    categoryId: "1",
+    employerId: "3",
+    companyId: "3",
     userId: "3"
   },
   {
@@ -167,6 +188,13 @@ export const jobs: Job[] = [
     status: "active",
     featured: false,
     views: 0,
+    applications: 0,
+    deadline: "2023-07-22",
+    slug: "product-marketing-manager-growthlabs",
+    skills: ["B2B Marketing", "SaaS", "Product Launches"],
+    categoryId: "3",
+    employerId: "4",
+    companyId: "4",
     userId: "4"
   },
   {
@@ -209,6 +237,13 @@ export const jobs: Job[] = [
     status: "active",
     featured: false,
     views: 0,
+    applications: 0,
+    deadline: "2023-07-17",
+    slug: "devops-engineer-cloudsecure",
+    skills: ["AWS", "Kubernetes", "Terraform"],
+    categoryId: "1",
+    employerId: "5",
+    companyId: "5",
     userId: "5"
   },
   {
@@ -251,6 +286,13 @@ export const jobs: Job[] = [
     status: "active",
     featured: true,
     views: 0,
+    applications: 0,
+    deadline: "2023-07-19",
+    slug: "data-scientist-analyticspro",
+    skills: ["Python", "Machine Learning", "Statistics"],
+    categoryId: "1",
+    employerId: "6",
+    companyId: "6",
     userId: "6"
   }
 ];

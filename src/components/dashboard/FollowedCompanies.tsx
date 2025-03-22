@@ -9,7 +9,7 @@ import { Link } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 
 const FollowedCompanies: React.FC = () => {
-  const { getFollowedCompanies } = useFollowCompany(0); // The 0 is just for initialization
+  const { getFollowedCompanies } = useFollowCompany("0"); // The "0" is just for initialization
   const followedCompanies = getFollowedCompanies();
   const { toast } = useToast();
 

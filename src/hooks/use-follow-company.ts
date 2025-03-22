@@ -4,7 +4,7 @@ import { FollowedCompany } from '@/lib/types';
 
 const STORAGE_KEY = 'harpal_followed_companies';
 
-export const useFollowCompany = (companyId: number) => {
+export const useFollowCompany = (companyId: string) => {
   const [isFollowing, setIsFollowing] = useState(false);
   const [followerCount, setFollowerCount] = useState(0);
 

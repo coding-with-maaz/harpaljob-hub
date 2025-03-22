@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import {
   Table,
@@ -45,9 +44,16 @@ const mockJobs: Job[] = [
     companySize: "50-200 employees",
     status: "active",
     views: 0,
-    userId: "1",
+    applications: 0,
+    categoryId: "1",
+    employerId: "1",
+    companyId: "1",
+    deadline: "2023-12-15",
+    slug: "senior-react-developer",
+    skills: ["React", "TypeScript", "JavaScript"],
     experience: "5+ years",
     benefits: ["Health insurance", "401k", "Remote work"],
+    userId: "1"
   },
   {
     id: "job-2",
@@ -67,11 +73,18 @@ const mockJobs: Job[] = [
     companySize: "10-50 employees",
     status: "active",
     views: 0,
-    userId: "1",
+    applications: 0,
+    categoryId: "2",
+    employerId: "2",
+    companyId: "2",
+    deadline: "2023-12-10",
+    slug: "ux-designer",
+    skills: ["UX/UI", "Figma", "Design"],
     tags: ["UX/UI", "Figma", "Design"],
     experience: "3+ years",
     benefits: ["Flexible hours", "Design tools stipend"],
     featured: false,
+    userId: "2"
   },
   {
     id: "job-3",
@@ -91,11 +104,18 @@ const mockJobs: Job[] = [
     companySize: "20-100 employees",
     status: "active",
     views: 0,
-    userId: "1",
+    applications: 0,
+    categoryId: "3",
+    employerId: "3",
+    companyId: "3",
+    deadline: "2023-12-05",
+    slug: "marketing-manager",
+    skills: ["Marketing", "Analytics", "Leadership"],
     tags: ["Marketing", "Analytics", "Leadership"],
     experience: "5+ years",
     benefits: ["Performance bonuses", "Hybrid work"],
     featured: false,
+    userId: "3"
   },
   {
     id: "job-4",
@@ -115,11 +135,18 @@ const mockJobs: Job[] = [
     companySize: "10-50 employees",
     status: "active",
     views: 0,
-    userId: "1",
+    applications: 0,
+    categoryId: "1",
+    employerId: "4",
+    companyId: "4",
+    deadline: "2023-12-02",
+    slug: "frontend-developer",
+    skills: ["JavaScript", "React", "CSS"],
     tags: ["JavaScript", "React", "CSS"],
     experience: "3+ years",
     benefits: ["Flexible schedule", "Project bonuses"],
     featured: false,
+    userId: "4"
   },
   {
     id: "job-5",
@@ -139,11 +166,18 @@ const mockJobs: Job[] = [
     companySize: "50-200 employees",
     status: "active",
     views: 0,
-    userId: "1",
+    applications: 0,
+    categoryId: "1",
+    employerId: "5",
+    companyId: "5",
+    deadline: "2023-11-28",
+    slug: "product-manager",
+    skills: ["Product Management", "SaaS", "Roadmap"],
     tags: ["Product Management", "SaaS", "Roadmap"],
     experience: "4+ years",
     benefits: ["Equity options", "Health benefits", "Flexible work"],
     featured: false,
+    userId: "5"
   }
 ];
 
@@ -292,3 +326,4 @@ const DashboardJobsList = () => {
 };
 
 export default DashboardJobsList;
+
