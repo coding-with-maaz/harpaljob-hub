@@ -5,15 +5,8 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  server: {
-    host: "::",
-    port: 8080,
-  },
-  plugins: [
-    react(),
-    mode === 'development' && componentTagger(),
-  ].filter(Boolean),
-  base: '/',
+  plugins: [react()],
+  base: mode === 'production' ? '/harpaljob-hub/' : '/',
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -21,27 +14,18 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     outDir: 'build',
-    assetsDir: 'assets',
-    minify: 'terser',
-    sourcemap: false,
+    emptyOutDir: true,
+    manifest: true,
     rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, 'index.html'),
+      },
       output: {
         manualChunks: (id) => {
           if (id.includes('node_modules')) {
             return 'vendor';
           }
         },
-        assetFileNames: (assetInfo) => {
-          if (!assetInfo.name) return 'assets/[name].[hash][extname]';
-          const info = assetInfo.name.split('.');
-          const ext = info[info.length - 1];
-          if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(ext)) {
-            return `assets/images/[name].[hash][extname]`;
-          }
-          return `assets/[name].[hash][extname]`;
-        },
-        chunkFileNames: 'assets/js/[name].[hash].js',
-        entryFileNames: 'assets/js/[name].[hash].js',
       },
     },
   },

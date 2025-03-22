@@ -1,5 +1,8 @@
-Options -MultiViews
+# Enable rewrite engine
 RewriteEngine On
+
+# Handle Front Controller Pattern
+RewriteBase /harpaljob-hub/
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^ index.html [QSA,L]
@@ -10,17 +13,20 @@ AddType application/javascript .mjs
 AddType text/javascript .jsx
 AddType application/javascript .ts
 AddType application/javascript .tsx
-
-# Force HTTPS
-RewriteCond %{HTTPS} off
-RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+AddType text/css .css
 
 # Enable CORS
 Header set Access-Control-Allow-Origin "*"
 Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
 Header set Access-Control-Allow-Headers "Content-Type, Authorization"
 
-# Cache control for static assets
-<FilesMatch "\.(js|jsx|ts|tsx|css|png|jpg|jpeg|gif|ico|svg)$">
+# Cache Control
+<FilesMatch "\.(js|jsx|ts|tsx|css|json)$">
     Header set Cache-Control "max-age=31536000, public"
-</FilesMatch> 
+</FilesMatch>
+
+# Prevent directory listing
+Options -Indexes
+
+# Custom error pages
+ErrorDocument 404 /harpaljob-hub/index.html 
