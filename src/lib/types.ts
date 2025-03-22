@@ -1,4 +1,3 @@
-
 export interface User {
   id: string;
   firstName: string;
@@ -8,33 +7,31 @@ export interface User {
 }
 
 export interface Job {
-  id: string;
+  id: number;
   title: string;
-  description: string;
   company: string;
   location: string;
-  country: string;
-  salary: string;
-  type: 'full-time' | 'part-time' | 'contract' | 'internship';
-  category: string;
-  experience: string;
+  description: string;
   requirements: string[];
-  responsibilities: string[];
-  benefits: string[];
-  tags: string[];
-  logo: string;
-  companyDescription: string;
-  companySize: string;
-  companyWebsite?: string;
-  companyIndustry?: string;
-  companyFoundedYear?: string;
-  status: 'active' | 'closed' | 'draft';
-  featured: boolean;
+  type: string;
+  category: string;
+  salary: string;
+  salaryMin: number;
+  salaryMax: number;
   postedDate: string;
-  applicationDeadline?: string;
+  deadline: string;
+  logo: string;
+  featured: boolean;
   views: number;
-  userId: string;
-  employer?: User;
+  applications: number;
+  categoryId: number;
+  employerId: number;
+  status: string;
+  slug: string;
+  skills: string[];
+  companyId: number;
+  benefits: string[];
+  experience: string;
 }
 
 export interface SavedJob {
