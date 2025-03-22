@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,8 +8,12 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { SEOPreview } from "@/components/SEOHead";
-import { generateRobotsTxt } from "@/utils/seo";
-import { AlertCircle, Check, Copy, Download, ExternalLink, Globe, Info, RefreshCw, Save } from 'lucide-react';
+import { getSEOSettings, updateSEOSettings, generateRobotsTxt } from "@/services/seoService";
+import { SEOSettings } from "@/lib/types";
+import { 
+  AlertCircle, Check, Copy, Download, ExternalLink, 
+  Globe, Info, RefreshCw, Save, Loader2 
+} from 'lucide-react';
 
 interface SEODashboardControllerProps {
   domainName?: string;
@@ -20,25 +23,121 @@ const SEODashboardController: React.FC<SEODashboardControllerProps> = ({
   domainName = "harpalJobs.com"
 }) => {
   const { toast } = useToast();
-  const [globalTitle, setGlobalTitle] = useState('HarpalJobs | Find Your Dream Job Today');
-  const [globalDescription, setGlobalDescription] = useState('HarpalJobs is the leading job board connecting job seekers with top employers. Search thousands of job listings across all industries and locations.');
-  const [globalKeywords, setGlobalKeywords] = useState('jobs, careers, employment, hiring, job search, job board');
-  const [ogImage, setOgImage] = useState('/og-image.png');
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [settings, setSettings] = useState<SEOSettings | null>(null);
+  const [globalTitle, setGlobalTitle] = useState('');
+  const [globalDescription, setGlobalDescription] = useState('');
+  const [globalKeywords, setGlobalKeywords] = useState('');
+  const [ogImage, setOgImage] = useState('');
   const [indexingEnabled, setIndexingEnabled] = useState(true);
-  const [robotsTxt, setRobotsTxt] = useState(generateRobotsTxt(`https://${domainName}`));
+  const [robotsTxt, setRobotsTxt] = useState('');
   const [customHeadCode, setCustomHeadCode] = useState('');
   const [siteVerificationGoogle, setSiteVerificationGoogle] = useState('');
   const [siteVerificationBing, setSiteVerificationBing] = useState('');
+  const [canonicalUrl, setCanonicalUrl] = useState('');
   
-  const handleSaveSEOSettings = () => {
-    toast({
-      title: "SEO Settings Saved",
-      description: "Your SEO settings have been updated successfully.",
-    });
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        setIsLoading(true);
+        const data = await getSEOSettings();
+        setSettings(data);
+        
+        setGlobalTitle(data.globalTitle);
+        setGlobalDescription(data.globalDescription);
+        setGlobalKeywords(data.globalKeywords);
+        setOgImage(data.ogImage);
+        setIndexingEnabled(data.indexingEnabled);
+        setRobotsTxt(data.robotsTxt);
+        setCustomHeadCode(data.customHeadCode);
+        setSiteVerificationGoogle(data.siteVerificationGoogle);
+        setSiteVerificationBing(data.siteVerificationBing);
+        setCanonicalUrl(data.canonicalUrl);
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to load SEO settings",
+          variant: "destructive"
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchSettings();
+  }, [toast]);
+  
+  const handleSaveSEOSettings = async (section: string) => {
+    try {
+      setIsSaving(true);
+      
+      let updatedData: Partial<SEOSettings> = {};
+      
+      switch (section) {
+        case 'basic':
+          updatedData = {
+            globalTitle,
+            globalDescription,
+            globalKeywords
+          };
+          break;
+        case 'social':
+          updatedData = {
+            ogImage
+          };
+          break;
+        case 'indexing':
+          updatedData = {
+            indexingEnabled,
+            robotsTxt
+          };
+          break;
+        case 'advanced':
+          updatedData = {
+            customHeadCode,
+            siteVerificationGoogle,
+            siteVerificationBing,
+            canonicalUrl
+          };
+          break;
+        default:
+          updatedData = {
+            globalTitle,
+            globalDescription,
+            globalKeywords,
+            ogImage,
+            indexingEnabled,
+            robotsTxt,
+            customHeadCode,
+            siteVerificationGoogle,
+            siteVerificationBing,
+            canonicalUrl
+          };
+      }
+      
+      const result = await updateSEOSettings(updatedData);
+      
+      setSettings(result);
+      
+      toast({
+        title: "SEO Settings Saved",
+        description: `${section.charAt(0).toUpperCase() + section.slice(1)} SEO settings have been updated successfully.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save SEO settings",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
   
   const handleGenerateRobotsTxt = () => {
-    setRobotsTxt(generateRobotsTxt(`https://${domainName}`));
+    const generatedRobotsTxt = generateRobotsTxt(`https://${domainName}`);
+    setRobotsTxt(generatedRobotsTxt);
     toast({
       title: "Robots.txt Generated",
       description: "Robots.txt has been regenerated with default settings.",
@@ -76,6 +175,15 @@ const SEODashboardController: React.FC<SEODashboardControllerProps> = ({
     }
     return code;
   };
+  
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center p-8">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <span className="ml-2">Loading SEO settings...</span>
+      </div>
+    );
+  }
   
   return (
     <div className="space-y-6">
@@ -145,9 +253,22 @@ const SEODashboardController: React.FC<SEODashboardControllerProps> = ({
                 />
               </div>
               
-              <Button onClick={handleSaveSEOSettings} className="mt-4">
-                <Save className="mr-2 h-4 w-4" />
-                Save Basic SEO Settings
+              <Button 
+                onClick={() => handleSaveSEOSettings('basic')} 
+                className="mt-4"
+                disabled={isSaving}
+              >
+                {isSaving ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="mr-2 h-4 w-4" />
+                    Save Basic SEO Settings
+                  </>
+                )}
               </Button>
             </TabsContent>
             
@@ -192,8 +313,11 @@ const SEODashboardController: React.FC<SEODashboardControllerProps> = ({
 <meta name="twitter:image" content="${ogImage}" />`}
                   </div>
                   <div className="flex justify-end mt-2">
-                    <Button variant="outline" size="sm" onClick={() => copyToClipboard(
-                      `<meta property="og:title" content="${globalTitle}" />
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => copyToClipboard(
+                        `<meta property="og:title" content="${globalTitle}" />
 <meta property="og:description" content="${globalDescription}" />
 <meta property="og:image" content="${ogImage}" />
 <meta property="og:url" content="https://${domainName}" />
@@ -203,8 +327,9 @@ const SEODashboardController: React.FC<SEODashboardControllerProps> = ({
 <meta name="twitter:title" content="${globalTitle}" />
 <meta name="twitter:description" content="${globalDescription}" />
 <meta name="twitter:image" content="${ogImage}" />`,
-                      "Open Graph tags copied to clipboard"
-                    )}>
+                        "Open Graph tags copied to clipboard"
+                      )}
+                    >
                       <Copy className="h-3.5 w-3.5 mr-1" />
                       Copy
                     </Button>
@@ -212,9 +337,22 @@ const SEODashboardController: React.FC<SEODashboardControllerProps> = ({
                 </div>
               </div>
               
-              <Button onClick={handleSaveSEOSettings} className="mt-4">
-                <Save className="mr-2 h-4 w-4" />
-                Save Social Media Settings
+              <Button 
+                onClick={() => handleSaveSEOSettings('social')} 
+                className="mt-4"
+                disabled={isSaving}
+              >
+                {isSaving ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="mr-2 h-4 w-4" />
+                    Save Social Media Settings
+                  </>
+                )}
               </Button>
             </TabsContent>
             
@@ -294,9 +432,22 @@ const SEODashboardController: React.FC<SEODashboardControllerProps> = ({
                 </div>
               </div>
               
-              <Button onClick={handleSaveSEOSettings} className="mt-4">
-                <Save className="mr-2 h-4 w-4" />
-                Save Indexing Settings
+              <Button 
+                onClick={() => handleSaveSEOSettings('indexing')} 
+                className="mt-4"
+                disabled={isSaving}
+              >
+                {isSaving ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="mr-2 h-4 w-4" />
+                    Save Indexing Settings
+                  </>
+                )}
               </Button>
             </TabsContent>
             
@@ -327,6 +478,18 @@ const SEODashboardController: React.FC<SEODashboardControllerProps> = ({
                 </div>
                 
                 <div className="space-y-2">
+                  <label className="text-sm font-medium">Canonical URL</label>
+                  <Input 
+                    value={canonicalUrl} 
+                    onChange={(e) => setCanonicalUrl(e.target.value)}
+                    placeholder="https://example.com"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    The base URL used for canonical links to prevent duplicate content issues
+                  </p>
+                </div>
+                
+                <div className="space-y-2">
                   <label className="text-sm font-medium">Custom Head Code</label>
                   <Textarea 
                     value={customHeadCode} 
@@ -347,10 +510,14 @@ const SEODashboardController: React.FC<SEODashboardControllerProps> = ({
                       {verificationMeta()}
                     </div>
                     <div className="flex justify-end mt-2">
-                      <Button variant="outline" size="sm" onClick={() => copyToClipboard(
-                        verificationMeta(),
-                        "Verification tags copied to clipboard"
-                      )}>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => copyToClipboard(
+                          verificationMeta(),
+                          "Verification tags copied to clipboard"
+                        )}
+                      >
                         <Copy className="h-3.5 w-3.5 mr-1" />
                         Copy
                       </Button>
@@ -359,9 +526,22 @@ const SEODashboardController: React.FC<SEODashboardControllerProps> = ({
                 )}
               </div>
               
-              <Button onClick={handleSaveSEOSettings} className="mt-4">
-                <Save className="mr-2 h-4 w-4" />
-                Save Advanced Settings
+              <Button 
+                onClick={() => handleSaveSEOSettings('advanced')} 
+                className="mt-4"
+                disabled={isSaving}
+              >
+                {isSaving ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="mr-2 h-4 w-4" />
+                    Save Advanced Settings
+                  </>
+                )}
               </Button>
             </TabsContent>
           </Tabs>

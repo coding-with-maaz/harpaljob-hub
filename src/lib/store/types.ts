@@ -31,7 +31,7 @@ export interface Job {
   applications: number;
   slug: string;
   companyId: string;
-  category?: JobCategory | string;
+  category: string | JobCategory;  // Made required and consistent with main types
   employer?: User;
   
   // Additional properties to match with main types
@@ -104,4 +104,34 @@ export interface Pagination {
   page: number;
   pages: number;
   hasMore: boolean;
+}
+
+// Add SEO settings related types for store
+export interface SEOSettingsState {
+  settings: SEOSettings | null;
+  isLoading: boolean;
+  error: string | null;
+}
+
+export interface SEOSettings {
+  id: string;
+  globalTitle: string;
+  globalDescription: string;
+  globalKeywords: string;
+  ogImage: string;
+  indexingEnabled: boolean;
+  robotsTxt: string;
+  siteVerificationGoogle: string;
+  siteVerificationBing: string;
+  customHeadCode: string;
+  canonicalUrl: string;
+  userId: string;
+  updatedAt: string;
+}
+
+export interface KeywordAnalysisResult {
+  keyword: string;
+  count: number;
+  density: number;
+  suggestions: string[];
 }

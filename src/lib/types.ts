@@ -85,3 +85,27 @@ export interface CompanyStats {
   totalJobs: number;
   views: number;
 }
+
+// Add SEO settings interface for backend integration
+export interface SEOSettings {
+  id: string;
+  globalTitle: string;
+  globalDescription: string;
+  globalKeywords: string;
+  ogImage: string;
+  indexingEnabled: boolean;
+  robotsTxt: string;
+  siteVerificationGoogle: string;
+  siteVerificationBing: string;
+  customHeadCode: string;
+  canonicalUrl: string;
+  userId: string;
+  updatedAt: string;
+}
+
+export interface KeywordAnalysis {
+  keyword: string;
+  count: number;
+  density: number;
+  suggestions: string[];
+}

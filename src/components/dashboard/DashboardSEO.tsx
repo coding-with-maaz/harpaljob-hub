@@ -2,74 +2,21 @@
 import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
 import { 
   Search, 
   Globe, 
   BarChart4, 
-  LineChart, 
-  Share2, 
-  Tag,
-  RefreshCw,
-  CheckCircle,
-  PlusCircle,
-  Trash2,
-  ArrowUpRight,
-  Info,
   Settings,
-  Gauge
+  Gauge,
+  ArrowUpRight
 } from "lucide-react";
-import { analyzeKeywordDensity, suggestRelatedKeywords } from "@/utils/seo";
 import SEODashboardController from "./SEODashboardController";
+import SEOKeywordAnalyzer from "./SEOKeywordAnalyzer";
+import { getSEOPerformanceData } from "@/services/seoService";
 
 const DashboardSEO = () => {
-  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("global");
-  const [metaTitle, setMetaTitle] = useState("HarpalJobs | Find Your Dream Job Today");
-  const [metaDescription, setMetaDescription] = useState("HarpalJobs is a leading job board connecting job seekers with top employers. Search thousands of job listings across all industries and locations.");
-  const [keywords, setKeywords] = useState("jobs, careers, employment, hiring, job search, job board");
-  const [keywordToAnalyze, setKeywordToAnalyze] = useState("jobs");
-  const [contentToAnalyze, setContentToAnalyze] = useState("");
-  const [keywordAnalysis, setKeywordAnalysis] = useState({ count: 0, density: 0 });
-  const [relatedKeywords, setRelatedKeywords] = useState<string[]>([]);
-  const [canonicalUrl, setCanonicalUrl] = useState("https://harpalJobs.com");
-  const [sitemapUrl, setSitemapUrl] = useState("https://harpalJobs.com/sitemap.xml");
-  const [robotsTxt, setRobotsTxt] = useState("User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /private/\nSitemap: https://harpalJobs.com/sitemap.xml");
-
-  // Function to save SEO settings
-  const saveSettings = () => {
-    toast({
-      title: "SEO Settings Saved",
-      description: "Your SEO settings have been updated successfully.",
-    });
-  };
-
-  // Function to analyze keyword density
-  const analyzeKeyword = () => {
-    if (!keywordToAnalyze || !contentToAnalyze) {
-      toast({
-        title: "Error",
-        description: "Please provide both a keyword and content to analyze.",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    const analysis = analyzeKeywordDensity(contentToAnalyze, keywordToAnalyze);
-    setKeywordAnalysis(analysis);
-    
-    // Generate related keywords
-    const related = suggestRelatedKeywords(keywordToAnalyze);
-    setRelatedKeywords(related);
-    
-    toast({
-      title: "Keyword Analysis Complete",
-      description: `Keyword "${keywordToAnalyze}" appears ${analysis.count} times (${analysis.density.toFixed(2)}%).`,
-    });
-  };
 
   return (
     <div className="space-y-6">
@@ -105,91 +52,7 @@ const DashboardSEO = () => {
         </TabsContent>
         
         <TabsContent value="tools">
-          <Card>
-            <CardHeader>
-              <CardTitle>SEO Analysis Tools</CardTitle>
-              <CardDescription>
-                Analyze and optimize your content for search engines
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                <div className="space-y-4">
-                  <h3 className="text-base font-medium">Keyword Density Analyzer</h3>
-                  
-                  <div className="space-y-4">
-                    <div className="flex flex-col sm:flex-row gap-4">
-                      <div className="flex-grow">
-                        <label className="text-sm font-medium">Keyword to Analyze</label>
-                        <Input 
-                          value={keywordToAnalyze} 
-                          onChange={(e) => setKeywordToAnalyze(e.target.value)}
-                          placeholder="Enter a keyword"
-                          className="mt-1"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium">&nbsp;</label>
-                        <Button 
-                          onClick={analyzeKeyword} 
-                          className="w-full mt-1"
-                        >
-                          Analyze
-                        </Button>
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <label className="text-sm font-medium">Content to Analyze</label>
-                      <Textarea 
-                        value={contentToAnalyze} 
-                        onChange={(e) => setContentToAnalyze(e.target.value)}
-                        placeholder="Paste your content here to analyze keyword density"
-                        rows={5}
-                        className="mt-1"
-                      />
-                    </div>
-                    
-                    {keywordAnalysis.count > 0 && (
-                      <div className="p-4 bg-muted rounded-md">
-                        <h4 className="font-medium mb-2">Analysis Results:</h4>
-                        <p>Keyword: <span className="font-medium">{keywordToAnalyze}</span></p>
-                        <p>Occurrences: <span className="font-medium">{keywordAnalysis.count}</span></p>
-                        <p>
-                          Density: <span className="font-medium">{keywordAnalysis.density.toFixed(2)}%</span>
-                          {keywordAnalysis.density < 1 && (
-                            <span className="text-yellow-600 ml-2">(Consider increasing)</span>
-                          )}
-                          {keywordAnalysis.density > 4 && (
-                            <span className="text-yellow-600 ml-2">(Consider reducing)</span>
-                          )}
-                          {keywordAnalysis.density >= 1 && keywordAnalysis.density <= 4 && (
-                            <span className="text-green-600 ml-2">(Optimal range)</span>
-                          )}
-                        </p>
-                      </div>
-                    )}
-                    
-                    {relatedKeywords.length > 0 && (
-                      <div>
-                        <h4 className="font-medium mb-2">Related Keywords:</h4>
-                        <div className="flex flex-wrap gap-2">
-                          {relatedKeywords.map((keyword, index) => (
-                            <span 
-                              key={index} 
-                              className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs"
-                            >
-                              {keyword}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <SEOKeywordAnalyzer />
           
           <div className="grid gap-6 mt-6 md:grid-cols-2 lg:grid-cols-2">
             <Card>
@@ -198,32 +61,10 @@ const DashboardSEO = () => {
                 <CardDescription>Configure meta tags for individual pages</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Meta Title</label>
-                  <Input 
-                    value={metaTitle} 
-                    onChange={(e) => setMetaTitle(e.target.value)}
-                    placeholder="Page title"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Recommended: 50-60 characters. Current: {metaTitle.length} characters
-                  </p>
-                </div>
-                
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Meta Description</label>
-                  <Textarea 
-                    value={metaDescription} 
-                    onChange={(e) => setMetaDescription(e.target.value)}
-                    placeholder="Page description"
-                    rows={3}
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Recommended: 150-160 characters. Current: {metaDescription.length} characters
-                  </p>
-                </div>
-                
-                <Button onClick={saveSettings}>Save Meta Settings</Button>
+                <Button className="w-full" variant="outline">
+                  Open Meta Tag Manager
+                  <ArrowUpRight className="ml-2 h-4 w-4" />
+                </Button>
               </CardContent>
             </Card>
             
@@ -233,30 +74,10 @@ const DashboardSEO = () => {
                 <CardDescription>Configure canonical URLs and redirects</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Canonical URL</label>
-                  <Input 
-                    value={canonicalUrl} 
-                    onChange={(e) => setCanonicalUrl(e.target.value)}
-                    placeholder="https://example.com"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    The definitive URL for this page to avoid duplicate content issues
-                  </p>
-                </div>
-                
-                <div className="space-y-2">
-                  <h3 className="text-sm font-medium mb-1">Permanent Redirects (301)</h3>
-                  <div className="p-3 bg-muted rounded-md text-sm">
-                    <p>No redirects configured</p>
-                  </div>
-                  <Button variant="outline" size="sm" className="mt-2">
-                    <PlusCircle className="h-4 w-4 mr-2" />
-                    Add Redirect
-                  </Button>
-                </div>
-                
-                <Button onClick={saveSettings}>Save URL Settings</Button>
+                <Button className="w-full" variant="outline">
+                  Open URL Manager
+                  <ArrowUpRight className="ml-2 h-4 w-4" />
+                </Button>
               </CardContent>
             </Card>
           </div>
@@ -271,7 +92,7 @@ const DashboardSEO = () => {
               </CardHeader>
               <CardContent className="h-[300px] flex items-center justify-center">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <LineChart className="h-5 w-5" />
+                  <BarChart4 className="h-5 w-5" />
                   <span>Search performance chart would appear here</span>
                 </div>
               </CardContent>
@@ -284,6 +105,15 @@ const DashboardSEO = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Keyword</span>
+                    <div className="flex items-center gap-6">
+                      <span className="text-sm font-medium">Position</span>
+                      <span className="text-sm font-medium">Change</span>
+                      <span className="text-sm font-medium">Volume</span>
+                    </div>
+                  </div>
+                  <hr className="border-muted" />
                   {[
                     { keyword: "remote jobs", position: 3, change: 1, volume: 12400 },
                     { keyword: "software developer jobs", position: 5, change: -2, volume: 6800 },
@@ -292,11 +122,8 @@ const DashboardSEO = () => {
                     { keyword: "marketing jobs", position: 15, change: 5, volume: 3700 }
                   ].map((item, index) => (
                     <div key={index} className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <Tag className="h-4 w-4 text-blue-500" />
-                        <span className="text-sm font-medium">{item.keyword}</span>
-                      </div>
-                      <div className="flex items-center space-x-4">
+                      <span className="text-sm">{item.keyword}</span>
+                      <div className="flex items-center gap-6">
                         <span className="text-sm">#{item.position}</span>
                         <span className={`text-sm ${
                           item.change > 0 ? 'text-green-500' : 
@@ -319,41 +146,51 @@ const DashboardSEO = () => {
               <CardDescription>Suggestions to improve your search engine rankings</CardDescription>
             </CardHeader>
             <CardContent>
+              <p className="mb-4 text-sm">Based on our analysis of your site, here are some optimization recommendations:</p>
               <div className="space-y-4">
-                <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md flex items-start">
-                  <Info className="h-5 w-5 text-yellow-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <div>
-                    <h4 className="font-medium text-yellow-800">Improve Meta Descriptions</h4>
-                    <p className="text-sm text-yellow-700">12 job listings are missing meta descriptions, which could improve click-through rates in search results.</p>
-                    <Button variant="link" className="p-0 h-auto text-yellow-800">Fix Issues</Button>
-                  </div>
-                </div>
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="flex items-start">
+                      <div className="bg-yellow-100 p-1 rounded-full mr-3 mt-0.5">
+                        <span className="block h-4 w-4 rounded-full bg-yellow-400"></span>
+                      </div>
+                      <div>
+                        <h4 className="font-medium">Improve Meta Descriptions</h4>
+                        <p className="text-sm text-muted-foreground mt-1">12 job listings are missing meta descriptions, which could improve click-through rates in search results.</p>
+                        <Button variant="link" className="p-0 h-auto text-primary mt-1">Fix Issues</Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
                 
-                <div className="p-3 bg-green-50 border border-green-200 rounded-md flex items-start">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <div>
-                    <h4 className="font-medium text-green-800">Mobile Optimization</h4>
-                    <p className="text-sm text-green-700">Your website is fully optimized for mobile devices, which is great for SEO rankings.</p>
-                  </div>
-                </div>
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="flex items-start">
+                      <div className="bg-green-100 p-1 rounded-full mr-3 mt-0.5">
+                        <span className="block h-4 w-4 rounded-full bg-green-400"></span>
+                      </div>
+                      <div>
+                        <h4 className="font-medium">Mobile Optimization</h4>
+                        <p className="text-sm text-muted-foreground mt-1">Your website is fully optimized for mobile devices, which is great for SEO rankings.</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
                 
-                <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md flex items-start">
-                  <Info className="h-5 w-5 text-yellow-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <div>
-                    <h4 className="font-medium text-yellow-800">Add More Internal Links</h4>
-                    <p className="text-sm text-yellow-700">Increasing internal links between related job listings can improve SEO and user navigation.</p>
-                    <Button variant="link" className="p-0 h-auto text-yellow-800">Learn More</Button>
-                  </div>
-                </div>
-                
-                <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md flex items-start">
-                  <Info className="h-5 w-5 text-yellow-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <div>
-                    <h4 className="font-medium text-yellow-800">Optimize Page Load Speed</h4>
-                    <p className="text-sm text-yellow-700">Some pages are loading slowly, which can affect SEO rankings and user experience.</p>
-                    <Button variant="link" className="p-0 h-auto text-yellow-800">View Details</Button>
-                  </div>
-                </div>
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="flex items-start">
+                      <div className="bg-yellow-100 p-1 rounded-full mr-3 mt-0.5">
+                        <span className="block h-4 w-4 rounded-full bg-yellow-400"></span>
+                      </div>
+                      <div>
+                        <h4 className="font-medium">Add More Internal Links</h4>
+                        <p className="text-sm text-muted-foreground mt-1">Increasing internal links between related job listings can improve SEO and user navigation.</p>
+                        <Button variant="link" className="p-0 h-auto text-primary mt-1">Learn More</Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
             </CardContent>
           </Card>
@@ -372,41 +209,65 @@ const DashboardSEO = () => {
                 </p>
                 
                 <div className="space-y-4">
-                  <div className="p-3 border rounded-md flex items-center justify-between">
-                    <div className="flex items-center">
-                      <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
-                      <span>Job Postings Schema</span>
-                    </div>
-                    <Button variant="outline" size="sm">Edit</Button>
-                  </div>
+                  <Card className="border-green-100">
+                    <CardContent className="p-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <div className="bg-green-100 p-1 rounded-full mr-3">
+                            <span className="block h-4 w-4 rounded-full bg-green-400"></span>
+                          </div>
+                          <span>Job Postings Schema</span>
+                        </div>
+                        <Button variant="outline" size="sm">Edit</Button>
+                      </div>
+                    </CardContent>
+                  </Card>
                   
-                  <div className="p-3 border rounded-md flex items-center justify-between">
-                    <div className="flex items-center">
-                      <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
-                      <span>Organization Schema</span>
-                    </div>
-                    <Button variant="outline" size="sm">Edit</Button>
-                  </div>
+                  <Card className="border-green-100">
+                    <CardContent className="p-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <div className="bg-green-100 p-1 rounded-full mr-3">
+                            <span className="block h-4 w-4 rounded-full bg-green-400"></span>
+                          </div>
+                          <span>Organization Schema</span>
+                        </div>
+                        <Button variant="outline" size="sm">Edit</Button>
+                      </div>
+                    </CardContent>
+                  </Card>
                   
-                  <div className="p-3 border rounded-md flex items-center justify-between">
-                    <div className="flex items-center">
-                      <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
-                      <span>Website Schema</span>
-                    </div>
-                    <Button variant="outline" size="sm">Edit</Button>
-                  </div>
+                  <Card className="border-green-100">
+                    <CardContent className="p-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <div className="bg-green-100 p-1 rounded-full mr-3">
+                            <span className="block h-4 w-4 rounded-full bg-green-400"></span>
+                          </div>
+                          <span>Website Schema</span>
+                        </div>
+                        <Button variant="outline" size="sm">Edit</Button>
+                      </div>
+                    </CardContent>
+                  </Card>
                   
-                  <div className="p-3 border rounded-md flex items-center justify-between">
-                    <div className="flex items-center">
-                      <PlusCircle className="h-5 w-5 text-blue-500 mr-2" />
-                      <span>Add New Schema</span>
-                    </div>
-                    <Button variant="outline" size="sm">Add</Button>
-                  </div>
+                  <Card className="border-blue-100">
+                    <CardContent className="p-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <div className="bg-blue-100 p-1 rounded-full mr-3">
+                            <span className="block h-4 w-4 rounded-full bg-blue-400"></span>
+                          </div>
+                          <span>Add New Schema</span>
+                        </div>
+                        <Button variant="outline" size="sm">Add</Button>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </div>
               </div>
               
-              <Button onClick={saveSettings}>Save Structured Data Settings</Button>
+              <Button>View Structured Data Documentation</Button>
             </CardContent>
           </Card>
         </TabsContent>
