@@ -8,7 +8,7 @@ export interface User {
 }
 
 export interface Job {
-  id: string; // Changed from number to string for consistency
+  id: string;
   title: string;
   company: string;
   location: string;
@@ -25,12 +25,12 @@ export interface Job {
   featured: boolean;
   views: number;
   applications: number;
-  categoryId: string; // Changed from number to string
-  employerId: string; // Changed from number to string
+  categoryId: string;
+  employerId: string;
   status: string;
   slug: string;
   skills: string[];
-  companyId: string; // Changed from number to string
+  companyId: string;
   benefits: string[];
   experience: string;
   
@@ -65,7 +65,7 @@ export interface ApplicationData {
 
 export interface FollowedCompany {
   id: string;
-  companyId: string; // Changed from number to string
+  companyId: string;
   companyName: string;
   companyLogo?: string;
   followedAt: string;

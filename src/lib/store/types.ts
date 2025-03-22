@@ -5,7 +5,7 @@ export interface Job {
   company: string;
   location: string;
   type: string;
-  salary: number;
+  salary: string;
   salaryMin: number;
   salaryMax: number;
   logo?: string;
@@ -24,6 +24,12 @@ export interface Job {
   viewsCount: number;
   createdAt: string;
   updatedAt: string;
+  deadline: string;
+  featured: boolean;
+  views: number;
+  applications: number;
+  slug: string;
+  companyId: string;
   category?: JobCategory;
   employer?: User;
 }
@@ -85,4 +91,4 @@ export interface Pagination {
   page: number;
   pages: number;
   hasMore: boolean;
-} 
+}

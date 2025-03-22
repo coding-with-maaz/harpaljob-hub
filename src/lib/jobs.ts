@@ -9,6 +9,8 @@ export const jobs: Job[] = [
     country: "United States",
     type: "full-time",
     salary: "$120,000 - $150,000",
+    salaryMin: 120000,
+    salaryMax: 150000,
     description: "TechVision is looking for a Senior Frontend Developer to join our growing team. You'll be responsible for building beautiful, responsive web applications using React and TypeScript. The ideal candidate has 5+ years of experience with modern frontend frameworks and a passion for clean, maintainable code.",
     requirements: [
       "5+ years of experience with React, TypeScript, and modern frontend tools",
@@ -58,6 +60,8 @@ export const jobs: Job[] = [
     country: "United States",
     type: "full-time",
     salary: "$90,000 - $120,000",
+    salaryMin: 90000,
+    salaryMax: 120000,
     description: "DesignHub is seeking a talented UX/UI Designer to create amazing user experiences. You'll work closely with product managers and developers to design intuitive, engaging products that users love.",
     requirements: [
       "3+ years of experience in UX/UI design",
@@ -107,6 +111,8 @@ export const jobs: Job[] = [
     country: "United States",
     type: "full-time",
     salary: "$100,000 - $130,000",
+    salaryMin: 100000,
+    salaryMax: 130000,
     description: "InnovateTech is looking for a Full Stack Engineer to help build our next generation of products. You'll work on both frontend and backend development, using a variety of technologies to create scalable, efficient applications.",
     requirements: [
       "4+ years of full stack development experience",
@@ -156,6 +162,8 @@ export const jobs: Job[] = [
     country: "United States",
     type: "full-time",
     salary: "$85,000 - $110,000",
+    salaryMin: 85000,
+    salaryMax: 110000,
     description: "GrowthLabs is seeking a Product Marketing Manager to develop and execute marketing strategies for our products. You'll work closely with product, sales, and design teams to create compelling messaging and drive product adoption.",
     requirements: [
       "3+ years of experience in product marketing",
@@ -205,6 +213,8 @@ export const jobs: Job[] = [
     country: "United States",
     type: "full-time",
     salary: "$115,000 - $140,000",
+    salaryMin: 115000,
+    salaryMax: 140000,
     description: "CloudSecure is looking for a DevOps Engineer to help us build and maintain our infrastructure. You'll be responsible for improving deployment processes, ensuring system reliability, and implementing security best practices.",
     requirements: [
       "4+ years of experience in DevOps or SRE roles",
@@ -254,6 +264,8 @@ export const jobs: Job[] = [
     country: "United States",
     type: "full-time",
     salary: "$110,000 - $135,000",
+    salaryMin: 110000,
+    salaryMax: 135000,
     description: "AnalyticsPro is seeking a Data Scientist to join our team. You'll analyze complex data sets, build predictive models, and extract actionable insights to help our clients make data-driven decisions.",
     requirements: [
       "Master's or PhD in a quantitative field (Statistics, Computer Science, etc.)",

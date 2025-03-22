@@ -31,6 +31,8 @@ const mockJobs: Job[] = [
     country: "United States",
     type: "full-time",
     salary: "$120,000 - $150,000",
+    salaryMin: 120000,
+    salaryMax: 150000,
     description: "We are looking for a senior React developer to join our team.",
     requirements: ["5+ years of experience with React", "TypeScript knowledge", "Team player"],
     responsibilities: ["Lead frontend development", "Code reviews", "Mentoring"],
@@ -63,6 +65,8 @@ const mockJobs: Job[] = [
     country: "United States",
     type: "full-time",
     salary: "$90,000 - $110,000",
+    salaryMin: 90000,
+    salaryMax: 110000,
     description: "Join our creative team as a UX Designer.",
     requirements: ["3+ years of UX design experience", "Portfolio", "Figma"],
     responsibilities: ["Create wireframes", "User research", "Prototyping"],
@@ -94,6 +98,8 @@ const mockJobs: Job[] = [
     country: "United States",
     type: "full-time",
     salary: "$85,000 - $100,000",
+    salaryMin: 85000,
+    salaryMax: 100000,
     description: "Lead our marketing efforts and drive growth.",
     requirements: ["5+ years in marketing", "B2B experience", "Analytics"],
     responsibilities: ["Campaign management", "Performance analysis", "Team leadership"],
@@ -125,6 +131,8 @@ const mockJobs: Job[] = [
     country: "United States",
     type: "contract",
     salary: "$70 - $90 per hour",
+    salaryMin: 70,
+    salaryMax: 90,
     description: "We need a talented frontend developer for our client projects.",
     requirements: ["3+ years with JavaScript", "CSS expertise", "React knowledge"],
     responsibilities: ["Build responsive UIs", "Optimize performance", "Client communication"],
@@ -156,6 +164,8 @@ const mockJobs: Job[] = [
     country: "United States",
     type: "full-time",
     salary: "$110,000 - $130,000",
+    salaryMin: 110000,
+    salaryMax: 130000,
     description: "Shape the future of our SaaS product.",
     requirements: ["4+ years in product management", "SaaS experience", "Technical background"],
     responsibilities: ["Roadmap planning", "Feature prioritization", "Cross-functional leadership"],
@@ -326,4 +336,3 @@ const DashboardJobsList = () => {
 };
 
 export default DashboardJobsList;
-
