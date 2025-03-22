@@ -1,71 +1,81 @@
-# Enable rewrite engine
-RewriteEngine On
+# Enable necessary Apache modules
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+    
+    # Remove public_html from URL if present
+    RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\ /public_html/
+    RewriteRule ^public_html/(.*) /$1 [R=301,L]
+    
+    # Handle Front Controller Pattern
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.html [QSA,L]
+</IfModule>
 
-# Handle Front Controller Pattern
-RewriteBase /
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^ index.html [QSA,L]
+# Set default charset
+AddDefaultCharset UTF-8
 
 # Set proper MIME types
-AddType application/javascript .js
-AddType application/javascript .mjs
-AddType text/javascript .jsx
-AddType application/javascript .ts
-AddType application/javascript .tsx
-AddType text/css .css
-AddType application/json .json
-
-# Set proper encoding
-AddCharset UTF-8 .js .css .json .html
+<IfModule mod_mime.c>
+    AddType application/javascript .js
+    AddType application/javascript .mjs
+    AddType text/javascript .jsx
+    AddType application/javascript .ts
+    AddType application/javascript .tsx
+    AddType text/css .css
+    AddType application/json .json
+    AddType image/svg+xml .svg
+    AddType image/x-icon .ico
+</IfModule>
 
 # Enable CORS
-Header set Access-Control-Allow-Origin "*"
-Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
-Header set Access-Control-Allow-Headers "Content-Type, Authorization"
+<IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin "*"
+    Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+    Header set Access-Control-Allow-Headers "Content-Type, Authorization"
+    
+    # Prevent MIME type sniffing
+    Header set X-Content-Type-Options "nosniff"
+    
+    # Cache Control for static assets
+    <FilesMatch "\.(js|jsx|ts|tsx|css|json|ico|png|jpg|jpeg|gif|svg)$">
+        Header set Cache-Control "max-age=31536000, public"
+        Header unset ETag
+        FileETag None
+    </FilesMatch>
+</IfModule>
 
 # Force HTTPS
-RewriteCond %{HTTPS} off
-RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
-
-# Cache Control for static assets
-<FilesMatch "\.(js|jsx|ts|tsx|css|json|ico|png|jpg|jpeg|gif|svg)$">
-    Header set Cache-Control "max-age=31536000, public"
-    Header unset ETag
-    FileETag None
-</FilesMatch>
+<IfModule mod_rewrite.c>
+    RewriteCond %{HTTPS} off
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+</IfModule>
 
 # Prevent directory listing
 Options -Indexes
 
-# Enable mod_headers
-<IfModule mod_headers.c>
-    Header set X-Content-Type-Options "nosniff"
-</IfModule>
-
 # Handle errors
 ErrorDocument 404 /index.html
 
-# Handle specific file types
-<Files "*.js">
+# Force file types
+<FilesMatch "\.js$">
     ForceType application/javascript
-</Files>
+    Header set Content-Type application/javascript
+</FilesMatch>
 
-<Files "*.css">
+<FilesMatch "\.css$">
     ForceType text/css
-</Files>
-
-<Files "*.json">
-    ForceType application/json
-</Files>
-
-# Disable PHP execution in uploads directory if exists
-<IfModule mod_php.c>
-    php_flag engine off
-</IfModule>
+    Header set Content-Type text/css
+</FilesMatch>
 
 # Prevent access to sensitive files
 <FilesMatch "^\.">
     Order allow,deny
     Deny from all
-</FilesMatch> 
+</FilesMatch>
+
+# Enable compression
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/css application/javascript text/javascript application/json
+</IfModule> 
