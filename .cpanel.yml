@@ -1,14 +1,7 @@
-
-
 ---
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/example/public_html/
-    - /bin/cp index.html $DEPLOYPATH
-    - /bin/cp style.css $DEPLOYPATH
-    - /bin/cp src/main.tsx $DEPLOYPATH
-    - /bin/cp src/App.tsx $DEPLOYPATH
-    - /bin/cp src/index.css $DEPLOYPATH
-    - /bin/cp src/lib $DEPLOYPATH
-    - /bin/cp src/pages $DEPLOYPATH
-    - /bin/cp src/routes $DEPLOYPATH
+    - export DEPLOYPATH=/home/harpaljob/public_html/
+    - /bin/cp -R build/* $DEPLOYPATH
+    - /bin/cp .htaccess $DEPLOYPATH
+    - /bin/cp -R backend/* $DEPLOYPATH/backend/

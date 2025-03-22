@@ -8,8 +8,11 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write
+
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     strategy:
@@ -19,14 +22,12 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        persist-credentials: false
 
     - name: Setup Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node-version }}
+        cache: 'npm'
 
     - name: Install dependencies
       run: npm install
@@ -34,12 +35,26 @@ jobs:
     - name: Build project
       run: npm run build
       env:
-        CI: false # This prevents treating warnings as errors
+        CI: false
 
     - name: Deploy to GitHub Pages
-      if: github.ref == 'refs/heads/main'
       uses: peaceiris/actions-gh-pages@v3
       with:
-        personal_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./build
-        cname: harpaljob.com 
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: build
+        cname: harpaljob.com
+        enable_jekyll: false
+        allow_empty_commit: true
+        force_orphan: true
+        user_name: 'github-actions[bot]'
+        user_email: 'github-actions[bot]@users.noreply.github.com'
+
+    - name: 📂 Sync files to cPanel
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      with:
+        server: ${{ secrets.CPANEL_FTP_SERVER }}
+        username: ${{ secrets.CPANEL_FTP_USERNAME }}
+        password: ${{ secrets.CPANEL_FTP_PASSWORD }}
+        local-dir: ./build/
+        server-dir: /public_html/
+        dangerous-clean-slate: true 
