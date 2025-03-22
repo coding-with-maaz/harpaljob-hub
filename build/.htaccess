@@ -1,0 +1,37 @@
+# Enable rewrite engine
+RewriteEngine On
+
+# Handle Front Controller Pattern for React Router
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.html [QSA,L]
+
+# Set proper MIME types
+AddType application/javascript .js
+AddType application/javascript .mjs
+AddType text/javascript .jsx
+AddType application/javascript .ts
+AddType application/javascript .tsx
+AddType text/css .css
+
+# Enable CORS
+Header set Access-Control-Allow-Origin "*"
+Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+Header set Access-Control-Allow-Headers "Content-Type, Authorization"
+
+# Cache Control
+<FilesMatch "\.(js|jsx|ts|tsx|css|json)$">
+    Header set Cache-Control "max-age=31536000, public"
+</FilesMatch>
+
+# Prevent directory listing
+Options -Indexes
+
+# Prevent direct access to .htaccess
+<Files .htaccess>
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Custom error pages
+ErrorDocument 404 /index.html 

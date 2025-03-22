@@ -13,7 +13,7 @@ export default defineConfig(({ mode }) => ({
     react(),
     mode === 'development' && componentTagger(),
   ].filter(Boolean),
-  base: './',
+  base: '/',
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -22,9 +22,15 @@ export default defineConfig(({ mode }) => ({
   build: {
     outDir: 'build',
     assetsDir: 'assets',
+    minify: 'terser',
+    sourcemap: false,
     rollupOptions: {
       output: {
-        manualChunks: undefined,
+        manualChunks: (id) => {
+          if (id.includes('node_modules')) {
+            return 'vendor';
+          }
+        },
         assetFileNames: (assetInfo) => {
           if (!assetInfo.name) return 'assets/[name].[hash][extname]';
           const info = assetInfo.name.split('.');
