@@ -6,7 +6,7 @@ import { componentTagger } from "lovable-tagger";
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   plugins: [react()],
-  base: mode === 'production' ? '/harpaljob-hub/' : '/',
+  base: '/',
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -26,6 +26,9 @@ export default defineConfig(({ mode }) => ({
             return 'vendor';
           }
         },
+        assetFileNames: 'assets/[name].[hash][extname]',
+        chunkFileNames: 'assets/[name].[hash].js',
+        entryFileNames: 'assets/[name].[hash].js',
       },
     },
   },
