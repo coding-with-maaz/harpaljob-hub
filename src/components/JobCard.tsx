@@ -1,7 +1,8 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { CalendarDays, MapPin, Building, Clock } from 'lucide-react';
-import { Job } from '@/lib/store/types';
+import { CalendarDays, MapPin, Building, Clock, Eye } from 'lucide-react';
+import { Job } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 interface JobCardProps {
@@ -38,9 +39,13 @@ const JobCard: React.FC<JobCardProps> = ({ job, featured = false }) => {
       )}>
         <div className="flex items-start gap-4">
           <div className="h-12 w-12 overflow-hidden rounded-md bg-secondary flex-shrink-0">
-            <div className="h-full w-full flex items-center justify-center text-job-blue">
-              <Building className="h-6 w-6" />
-            </div>
+            {job.logo ? (
+              <img src={job.logo} alt={`${job.company} logo`} className="h-full w-full object-cover" />
+            ) : (
+              <div className="h-full w-full flex items-center justify-center text-job-blue">
+                <Building className="h-6 w-6" />
+              </div>
+            )}
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between mb-1">
@@ -92,9 +97,15 @@ const JobCard: React.FC<JobCardProps> = ({ job, featured = false }) => {
         
         <div className="mt-4 flex justify-between items-center">
           <span className="font-medium text-sm">{job.salary}</span>
-          <span className="text-xs font-medium text-job-blue opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-            View Details →
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground flex items-center">
+              <Eye className="h-3 w-3 mr-1" />
+              {job.views || 0}
+            </span>
+            <span className="text-xs font-medium text-job-blue opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+              View Details →
+            </span>
+          </div>
         </div>
       </div>
     </Link>

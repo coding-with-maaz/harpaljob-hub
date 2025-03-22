@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Helmet } from "react-helmet";
 import { 
@@ -30,10 +29,12 @@ import {
   Settings, 
   LogOut,
   Search,
-  Building
+  Building,
+  ChevronRight,
+  Users
 } from "lucide-react";
+import FollowedCompanies from "@/components/dashboard/FollowedCompanies";
 
-// Component for saved jobs section
 const SavedJobsSection = () => {
   return (
     <Card>
@@ -54,7 +55,6 @@ const SavedJobsSection = () => {
   );
 };
 
-// Component for applications section
 const ApplicationsSection = () => {
   return (
     <Card>
@@ -75,7 +75,6 @@ const ApplicationsSection = () => {
   );
 };
 
-// Component for profile section
 const ProfileSection = () => {
   return (
     <Card>
@@ -110,7 +109,6 @@ const ProfileSection = () => {
   );
 };
 
-// Component for resume section
 const ResumeSection = () => {
   return (
     <Card>
@@ -128,7 +126,6 @@ const ResumeSection = () => {
   );
 };
 
-// Component for notifications section
 const NotificationsSection = () => {
   return (
     <Card>
@@ -146,7 +143,6 @@ const NotificationsSection = () => {
   );
 };
 
-// Component for messages section
 const MessagesSection = () => {
   return (
     <Card>
@@ -163,7 +159,6 @@ const MessagesSection = () => {
   );
 };
 
-// Component for settings section
 const SettingsSection = () => {
   return (
     <Card>
@@ -220,13 +215,19 @@ const SettingsSection = () => {
   );
 };
 
-// Main UserDashboard component
+const FollowedCompaniesSection = () => {
+  return (
+    <div className="space-y-6">
+      <FollowedCompanies />
+    </div>
+  );
+};
+
 const UserDashboard = () => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("overview");
   const isMobile = useIsMobile();
 
-  // Set sidebar default open state based on device type
   const defaultSidebarOpen = !isMobile;
 
   const handleLogout = () => {
@@ -293,6 +294,16 @@ const UserDashboard = () => {
                       >
                         <FileText className="h-4 w-4" />
                         <span>Resume</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton 
+                        onClick={() => setActiveTab("companies")}
+                        isActive={activeTab === "companies"}
+                        tooltip="Followed Companies"
+                      >
+                        <Building className="h-4 w-4" />
+                        <span>Companies</span>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   </SidebarMenu>
@@ -380,6 +391,7 @@ const UserDashboard = () => {
                   {activeTab === "messages" && "Messages"}
                   {activeTab === "profile" && "My Profile"}
                   {activeTab === "settings" && "Settings"}
+                  {activeTab === "companies" && "Followed Companies"}
                 </h1>
                 <p className="text-muted-foreground">
                   {activeTab === "overview" && "Welcome back! Manage your job search activities"}
@@ -390,6 +402,7 @@ const UserDashboard = () => {
                   {activeTab === "messages" && "Communication with employers"}
                   {activeTab === "profile" && "Edit your personal information"}
                   {activeTab === "settings" && "Manage your account settings and preferences"}
+                  {activeTab === "companies" && "Companies you're following"}
                 </p>
               </div>
               
@@ -397,6 +410,13 @@ const UserDashboard = () => {
                 <Button className="hidden sm:flex">
                   <Search className="mr-2 h-4 w-4" />
                   Find More Jobs
+                </Button>
+              )}
+              
+              {activeTab === "companies" && (
+                <Button className="hidden sm:flex">
+                  <Building className="mr-2 h-4 w-4" />
+                  Find Companies
                 </Button>
               )}
             </div>
@@ -471,6 +491,49 @@ const UserDashboard = () => {
                 </Card>
                 
                 <Card className="md:col-span-2">
+                  <CardHeader className="flex flex-row items-center justify-between pb-2">
+                    <div>
+                      <CardTitle>Recent Activity</CardTitle>
+                      <CardDescription>Your recent job search activity</CardDescription>
+                    </div>
+                    <Button variant="ghost" size="sm" className="gap-1">
+                      View All <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="rounded-lg border p-3">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <div className="font-medium">Profile View</div>
+                            <div className="text-sm text-muted-foreground">TechVision Inc. viewed your profile</div>
+                          </div>
+                          <div className="text-xs text-muted-foreground">2h ago</div>
+                        </div>
+                      </div>
+                      <div className="rounded-lg border p-3">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <div className="font-medium">New Matching Job</div>
+                            <div className="text-sm text-muted-foreground">Senior Frontend Developer position matches your profile</div>
+                          </div>
+                          <div className="text-xs text-muted-foreground">1d ago</div>
+                        </div>
+                      </div>
+                      <div className="rounded-lg border p-3">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <div className="font-medium">Company Update</div>
+                            <div className="text-sm text-muted-foreground">InnovateTech posted 3 new jobs</div>
+                          </div>
+                          <div className="text-xs text-muted-foreground">3d ago</div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="md:col-span-2">
                   <CardHeader>
                     <CardTitle>Recommended Jobs</CardTitle>
                     <CardDescription>Based on your profile and search history</CardDescription>
@@ -492,6 +555,7 @@ const UserDashboard = () => {
             {activeTab === "messages" && <MessagesSection />}
             {activeTab === "profile" && <ProfileSection />}
             {activeTab === "settings" && <SettingsSection />}
+            {activeTab === "companies" && <FollowedCompaniesSection />}
           </SidebarInset>
         </div>
       </SidebarProvider>

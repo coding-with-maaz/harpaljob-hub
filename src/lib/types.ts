@@ -1,3 +1,4 @@
+
 export interface User {
   id: string;
   firstName: string;
@@ -32,6 +33,17 @@ export interface Job {
   companyId: number;
   benefits: string[];
   experience: string;
+  
+  // Adding additional properties needed by components
+  companyDescription?: string;
+  companySize?: string;
+  companyWebsite?: string;
+  companyIndustry?: string;
+  companyFoundedYear?: string;
+  tags?: string[];
+  responsibilities?: string[];
+  applicationDeadline?: string;
+  country?: string;
 }
 
 export interface SavedJob {
@@ -48,4 +60,19 @@ export interface ApplicationData {
   portfolioUrl?: string;
   availableStartDate?: string;
   yearsOfExperience?: number;
+}
+
+export interface FollowedCompany {
+  id: string;
+  companyId: number;
+  companyName: string;
+  companyLogo?: string;
+  followedAt: string;
+}
+
+export interface CompanyStats {
+  followers: number;
+  activeJobs: number;
+  totalJobs: number;
+  views: number;
 }
