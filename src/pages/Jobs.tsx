@@ -36,12 +36,24 @@ import type { JobFilters } from "@/lib/store/types";
 const Jobs = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+  
+  // Type guard for sort parameter
+  const isValidSortBy = (value: string): value is 'relevance' | 'recent' | 'salary-high' | 'salary-low' | 'popular' | 'deadline' => {
+    return ['relevance', 'recent', 'salary-high', 'salary-low', 'popular', 'deadline'].includes(value);
+  };
+  
+  // Helper function to get initial sort value
+  const getInitialSortValue = (value: string | null): 'relevance' | 'recent' | 'salary-high' | 'salary-low' | 'popular' | 'deadline' => {
+    if (!value) return 'relevance';
+    return isValidSortBy(value) ? value : 'relevance';
+  };
+  
   const [filters, setFilters] = useState<JobFilters>({
     query: searchParams.get('search') || "",
     location: searchParams.get('location') || "",
     category: searchParams.get('category') || "",
     employmentType: searchParams.get('type') || "",
-    sortBy: searchParams.get('sort') || "relevance",
+    sortBy: getInitialSortValue(searchParams.get('sort')),
     page: Number(searchParams.get('page')) || 1,
     limit: 10
   });
@@ -90,11 +102,6 @@ const Jobs = () => {
       ...prev,
       page: 1
     }));
-  };
-  
-  // Type guard for sort parameter
-  const isValidSortBy = (value: string): value is 'relevance' | 'recent' | 'salary-high' | 'salary-low' | 'popular' | 'deadline' => {
-    return ['relevance', 'recent', 'salary-high', 'salary-low', 'popular', 'deadline'].includes(value);
   };
   
   // Get URL parameters

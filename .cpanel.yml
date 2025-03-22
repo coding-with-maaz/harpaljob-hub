@@ -1,0 +1,10 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/example/public_html/
+    - /bin/cp -R harpaljob-hub/build/* $DEPLOYPATH
+    - /bin/cp -R harpaljob-hub/backend/* $DEPLOYPATH/backend/
+    - /bin/cp harpaljob-hub/.htaccess $DEPLOYPATH
+    - /bin/cp harpaljob-hub/backend/.env $DEPLOYPATH/backend/
+    - /bin/cp harpaljob-hub/backend/package.json $DEPLOYPATH/backend/
+    - /bin/cp harpaljob-hub/backend/package-lock.json $DEPLOYPATH/backend/ 
