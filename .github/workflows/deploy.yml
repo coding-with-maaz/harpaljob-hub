@@ -23,6 +23,9 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        persist-credentials: false
 
     - name: Setup pnpm
       uses: pnpm/action-setup@v2.2.4
@@ -48,6 +51,6 @@ jobs:
       if: github.ref == 'refs/heads/main'
       uses: peaceiris/actions-gh-pages@v3
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./harpaljob-hub/build # Using the build directory from your Vite config
-        cname: harpaljob.com # Your custom domain 
+        personal_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./harpaljob-hub/build
+        cname: harpaljob.com 
