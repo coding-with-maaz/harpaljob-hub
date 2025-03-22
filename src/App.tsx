@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -12,6 +13,8 @@ import CategoryResults from "./pages/CategoryResults";
 import JobDetail from "./pages/JobDetail";
 import SavedJobs from "./pages/SavedJobs";
 import Dashboard from "./pages/Dashboard";
+import UserDashboard from "./pages/UserDashboard";
+import EmployerDashboard from "./pages/EmployerDashboard";
 import MobileApp from "./pages/MobileApp";
 import AdDemo from "./pages/AdDemo";
 import NotFound from "./pages/NotFound";
@@ -36,6 +39,8 @@ function App() {
               <Route path="/job/:id" element={<JobDetail />} />
               <Route path="/saved-jobs" element={<SavedJobs />} />
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/user-dashboard" element={<UserDashboard />} />
+              <Route path="/employer-dashboard" element={<EmployerDashboard />} />
               <Route path="/mobile-app" element={<MobileApp />} />
               <Route path="/ad-demo" element={<AdDemo />} />
               <Route path="/seo-analyzer" element={<SEOAnalyzer />} />
