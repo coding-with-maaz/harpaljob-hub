@@ -1,419 +1,425 @@
 
-import React, { useState } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
+import React, { useState, useEffect } from "react";
 import { 
-  PencilIcon, 
-  Trash2Icon, 
-  EyeIcon, 
-  ChevronLeftIcon, 
-  ChevronRightIcon,
-  Search,
-  Plus,
-  Filter,
-  ArrowUpDown,
-  CheckCircle,
-  XCircle
-} from "lucide-react";
-import { Job } from "@/lib/types";
-import { Link } from "react-router-dom";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+  Card, 
+  CardContent, 
+  CardDescription, 
+  CardFooter, 
+  CardHeader, 
+  CardTitle 
+} from "@/components/ui/card";
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from "@/components/ui/table";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuLabel, 
+  DropdownMenuSeparator, 
+  DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { mockJobs } from "@/components/dashboard/JobsData";
+import { 
+  MoreHorizontal, 
+  ChevronLeft, 
+  ChevronRight, 
+  Search, 
+  Filter, 
+  Plus, 
+  Pencil, 
+  Trash2,
+  Eye,
+  ArrowUpDown,
+  Clock,
+  Tag,
+  Building
+} from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { Job, JobCategory } from "@/lib/types";
 
-// Use the existing mock data
-import { mockJobs } from "./JobsData";
-
+// Fix the type issues by ensuring we're using strings as keys and React nodes for display
 const DashboardJobsList = () => {
   const { toast } = useToast();
-  const [searchTerm, setSearchTerm] = useState("");
+  const [jobs, setJobs] = useState<Job[]>(mockJobs);
+  const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedCategory, setSelectedCategory] = useState<string | "all">("all");
-  const [selectedStatus, setSelectedStatus] = useState<string | "all">("all");
-  const [sortBy, setSortBy] = useState<"date" | "title" | "company">("date");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [jobsPerPage] = useState(5);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [jobToDelete, setJobToDelete] = useState<string | null>(null);
-  const itemsPerPage = 5;
+  const [sortField, setSortField] = useState<string>("postedDate");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
 
-  // Extract unique categories and statuses from jobs for filtering
-  const categories = Array.from(new Set(mockJobs.map(job => job.category))).sort();
-  const statuses = Array.from(new Set(mockJobs.map(job => job.status))).sort();
-
-  // Filter jobs based on search term, category, and status
-  const filteredJobs = mockJobs.filter(
-    (job) => {
-      const matchesSearch = 
-        job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        job.company.toLowerCase().includes(searchTerm.toLowerCase());
-      
-      const matchesCategory = 
-        selectedCategory === "all" || 
-        job.category === selectedCategory;
-      
-      const matchesStatus = 
-        selectedStatus === "all" || 
-        job.status === selectedStatus;
-      
-      return matchesSearch && matchesCategory && matchesStatus;
-    }
-  );
+  // Filter jobs based on search query and status
+  const filteredJobs = jobs.filter(job => {
+    const matchesSearch = 
+      job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      job.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      job.location.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesStatus = statusFilter === "all" || job.status === statusFilter;
+    
+    return matchesSearch && matchesStatus;
+  });
 
   // Sort jobs
   const sortedJobs = [...filteredJobs].sort((a, b) => {
-    if (sortBy === "date") {
-      const dateA = new Date(a.postedDate).getTime();
-      const dateB = new Date(b.postedDate).getTime();
-      return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
-    } else if (sortBy === "title") {
-      return sortOrder === "asc" 
-        ? a.title.localeCompare(b.title)
-        : b.title.localeCompare(a.title);
-    } else if (sortBy === "company") {
-      return sortOrder === "asc"
-        ? a.company.localeCompare(b.company)
-        : b.company.localeCompare(a.company);
+    let aVal, bVal;
+    
+    // Handle different field types
+    if (sortField === "postedDate") {
+      aVal = new Date(a.postedDate).getTime();
+      bVal = new Date(b.postedDate).getTime();
+    } else if (sortField === "salaryMin") {
+      aVal = a.salaryMin || 0;
+      bVal = b.salaryMin || 0;
+    } else if (sortField === "title") {
+      aVal = a.title.toLowerCase();
+      bVal = b.title.toLowerCase();
+    } else if (sortField === "company") {
+      aVal = a.company.toLowerCase();
+      bVal = b.company.toLowerCase();
+    } else if (sortField === "location") {
+      aVal = a.location.toLowerCase();
+      bVal = b.location.toLowerCase();
+    } else {
+      aVal = a[sortField as keyof Job];
+      bVal = b[sortField as keyof Job];
     }
-    return 0;
+    
+    // Handle the direction
+    if (sortDirection === "asc") {
+      return aVal > bVal ? 1 : -1;
+    } else {
+      return aVal < bVal ? 1 : -1;
+    }
   });
 
   // Calculate pagination
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentJobs = sortedJobs.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(sortedJobs.length / itemsPerPage);
+  const indexOfLastJob = currentPage * jobsPerPage;
+  const indexOfFirstJob = indexOfLastJob - jobsPerPage;
+  const currentJobs = sortedJobs.slice(indexOfFirstJob, indexOfLastJob);
+  const totalPages = Math.ceil(sortedJobs.length / jobsPerPage);
 
-  const handleSort = (column: "date" | "title" | "company") => {
-    if (sortBy === column) {
-      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+  const handleSort = (field: string) => {
+    if (sortField === field) {
+      // Toggle direction if clicking the same field
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
     } else {
-      setSortBy(column);
-      setSortOrder("asc");
+      // Set new field and default to descending
+      setSortField(field);
+      setSortDirection("desc");
     }
   };
 
-  const handleEdit = (jobId: string) => {
-    toast({
-      title: "Edit Job",
-      description: `You're editing job with ID: ${jobId}`
-    });
+  const handleDeleteClick = (jobId: string) => {
+    setJobToDelete(jobId);
+    setShowDeleteConfirm(true);
   };
 
   const confirmDelete = () => {
     if (jobToDelete) {
+      setJobs(jobs.filter(job => job.id !== jobToDelete));
+      setShowDeleteConfirm(false);
+      setJobToDelete(null);
+      
       toast({
         title: "Job Deleted",
-        description: `Job with ID: ${jobToDelete} has been deleted`,
-        variant: "destructive"
+        description: "The job listing has been successfully deleted."
       });
-      setShowDeleteDialog(false);
-      setJobToDelete(null);
     }
   };
 
-  const openDeleteDialog = (jobId: string) => {
-    setJobToDelete(jobId);
-    setShowDeleteDialog(true);
-  };
-
-  const resetFilters = () => {
-    setSearchTerm("");
-    setSelectedCategory("all");
-    setSelectedStatus("all");
-    setSortBy("date");
-    setSortOrder("desc");
-    setCurrentPage(1);
-  };
-
-  const toggleJobFeatured = (jobId: string, featured: boolean) => {
+  const handleStatusChange = (jobId: string, newStatus: string) => {
+    setJobs(jobs.map(job => 
+      job.id === jobId ? { ...job, status: newStatus } : job
+    ));
+    
     toast({
-      title: featured ? "Job Unfeatured" : "Job Featured",
-      description: `Job has been ${featured ? "removed from" : "added to"} featured listings`,
+      title: "Status Updated",
+      description: `Job status has been changed to ${newStatus}.`
     });
   };
 
-  const toggleJobStatus = (jobId: string, status: string) => {
-    const newStatus = status === "active" ? "closed" : "active";
+  const handleFeatureToggle = (jobId: string) => {
+    setJobs(jobs.map(job => 
+      job.id === jobId ? { ...job, featured: !job.featured } : job
+    ));
+    
+    const job = jobs.find(j => j.id === jobId);
+    const newFeaturedStatus = job ? !job.featured : false;
+    
     toast({
-      title: "Job Status Updated",
-      description: `Job status changed to ${newStatus}`,
+      title: newFeaturedStatus ? "Job Featured" : "Job Unfeatured",
+      description: newFeaturedStatus 
+        ? "The job has been marked as featured and will appear in featured sections."
+        : "The job has been removed from featured listings."
     });
+  };
+
+  // Function to convert category to string for display
+  const getCategoryName = (category: string | JobCategory): string => {
+    if (typeof category === 'string') {
+      return category;
+    }
+    return category?.name || 'Uncategorized';
+  };
+
+  // Format date for display
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+  };
+
+  // Generate status badge
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case "active":
+        return <Badge variant="default">Active</Badge>;
+      case "draft":
+        return <Badge variant="secondary">Draft</Badge>;
+      case "closed":
+        return <Badge variant="outline">Closed</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Manage Job Listings</CardTitle>
-        <CardDescription>View, edit, and delete your job postings</CardDescription>
-        <div className="flex flex-col sm:flex-row gap-4 mt-4">
-          <div className="relative flex-grow">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Search jobs by title or company..."
-              className="pl-8 h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+    <>
+      <Card>
+        <CardHeader>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <CardTitle>Job Listings</CardTitle>
+              <CardDescription>Manage your job postings</CardDescription>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <div className="relative">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input 
+                  type="search" 
+                  placeholder="Search jobs..." 
+                  className="pl-8 w-full sm:w-[200px] lg:w-[300px]"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="gap-1">
+                    <Filter className="h-4 w-4" /> Filter
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
+                  <DropdownMenuItem onClick={() => setStatusFilter("all")}>
+                    All Jobs
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setStatusFilter("active")}>
+                    Active Jobs
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setStatusFilter("draft")}>
+                    Draft Jobs
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setStatusFilter("closed")}>
+                    Closed Jobs
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <Button>
+                <Plus className="mr-2 h-4 w-4" /> Add New Job
+              </Button>
+            </div>
           </div>
-          
-          <div className="flex gap-2">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="h-10">
-                  <Filter className="mr-2 h-4 w-4" />
-                  Filter
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>Filter Jobs</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                
-                <div className="p-2">
-                  <label className="text-xs font-medium">Category</label>
-                  <Select
-                    value={selectedCategory}
-                    onValueChange={(value) => setSelectedCategory(value)}
-                  >
-                    <SelectTrigger className="mt-1">
-                      <SelectValue placeholder="Select a category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Categories</SelectItem>
-                      {categories.map((category) => (
-                        <SelectItem key={category} value={category}>
-                          {category}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="p-2">
-                  <label className="text-xs font-medium">Status</label>
-                  <Select
-                    value={selectedStatus}
-                    onValueChange={(value) => setSelectedStatus(value)}
-                  >
-                    <SelectTrigger className="mt-1">
-                      <SelectValue placeholder="Select a status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Statuses</SelectItem>
-                      {statuses.map((status) => (
-                        <SelectItem key={status} value={status}>
-                          {status.charAt(0).toUpperCase() + status.slice(1)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={resetFilters}>
-                  Reset Filters
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Add New Job
-            </Button>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>
-                <div 
-                  className="flex items-center cursor-pointer"
-                  onClick={() => handleSort("title")}
-                >
-                  Title
-                  <ArrowUpDown className="ml-1 h-3 w-3" />
-                </div>
-              </TableHead>
-              <TableHead>
-                <div 
-                  className="flex items-center cursor-pointer"
-                  onClick={() => handleSort("company")}
-                >
-                  Company 
-                  <ArrowUpDown className="ml-1 h-3 w-3" />
-                </div>
-              </TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>
-                <div 
-                  className="flex items-center cursor-pointer"
-                  onClick={() => handleSort("date")}
-                >
-                  Posted Date
-                  <ArrowUpDown className="ml-1 h-3 w-3" />
-                </div>
-              </TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {currentJobs.length > 0 ? (
-              currentJobs.map((job) => (
-                <TableRow key={job.id}>
-                  <TableCell className="font-medium">{job.title}</TableCell>
-                  <TableCell>{job.company}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className="bg-muted">
-                      {job.category}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{new Date(job.postedDate).toLocaleDateString()}</TableCell>
-                  <TableCell>
-                    <Badge
-                      className={`${
-                        job.status === "active"
-                          ? "bg-green-100 text-green-800"
-                          : job.status === "closed"
-                          ? "bg-red-100 text-red-800"
-                          : "bg-yellow-100 text-yellow-800"
-                      }`}
-                    >
-                      {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button variant="outline" size="icon" asChild>
-                        <Link to={`/job/${job.slug}`}>
-                          <EyeIcon className="h-4 w-4" />
-                        </Link>
-                      </Button>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="cursor-pointer" onClick={() => handleSort("title")}>
+                  <div className="flex items-center">
+                    Title
+                    {sortField === "title" && (
+                      <ArrowUpDown className="ml-1 h-4 w-4" />
+                    )}
+                  </div>
+                </TableHead>
+                <TableHead className="cursor-pointer" onClick={() => handleSort("company")}>
+                  <div className="flex items-center">
+                    Company
+                    {sortField === "company" && (
+                      <ArrowUpDown className="ml-1 h-4 w-4" />
+                    )}
+                  </div>
+                </TableHead>
+                <TableHead className="cursor-pointer" onClick={() => handleSort("location")}>
+                  <div className="flex items-center">
+                    Location
+                    {sortField === "location" && (
+                      <ArrowUpDown className="ml-1 h-4 w-4" />
+                    )}
+                  </div>
+                </TableHead>
+                <TableHead className="cursor-pointer" onClick={() => handleSort("category")}>
+                  <div className="flex items-center">
+                    Category
+                    {sortField === "category" && (
+                      <ArrowUpDown className="ml-1 h-4 w-4" />
+                    )}
+                  </div>
+                </TableHead>
+                <TableHead className="cursor-pointer" onClick={() => handleSort("postedDate")}>
+                  <div className="flex items-center">
+                    Posted Date
+                    {sortField === "postedDate" && (
+                      <ArrowUpDown className="ml-1 h-4 w-4" />
+                    )}
+                  </div>
+                </TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {currentJobs.length > 0 ? (
+                currentJobs.map((job) => (
+                  <TableRow key={job.id}>
+                    <TableCell>
+                      <div className="font-medium">
+                        {job.title}
+                        {job.featured && (
+                          <Badge variant="secondary" className="ml-2">Featured</Badge>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>{job.company}</TableCell>
+                    <TableCell>{job.location}</TableCell>
+                    <TableCell>{getCategoryName(job.category)}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center">
+                        <Clock className="mr-1 h-3 w-3 text-muted-foreground" />
+                        <span>{formatDate(job.postedDate)}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>{getStatusBadge(job.status)}</TableCell>
+                    <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="outline" size="icon">
-                            <PencilIcon className="h-4 w-4" />
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <span className="sr-only">Open menu</span>
+                            <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleEdit(job.id)}>
-                            Edit Details
+                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuItem>
+                            <Eye className="mr-2 h-4 w-4" /> View Details
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => toggleJobStatus(job.id, job.status)}>
-                            {job.status === "active" ? "Mark as Closed" : "Mark as Active"}
+                          <DropdownMenuItem>
+                            <Pencil className="mr-2 h-4 w-4" /> Edit Job
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => toggleJobFeatured(job.id, job.featured)}>
+                          <DropdownMenuItem onClick={() => handleFeatureToggle(job.id)}>
+                            <Tag className="mr-2 h-4 w-4" />
                             {job.featured ? "Remove from Featured" : "Mark as Featured"}
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            className="text-red-600"
-                            onClick={() => openDeleteDialog(job.id)}
+                          <DropdownMenuLabel>Status</DropdownMenuLabel>
+                          <DropdownMenuItem onClick={() => handleStatusChange(job.id, "active")}>
+                            Mark as Active
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleStatusChange(job.id, "draft")}>
+                            Save as Draft
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleStatusChange(job.id, "closed")}>
+                            Close Job
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem 
+                            onClick={() => handleDeleteClick(job.id)}
+                            className="text-destructive"
                           >
-                            Delete
+                            <Trash2 className="mr-2 h-4 w-4" /> Delete Job
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
-                    </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center py-4">
+                    No jobs found
                   </TableCell>
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
-                  No jobs found matching your search.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-        
-        {/* Pagination controls */}
-        {sortedJobs.length > 0 && (
-          <div className="flex items-center justify-between mt-4">
-            <div className="text-sm text-muted-foreground">
-              Showing {indexOfFirstItem + 1}-{Math.min(indexOfLastItem, sortedJobs.length)} of {sortedJobs.length} jobs
-            </div>
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}
-              >
-                <ChevronLeftIcon className="h-4 w-4" />
-              </Button>
-              <div className="text-sm">
-                Page {currentPage} of {totalPages}
-              </div>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                disabled={currentPage === totalPages}
-              >
-                <ChevronRightIcon className="h-4 w-4" />
-              </Button>
-            </div>
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+        <CardFooter className="flex items-center justify-between">
+          <div className="text-sm text-muted-foreground">
+            Showing {Math.min(sortedJobs.length, indexOfFirstJob + 1)}-
+            {Math.min(indexOfLastJob, sortedJobs.length)} of {sortedJobs.length}
           </div>
-        )}
-        
-        {/* Delete Confirmation Dialog */}
-        <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Confirm Deletion</DialogTitle>
-              <DialogDescription>
-                Are you sure you want to delete this job? This action cannot be undone.
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>
-                Cancel
-              </Button>
-              <Button variant="destructive" onClick={confirmDelete}>
-                Delete
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </CardContent>
-    </Card>
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+              disabled={currentPage === totalPages || totalPages === 0}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </CardFooter>
+      </Card>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the job listing.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 };
 

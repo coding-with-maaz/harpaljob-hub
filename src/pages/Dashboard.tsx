@@ -27,6 +27,8 @@ import DashboardAds from "@/components/dashboard/DashboardAds";
 import DashboardSettings from "@/components/dashboard/DashboardSettings";
 import DashboardMobileApp from "@/components/dashboard/DashboardMobileApp";
 import DashboardCategories from "@/components/dashboard/DashboardCategories";
+import DashboardApplicants from "@/components/dashboard/DashboardApplicants";
+import RealtimeAnalytics from "@/components/dashboard/RealtimeAnalytics";
 import { 
   LayoutDashboard, 
   Briefcase, 
@@ -39,7 +41,8 @@ import {
   AreaChart,
   Wallet,
   Tag,
-  LayoutGrid
+  LayoutGrid,
+  BarChart
 } from "lucide-react";
 
 const Dashboard = () => {
@@ -133,6 +136,16 @@ const Dashboard = () => {
                     </SidebarMenuItem>
                     <SidebarMenuItem>
                       <SidebarMenuButton 
+                        onClick={() => setActiveTab("analytics")}
+                        isActive={activeTab === "analytics"}
+                        tooltip="Real-time Analytics"
+                      >
+                        <BarChart className="h-4 w-4" />
+                        <span>Analytics</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton 
                         onClick={() => setActiveTab("ads")}
                         isActive={activeTab === "ads"}
                         tooltip="Manage Advertisements"
@@ -153,12 +166,12 @@ const Dashboard = () => {
                     </SidebarMenuItem>
                     <SidebarMenuItem>
                       <SidebarMenuButton 
-                        onClick={() => setActiveTab("analytics")}
-                        isActive={activeTab === "analytics"}
+                        onClick={() => setActiveTab("reports")}
+                        isActive={activeTab === "reports"}
                         tooltip="Analytics & Reports"
                       >
                         <AreaChart className="h-4 w-4" />
-                        <span>Analytics</span>
+                        <span>Reports</span>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   </SidebarMenu>
@@ -214,9 +227,10 @@ const Dashboard = () => {
                   {activeTab === "jobs" && "Manage Jobs"}
                   {activeTab === "categories" && "Manage Categories"}
                   {activeTab === "applicants" && "Manage Applicants"}
+                  {activeTab === "analytics" && "Real-time Analytics"}
                   {activeTab === "ads" && "Ad Management"}
                   {activeTab === "mobile-app" && "Mobile App Management"}
-                  {activeTab === "analytics" && "Analytics & Reports"}
+                  {activeTab === "reports" && "Analytics & Reports"}
                   {activeTab === "seo" && "SEO Settings"}
                   {activeTab === "settings" && "General Settings"}
                 </h1>
@@ -225,9 +239,10 @@ const Dashboard = () => {
                   {activeTab === "jobs" && "Create, edit and delete job listings"}
                   {activeTab === "categories" && "Organize and manage job categories"}
                   {activeTab === "applicants" && "Review and manage job applications"}
+                  {activeTab === "analytics" && "Monitor real-time website activity"}
                   {activeTab === "ads" && "Configure and monitor advertising campaigns"}
                   {activeTab === "mobile-app" && "Configure and monitor the mobile application"}
-                  {activeTab === "analytics" && "View detailed analytics and generate reports"}
+                  {activeTab === "reports" && "View detailed analytics and generate reports"}
                   {activeTab === "seo" && "Optimize search engine visibility"}
                   {activeTab === "settings" && "Configure system settings"}
                 </p>
@@ -258,18 +273,9 @@ const Dashboard = () => {
             {activeTab === "jobs" && <DashboardJobsList />}
             {activeTab === "categories" && <DashboardCategories />}
             {activeTab === "ads" && <DashboardAds />}
-            {activeTab === "applicants" && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Recent Applications</CardTitle>
-                  <CardDescription>Manage and respond to job applicants</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p>Applicants management interface will appear here</p>
-                </CardContent>
-              </Card>
-            )}
-            {activeTab === "analytics" && (
+            {activeTab === "applicants" && <DashboardApplicants />}
+            {activeTab === "analytics" && <RealtimeAnalytics />}
+            {activeTab === "reports" && (
               <Card>
                 <CardHeader>
                   <CardTitle>Analytics & Reports</CardTitle>
