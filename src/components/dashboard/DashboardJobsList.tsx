@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { 
   Card, 
   CardContent, 
@@ -38,7 +37,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { mockJobs } from "@/components/dashboard/JobsData";
 import { 
   MoreHorizontal, 
   ChevronLeft, 
@@ -56,11 +54,14 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Job, JobCategory } from "@/lib/types";
+import { 
+  useGetJobsQuery, 
+  useDeleteJobMutation, 
+  useUpdateJobMutation 
+} from "@/lib/store/api";
 
-// Fix the type issues by ensuring we're using strings as keys and React nodes for display
 const DashboardJobsList = () => {
   const { toast } = useToast();
-  const [jobs, setJobs] = useState<Job[]>(mockJobs);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [jobsPerPage] = useState(5);
@@ -70,63 +71,27 @@ const DashboardJobsList = () => {
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
+  // API hooks
+  const { data: jobsData, isLoading } = useGetJobsQuery({
+    page: currentPage,
+    limit: jobsPerPage,
+    sortBy: sortDirection === "asc" ? `${sortField}-asc` : `${sortField}-desc`,
+    query: searchQuery,
+    status: statusFilter === "all" ? undefined : statusFilter
+  });
+
+  const [deleteJob] = useDeleteJobMutation();
+  const [updateJob] = useUpdateJobMutation();
+
   // Filter jobs based on search query and status
-  const filteredJobs = jobs.filter(job => {
-    const matchesSearch = 
-      job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      job.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      job.location.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const matchesStatus = statusFilter === "all" || job.status === statusFilter;
-    
-    return matchesSearch && matchesStatus;
-  });
-
-  // Sort jobs
-  const sortedJobs = [...filteredJobs].sort((a, b) => {
-    let aVal, bVal;
-    
-    // Handle different field types
-    if (sortField === "postedDate") {
-      aVal = new Date(a.postedDate).getTime();
-      bVal = new Date(b.postedDate).getTime();
-    } else if (sortField === "salaryMin") {
-      aVal = a.salaryMin || 0;
-      bVal = b.salaryMin || 0;
-    } else if (sortField === "title") {
-      aVal = a.title.toLowerCase();
-      bVal = b.title.toLowerCase();
-    } else if (sortField === "company") {
-      aVal = a.company.toLowerCase();
-      bVal = b.company.toLowerCase();
-    } else if (sortField === "location") {
-      aVal = a.location.toLowerCase();
-      bVal = b.location.toLowerCase();
-    } else {
-      aVal = a[sortField as keyof Job];
-      bVal = b[sortField as keyof Job];
-    }
-    
-    // Handle the direction
-    if (sortDirection === "asc") {
-      return aVal > bVal ? 1 : -1;
-    } else {
-      return aVal < bVal ? 1 : -1;
-    }
-  });
-
-  // Calculate pagination
-  const indexOfLastJob = currentPage * jobsPerPage;
-  const indexOfFirstJob = indexOfLastJob - jobsPerPage;
-  const currentJobs = sortedJobs.slice(indexOfFirstJob, indexOfLastJob);
-  const totalPages = Math.ceil(sortedJobs.length / jobsPerPage);
+  const filteredJobs = jobsData?.data.jobs || [];
+  const totalJobs = jobsData?.pagination.total || 0;
+  const totalPages = jobsData?.pagination.pages || 1;
 
   const handleSort = (field: string) => {
     if (sortField === field) {
-      // Toggle direction if clicking the same field
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
     } else {
-      // Set new field and default to descending
       setSortField(field);
       setSortDirection("desc");
     }
@@ -137,44 +102,70 @@ const DashboardJobsList = () => {
     setShowDeleteConfirm(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (jobToDelete) {
-      setJobs(jobs.filter(job => job.id !== jobToDelete));
-      setShowDeleteConfirm(false);
-      setJobToDelete(null);
+      try {
+        await deleteJob(jobToDelete).unwrap();
+        setShowDeleteConfirm(false);
+        setJobToDelete(null);
+        
+        toast({
+          title: "Job Deleted",
+          description: "The job listing has been successfully deleted."
+        });
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to delete the job listing.",
+          variant: "destructive"
+        });
+      }
+    }
+  };
+
+  const handleStatusChange = async (jobId: string, newStatus: string) => {
+    try {
+      await updateJob({ 
+        id: jobId, 
+        job: { status: newStatus } 
+      }).unwrap();
       
       toast({
-        title: "Job Deleted",
-        description: "The job listing has been successfully deleted."
+        title: "Status Updated",
+        description: `Job status has been changed to ${newStatus}.`
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update job status.",
+        variant: "destructive"
       });
     }
   };
 
-  const handleStatusChange = (jobId: string, newStatus: string) => {
-    setJobs(jobs.map(job => 
-      job.id === jobId ? { ...job, status: newStatus } : job
-    ));
-    
-    toast({
-      title: "Status Updated",
-      description: `Job status has been changed to ${newStatus}.`
-    });
-  };
+  const handleFeatureToggle = async (jobId: string) => {
+    const job = jobsData?.data.jobs.find(j => j.id === jobId);
+    if (!job) return;
 
-  const handleFeatureToggle = (jobId: string) => {
-    setJobs(jobs.map(job => 
-      job.id === jobId ? { ...job, featured: !job.featured } : job
-    ));
-    
-    const job = jobs.find(j => j.id === jobId);
-    const newFeaturedStatus = job ? !job.featured : false;
-    
-    toast({
-      title: newFeaturedStatus ? "Job Featured" : "Job Unfeatured",
-      description: newFeaturedStatus 
-        ? "The job has been marked as featured and will appear in featured sections."
-        : "The job has been removed from featured listings."
-    });
+    try {
+      await updateJob({ 
+        id: jobId, 
+        job: { featured: !job.featured } 
+      }).unwrap();
+      
+      toast({
+        title: job.featured ? "Job Unfeatured" : "Job Featured",
+        description: job.featured 
+          ? "The job has been removed from featured listings."
+          : "The job has been marked as featured and will appear in featured sections."
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update job featured status.",
+        variant: "destructive"
+      });
+    }
   };
 
   // Function to convert category to string for display
@@ -204,6 +195,22 @@ const DashboardJobsList = () => {
         return <Badge variant="outline">{status}</Badge>;
     }
   };
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Job Listings</CardTitle>
+          <CardDescription>Loading jobs...</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-job-blue"></div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <>
@@ -302,8 +309,8 @@ const DashboardJobsList = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {currentJobs.length > 0 ? (
-                currentJobs.map((job) => (
+              {filteredJobs.length > 0 ? (
+                filteredJobs.map((job) => (
                   <TableRow key={job.id}>
                     <TableCell>
                       <div className="font-medium">
@@ -378,8 +385,8 @@ const DashboardJobsList = () => {
         </CardContent>
         <CardFooter className="flex items-center justify-between">
           <div className="text-sm text-muted-foreground">
-            Showing {Math.min(sortedJobs.length, indexOfFirstJob + 1)}-
-            {Math.min(indexOfLastJob, sortedJobs.length)} of {sortedJobs.length}
+            Showing {Math.min(totalJobs, (currentPage - 1) * jobsPerPage + 1)}-
+            {Math.min(currentPage * jobsPerPage, totalJobs)} of {totalJobs}
           </div>
           <div className="flex items-center space-x-2">
             <Button

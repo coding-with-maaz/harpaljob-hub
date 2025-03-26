@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { CalendarDays, MapPin, Building, Clock, Eye } from 'lucide-react';
@@ -83,7 +82,11 @@ const JobCard: React.FC<JobCardProps> = ({ job, featured = false }) => {
               <div className="flex items-center">
                 <Building className="h-3.5 w-3.5 mr-1 text-job-slate" />
                 <Badge variant="outline">
-                  {typeof job.category === 'string' ? job.category : job.category.name}
+                  {job.category ? (
+                    typeof job.category === 'string' ? job.category : job.category.name
+                  ) : (
+                    'Uncategorized'
+                  )}
                 </Badge>
               </div>
             </div>
