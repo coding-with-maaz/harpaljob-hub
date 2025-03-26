@@ -8,9 +8,10 @@ const SitemapPage: React.FC = () => {
     const baseUrl = window.location.origin;
     
     // Make sure each job has slug property, fallback to id if not available
+    // Also handle the lastmod date with proper fallbacks
     const sitemapItems = jobs.map(job => ({
       url: `/jobs/${job.slug || job.id}`,
-      lastmod: job.postedDate || job.updatedAt || new Date().toISOString()
+      lastmod: job.postedDate || new Date().toISOString() // Only use postedDate as updatedAt doesn't exist
     }));
     
     const sitemapXml = generateSitemapXML(baseUrl, sitemapItems);

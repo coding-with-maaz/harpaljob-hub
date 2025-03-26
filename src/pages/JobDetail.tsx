@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSelector } from 'react-redux';
@@ -24,7 +23,7 @@ const JobDetailHeader = ({ job }: { job: any }) => (
       <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">{job.type}</span>
       <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm">{job.salary}</span>
       <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm">
-        {typeof job.category === 'string' ? job.category : job.category.name}
+        {typeof job.category === 'string' ? job.category : (job.category && 'name' in job.category) ? job.category.name : 'Unknown'}
       </span>
     </div>
   </div>
@@ -156,12 +155,19 @@ const JobDetail: React.FC = () => {
     return <div className="text-center py-12">Job not found.</div>;
   }
 
+  // Extract category name safely
+  const categoryName = typeof job.category === 'string' 
+    ? job.category 
+    : (job.category && typeof job.category === 'object' && 'name' in job.category) 
+      ? job.category.name 
+      : 'Unknown';
+
   return (
     <>
       <SEOHead
         title={`${job.title} at ${job.company} | HarpalJobs`}
         description={job.description}
-        keywords={`${job.title}, ${job.company}, ${job.location}, ${job.category}, ${job.type}`}
+        keywords={`${job.title}, ${job.company}, ${job.location}, ${categoryName}, ${job.type}`}
         ogImage={job.logo}
         ogUrl={`https://harpaljobs.com/jobs/${job.slug}`}
         structuredData={{
@@ -224,7 +230,7 @@ const JobDetail: React.FC = () => {
               </div>
             </div>
             
-            <RelatedJobs category={typeof job.category === 'string' ? job.category : job.category.name} currentJobId={job.id} />
+            <RelatedJobs category={categoryName} currentJobId={job.id} />
           </div>
         </main>
         

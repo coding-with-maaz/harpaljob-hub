@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useSearchParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -215,7 +216,7 @@ const CategoryResults = () => {
         description={categoryMeta.description}
         keywords={`${categoryMeta.name.toLowerCase()} jobs, ${categoryMeta.name.toLowerCase()} careers, ${categoryMeta.name.toLowerCase()} positions, job search, hiring, employment`}
         ogType="website"
-        structuredData={jobsStructuredData as Record<string, any>}
+        structuredData={jobsStructuredData as any}
       />
       
       <div className="flex min-h-screen flex-col">
@@ -539,4 +540,3 @@ const CategoryResults = () => {
 };
 
 export default CategoryResults;
-
