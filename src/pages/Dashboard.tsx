@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Helmet } from "react-helmet";
 import { 
@@ -25,6 +26,7 @@ import DashboardSEO from "@/components/dashboard/DashboardSEO";
 import DashboardAds from "@/components/dashboard/DashboardAds";
 import DashboardSettings from "@/components/dashboard/DashboardSettings";
 import DashboardMobileApp from "@/components/dashboard/DashboardMobileApp";
+import DashboardCategories from "@/components/dashboard/DashboardCategories";
 import { 
   LayoutDashboard, 
   Briefcase, 
@@ -35,7 +37,9 @@ import {
   LogOut,
   Smartphone,
   AreaChart,
-  Wallet
+  Wallet,
+  Tag,
+  LayoutGrid
 } from "lucide-react";
 
 const Dashboard = () => {
@@ -105,6 +109,16 @@ const Dashboard = () => {
                       >
                         <Briefcase className="h-4 w-4" />
                         <span>Jobs</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton 
+                        onClick={() => setActiveTab("categories")} 
+                        isActive={activeTab === "categories"}
+                        tooltip="Manage Job Categories"
+                      >
+                        <LayoutGrid className="h-4 w-4" />
+                        <span>Categories</span>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                     <SidebarMenuItem>
@@ -198,6 +212,7 @@ const Dashboard = () => {
                 <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
                   {activeTab === "overview" && "Dashboard Overview"}
                   {activeTab === "jobs" && "Manage Jobs"}
+                  {activeTab === "categories" && "Manage Categories"}
                   {activeTab === "applicants" && "Manage Applicants"}
                   {activeTab === "ads" && "Ad Management"}
                   {activeTab === "mobile-app" && "Mobile App Management"}
@@ -208,6 +223,7 @@ const Dashboard = () => {
                 <p className="text-muted-foreground">
                   {activeTab === "overview" && "View statistics and recent activity"}
                   {activeTab === "jobs" && "Create, edit and delete job listings"}
+                  {activeTab === "categories" && "Organize and manage job categories"}
                   {activeTab === "applicants" && "Review and manage job applications"}
                   {activeTab === "ads" && "Configure and monitor advertising campaigns"}
                   {activeTab === "mobile-app" && "Configure and monitor the mobile application"}
@@ -224,6 +240,13 @@ const Dashboard = () => {
                 </Button>
               )}
               
+              {activeTab === "categories" && (
+                <Button className="hidden sm:flex">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add New Category
+                </Button>
+              )}
+              
               {isMobile && activeTab === "jobs" && (
                 <Button size="icon" className="sm:hidden">
                   <Plus className="h-4 w-4" />
@@ -233,6 +256,7 @@ const Dashboard = () => {
             
             {activeTab === "overview" && <DashboardStats />}
             {activeTab === "jobs" && <DashboardJobsList />}
+            {activeTab === "categories" && <DashboardCategories />}
             {activeTab === "ads" && <DashboardAds />}
             {activeTab === "applicants" && (
               <Card>
