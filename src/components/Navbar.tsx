@@ -1,8 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, ChevronDown, Briefcase, Smartphone } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Menu, X, ChevronDown, Briefcase, Smartphone, LogOut, User } from 'lucide-react';
+import { useSelector, useDispatch } from 'react-redux';
 import { cn } from '@/lib/utils';
+import { toast } from '@/hooks/use-toast';
+import { logout } from '@/lib/store/slices/authSlice';
+import { RootState } from '@/lib/store/store';
 import { 
   NavigationMenu,
   NavigationMenuContent,
@@ -10,12 +14,24 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger
 } from "@/components/ui/navigation-menu";
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { user, token } = useSelector((state: RootState) => state.auth);
   
   const toggleMenu = () => setIsOpen(!isOpen);
   
@@ -42,6 +58,20 @@ const Navbar: React.FC = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const handleLogout = () => {
+    dispatch(logout());
+    toast({
+      title: "Logged out",
+      description: "You have been successfully logged out.",
+    });
+    navigate('/');
+  };
+
+  const getInitials = () => {
+    if (!user) return "";
+    return `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase();
+  };
 
   return (
     <header 
@@ -166,12 +196,46 @@ const Navbar: React.FC = () => {
           >
             Post a Job
           </Link>
-          <Link 
-            to="/sign-in" 
-            className="px-4 py-2 rounded-full text-sm font-medium bg-job-blue text-white hover:bg-job-indigo transition-colors shadow-sm"
-          >
-            Sign In
-          </Link>
+          
+          {user && token ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                  <Avatar className="h-8 w-8">
+                    <AvatarFallback className="bg-job-blue text-white">
+                      {getInitials()}
+                    </AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="end" forceMount>
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">{user.firstName} {user.lastName}</p>
+                    <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link to={user.role === 'employer' ? '/employer-dashboard' : '/user-dashboard'}>
+                    <User className="mr-2 h-4 w-4" />
+                    <span>Dashboard</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Log out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Link 
+              to="/sign-in" 
+              className="px-4 py-2 rounded-full text-sm font-medium bg-job-blue text-white hover:bg-job-indigo transition-colors shadow-sm"
+            >
+              Sign In
+            </Link>
+          )}
         </div>
         
         <button 
@@ -286,13 +350,35 @@ const Navbar: React.FC = () => {
             >
               Post a Job
             </Link>
-            <Link 
-              to="/sign-in" 
-              className="block w-full py-3 text-center text-white font-medium bg-job-blue rounded-lg hover:bg-job-indigo transition-colors"
-              onClick={closeMenu}
-            >
-              Sign In
-            </Link>
+            
+            {user && token ? (
+              <>
+                <Link 
+                  to={user.role === 'employer' ? '/employer-dashboard' : '/user-dashboard'}
+                  className="block w-full py-3 text-center text-white font-medium bg-job-blue rounded-lg hover:bg-job-indigo transition-colors"
+                  onClick={closeMenu}
+                >
+                  Dashboard
+                </Link>
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    closeMenu();
+                  }}
+                  className="block w-full py-3 text-center text-red-600 font-medium border border-red-600 rounded-lg hover:bg-red-600 hover:text-white transition-colors"
+                >
+                  Log Out
+                </button>
+              </>
+            ) : (
+              <Link 
+                to="/sign-in" 
+                className="block w-full py-3 text-center text-white font-medium bg-job-blue rounded-lg hover:bg-job-indigo transition-colors"
+                onClick={closeMenu}
+              >
+                Sign In
+              </Link>
+            )}
           </div>
         </div>
       </div>

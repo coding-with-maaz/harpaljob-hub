@@ -20,6 +20,8 @@ import AdDemo from "./pages/AdDemo";
 import NotFound from "./pages/NotFound";
 import SEOAnalyzer from "./pages/SEOAnalyzer";
 import SitemapPage from "./pages/SitemapPage";
+import SignIn from "./pages/SignIn";
+import Register from "./pages/Register";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +47,8 @@ function App() {
               <Route path="/ad-demo" element={<AdDemo />} />
               <Route path="/seo-analyzer" element={<SEOAnalyzer />} />
               <Route path="/sitemap.xml" element={<SitemapPage />} />
+              <Route path="/sign-in" element={<SignIn />} />
+              <Route path="/register" element={<Register />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
