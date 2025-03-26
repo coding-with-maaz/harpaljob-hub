@@ -22,6 +22,7 @@ import SEOAnalyzer from "./pages/SEOAnalyzer";
 import SitemapPage from "./pages/SitemapPage";
 import SignIn from "./pages/SignIn";
 import Register from "./pages/Register";
+import VerifyEmail from "./pages/VerifyEmail";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +50,7 @@ function App() {
               <Route path="/sitemap.xml" element={<SitemapPage />} />
               <Route path="/sign-in" element={<SignIn />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/verify-email" element={<VerifyEmail />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

@@ -34,6 +34,7 @@ const SignIn: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [showPassword, setShowPassword] = React.useState(false);
+  const [unverifiedEmail, setUnverifiedEmail] = React.useState<string | null>(null);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -47,8 +48,48 @@ const SignIn: React.FC = () => {
     setShowPassword(!showPassword);
   };
 
+  const handleResendVerification = async () => {
+    if (!unverifiedEmail) return;
+    
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/auth/resend-verification`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: unverifiedEmail }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        toast({
+          title: "Failed to resend verification",
+          description: data.message || "Please try again later.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Verification email sent",
+        description: "Please check your inbox for the verification link.",
+      });
+    } catch (error) {
+      console.error("Resend verification error:", error);
+      toast({
+        title: "Error",
+        description: "An error occurred. Please try again later.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const onSubmit = async (values: FormValues) => {
     try {
+      // Reset unverified email state
+      setUnverifiedEmail(null);
+      
       const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/auth/login`, {
         method: "POST",
         headers: {
@@ -60,6 +101,11 @@ const SignIn: React.FC = () => {
       const data = await response.json();
 
       if (!response.ok) {
+        // Check if the error is due to unverified email
+        if (response.status === 403 && data.message.includes("Email not verified")) {
+          setUnverifiedEmail(values.email);
+          throw new Error(data.message);
+        }
         throw new Error(data.message || "Login failed");
       }
 
@@ -125,6 +171,23 @@ const SignIn: React.FC = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
+                {unverifiedEmail ? (
+                  <div className="bg-amber-50 border border-amber-200 rounded-md p-4 mb-4">
+                    <h3 className="text-sm font-medium text-amber-800">Email verification required</h3>
+                    <p className="text-sm text-amber-700 mt-1">
+                      Your email address has not been verified yet. Please check your inbox for the verification link.
+                    </p>
+                    <Button 
+                      onClick={handleResendVerification} 
+                      variant="outline" 
+                      size="sm" 
+                      className="mt-2 text-amber-800 border-amber-300 hover:bg-amber-100"
+                    >
+                      Resend verification email
+                    </Button>
+                  </div>
+                ) : null}
+                
                 <Form {...form}>
                   <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                     <FormField
