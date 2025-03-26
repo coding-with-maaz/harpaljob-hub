@@ -1,7 +1,188 @@
-# Welcome to your HarPalJob project
-![image](https://github.com/user-attachments/assets/af88c8ab-53f3-438c-acfe-9a2823064cdf)
+# HarpalJobs - Job Search Platform
 
-## Project info
+![HarpalJobs Logo](https://github.com/user-attachments/assets/af88c8ab-53f3-438c-acfe-9a2823064cdf)
+
+## Overview
+
+HarpalJobs is a modern job search platform that connects job seekers with employers. Built with React, TypeScript, and Node.js, it offers a seamless experience for both job seekers and employers.
+
+## Features
+
+### For Job Seekers
+- Advanced job search with filters
+- Job categories and tags
+- Company profiles
+- Job application tracking
+- Saved jobs functionality
+- Job alerts and notifications
+- Mobile-responsive design
+
+### For Employers
+- Job posting management
+- Candidate applications tracking
+- Company profile management
+- Featured job listings
+- Analytics dashboard
+- Application management
+
+### Technical Features
+- SEO optimization
+- Structured data for job listings
+- Real-time search
+- Pagination and infinite scroll
+- Authentication and authorization
+- API rate limiting
+- Error handling
+- Logging system
+
+## Tech Stack
+
+### Frontend
+- React 18
+- TypeScript
+- Redux Toolkit
+- React Query
+- Tailwind CSS
+- Shadcn UI Components
+- React Router DOM
+
+### Backend
+- Node.js
+- Express.js
+- Sequelize ORM
+- PostgreSQL
+- JWT Authentication
+- Redis (for caching)
+
+## Getting Started
+
+### Prerequisites
+- Node.js (v16 or higher)
+- PostgreSQL
+- Redis (optional)
+
+### Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/harpaljob-hub.git
+cd harpaljob-hub
+```
+
+2. Install frontend dependencies:
+```bash
+npm install
+```
+
+3. Install backend dependencies:
+```bash
+cd backend
+npm install
+```
+
+4. Set up environment variables:
+```bash
+# Frontend (.env)
+VITE_API_URL=http://localhost:5000/api
+
+# Backend (.env)
+PORT=5000
+DB_HOST=localhost
+DB_USER=your_db_user
+DB_PASS=your_db_password
+DB_NAME=harpaljobs
+JWT_SECRET=your_jwt_secret
+```
+
+5. Start the development servers:
+```bash
+# Frontend
+npm run dev
+
+# Backend
+cd backend
+npm run dev
+```
+
+## API Documentation
+
+### Authentication
+- Register: `POST /api/auth/register`
+- Login: `POST /api/auth/login`
+- Forgot Password: `POST /api/auth/forgot-password`
+- Reset Password: `POST /api/auth/reset-password`
+
+### Jobs
+- Get All Jobs: `GET /api/jobs`
+- Get Job by ID: `GET /api/jobs/:id`
+- Create Job: `POST /api/jobs`
+- Update Job: `PUT /api/jobs/:id`
+- Delete Job: `DELETE /api/jobs/:id`
+- Get Jobs by Category: `GET /api/jobs/category/:categoryId`
+
+### Categories
+- Get All Categories: `GET /api/job-categories`
+- Get Category by ID: `GET /api/job-categories/:id`
+- Create Category: `POST /api/job-categories`
+- Update Category: `PUT /api/job-categories/:id`
+- Delete Category: `DELETE /api/job-categories/:id`
+
+### Applications
+- Get Applications: `GET /api/applications`
+- Create Application: `POST /api/applications`
+- Update Application Status: `PUT /api/applications/:id/status`
+- Delete Application: `DELETE /api/applications/:id`
+
+## Project Structure
+
+```
+harpaljob-hub/
+├── src/
+│   ├── components/
+│   │   ├── common/
+│   │   ├── dashboard/
+│   │   ├── jobs/
+│   │   └── layout/
+│   ├── pages/
+│   ├── lib/
+│   │   ├── store/
+│   │   └── types/
+│   ├── hooks/
+│   └── utils/
+├── backend/
+│   ├── src/
+│   │   ├── controllers/
+│   │   ├── models/
+│   │   ├── routes/
+│   │   ├── middlewares/
+│   │   └── config/
+│   └── seeders/
+└── public/
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Support
+
+For support, email support@harpaljobs.com or join our Slack channel.
+
+## Acknowledgments
+
+- [React](https://reactjs.org/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [Shadcn UI](https://ui.shadcn.com/)
+- [Sequelize](https://sequelize.org/)
 
 # HarpalJobs SEO Documentation
 
