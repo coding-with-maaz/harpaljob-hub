@@ -37,7 +37,6 @@ import {
 import { useGetJobsByCategoryQuery } from "@/lib/store/api";
 import type { Job } from "@/lib/store/types";
 
-// Category metadata with icons and colors
 const categoryMetadata: Record<string, { 
   name: string; 
   icon: React.ElementType; 
@@ -131,7 +130,6 @@ const categoryMetadata: Record<string, {
   }
 };
 
-// Salary formatting function
 const formatSalary = (amount: number) => {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -145,7 +143,6 @@ const CategoryResults = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const isMobile = useIsMobile();
   
-  // Get URL parameters
   const page = parseInt(searchParams.get('page') || '1');
   const searchTerm = searchParams.get('search') || '';
   const location = searchParams.get('location') || '';
@@ -153,11 +150,9 @@ const CategoryResults = () => {
   const sortBy = searchParams.get('sort') || 'recent';
   const remoteOnly = searchParams.get('remote') === 'true';
   
-  // State for filters
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
   
-  // Get category metadata or set fallback values
   const categoryMeta = categoryId && categoryMetadata[categoryId] 
     ? categoryMetadata[categoryId] 
     : { 
@@ -168,10 +163,8 @@ const CategoryResults = () => {
         breadcrumb: "Jobs"
       };
   
-  // Set title and SEO metadata
   const pageTitle = `${categoryMeta.name} Jobs | Find Your Next Career`;
   
-  // Fetch jobs using RTK Query
   const { data: jobsData, isLoading, error } = useGetJobsByCategoryQuery({
     categoryId: categoryId || '',
     page,
@@ -183,22 +176,19 @@ const CategoryResults = () => {
     remoteOnly
   });
   
-  // Get jobs and pagination info
   const jobs = jobsData?.data.jobs || [];
   const totalJobs = jobsData?.data.pagination.total || 0;
   const totalPages = jobsData?.data.pagination.pages || 1;
   
-  // Handle filter changes
   const handleFilterChange = (newParams: Record<string, string>) => {
     const currentParams = Object.fromEntries(searchParams.entries());
     setSearchParams({
       ...currentParams,
       ...newParams,
-      page: '1' // Reset to first page when filters change
+      page: '1'
     });
   };
   
-  // Create structured data for job listings
   const jobsStructuredData = generateJobListingStructuredData(
     jobs.map(job => ({
       title: job.title,
@@ -216,7 +206,6 @@ const CategoryResults = () => {
     }))
   );
 
-  // Category icon component
   const CategoryIcon = categoryMeta.icon;
   
   return (
@@ -226,17 +215,15 @@ const CategoryResults = () => {
         description={categoryMeta.description}
         keywords={`${categoryMeta.name.toLowerCase()} jobs, ${categoryMeta.name.toLowerCase()} careers, ${categoryMeta.name.toLowerCase()} positions, job search, hiring, employment`}
         ogType="website"
-        structuredData={jobsStructuredData}
+        structuredData={jobsStructuredData as Record<string, any>}
       />
       
       <div className="flex min-h-screen flex-col">
         <Navbar />
         
         <main className="flex-1">
-          {/* Category Header */}
           <section className={`${categoryMeta.color.split(' ')[0].replace('100', '500')} bg-opacity-10 py-12`}>
             <div className="container mx-auto px-4">
-              {/* Breadcrumb */}
               <div className="flex items-center text-sm mb-6 text-muted-foreground">
                 <Link to="/jobs" className="hover:text-foreground transition-colors">
                   Jobs
@@ -283,10 +270,8 @@ const CategoryResults = () => {
             </div>
           </section>
           
-          {/* Main content */}
           <section className="container mx-auto px-4 py-8">
             <div className="flex flex-col lg:flex-row gap-6">
-              {/* Filters Sidebar */}
               <aside className={`lg:w-1/4 rounded-lg border border-gray-200 h-fit ${showFilters || !isMobile ? 'block' : 'hidden'}`}>
                 <div className="p-4 border-b border-gray-200 flex justify-between items-center">
                   <h2 className="font-semibold">Filters</h2>
@@ -346,7 +331,6 @@ const CategoryResults = () => {
                   </div>
                 </div>
                 
-                {/* Sidebar Ad */}
                 <div className="p-4 mt-6">
                   <AdBanner
                     id="category-sidebar-ad"
@@ -355,8 +339,7 @@ const CategoryResults = () => {
                   />
                 </div>
               </aside>
-
-              {/* Job Listings */}
+              
               <div className="lg:w-3/4">
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-xl font-semibold">
@@ -403,7 +386,6 @@ const CategoryResults = () => {
                 </div>
                 
                 {isLoading ? (
-                  // Loading skeletons
                   <div className="space-y-6">
                     {Array(5).fill(0).map((_, i) => (
                       <div key={i} className="bg-white rounded-xl p-6 border border-gray-100">
@@ -432,13 +414,11 @@ const CategoryResults = () => {
                 ) : (
                   <>
                     {viewMode === "list" ? (
-                      // List view
                       <div className="space-y-6">
                         {jobs.map((job: Job, index: number) => (
                           <React.Fragment key={job.id}>
                             <JobCard job={job} />
                             
-                            {/* Insert ad after every 3 job listings */}
                             {(index + 1) % 3 === 0 && index < jobs.length - 1 && (
                               <AdBanner
                                 id={`inline-ad-${Math.floor(index / 3)}`}
@@ -452,13 +432,11 @@ const CategoryResults = () => {
                         ))}
                       </div>
                     ) : (
-                      // Grid view
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {jobs.map((job: Job, index: number) => (
                           <React.Fragment key={job.id}>
                             <JobCard job={job} featured={true} />
                             
-                            {/* Insert ad after every 4 job listings */}
                             {(index + 1) % 4 === 0 && index < jobs.length - 1 && (
                               <div className="md:col-span-2">
                                 <AdBanner
@@ -489,7 +467,6 @@ const CategoryResults = () => {
                       </div>
                     )}
                     
-                    {/* Pagination */}
                     {totalPages > 1 && (
                       <div className="flex justify-center gap-2 mt-8">
                         <Button
@@ -525,7 +502,6 @@ const CategoryResults = () => {
             </div>
           </section>
           
-          {/* Related Categories */}
           <section className="bg-gray-50 py-10">
             <div className="container mx-auto px-4">
               <h2 className="text-2xl font-bold mb-6">Related Categories</h2>
@@ -547,7 +523,6 @@ const CategoryResults = () => {
             </div>
           </section>
           
-          {/* Ad Banner */}
           <div className="container mx-auto px-4 py-8">
             <AdBanner
               id="category-footer-ad"
@@ -564,3 +539,4 @@ const CategoryResults = () => {
 };
 
 export default CategoryResults;
+

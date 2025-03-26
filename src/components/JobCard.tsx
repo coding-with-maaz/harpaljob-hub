@@ -1,8 +1,10 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { CalendarDays, MapPin, Building, Clock, Eye } from 'lucide-react';
 import { Job } from '@/lib/types';
 import { cn } from '@/lib/utils';
+import { Badge } from "@/components/ui/badge";
 
 interface JobCardProps {
   job: Job;
