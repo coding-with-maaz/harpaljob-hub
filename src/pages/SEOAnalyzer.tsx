@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Helmet } from "react-helmet";
 import Navbar from "@/components/Navbar";
@@ -12,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { 
   analyzeKeywordDensity, 
   analyzeHeadingStructure, 
-  checkSEOFriendlyURL, 
+  isSEOFriendlyURL, 
   calculateSEOScore 
 } from "@/utils/seo";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -87,7 +86,7 @@ const SEOAnalyzer: React.FC = () => {
     setIsAnalyzing(true);
     
     try {
-      const analysis = checkSEOFriendlyURL(url);
+      const analysis = isSEOFriendlyURL(url);
       setUrlAnalysis(analysis);
       
       toast({
@@ -153,7 +152,7 @@ const SEOAnalyzer: React.FC = () => {
       const keywordDensityResult = analyzeKeywordDensity(content, keyword);
       setKeywordAnalysis(keywordDensityResult);
       
-      const urlResult = checkSEOFriendlyURL(url);
+      const urlResult = isSEOFriendlyURL(url);
       setUrlAnalysis(urlResult);
       
       if (htmlContent) {
@@ -161,33 +160,18 @@ const SEOAnalyzer: React.FC = () => {
         setHeadingAnalysis(headingResult);
       }
       
-      // Calculate overall SEO score (simulating some factors)
-      const hasTitle = content.includes("<title>");
-      const titleMatch = content.match(/<title>(.*?)<\/title>/);
-      const titleLength = titleMatch ? titleMatch[1].length : 0;
-      
-      const hasDescription = content.includes('name="description"');
-      const descMatch = content.match(/content="(.*?)"/);
-      const descriptionLength = descMatch ? descMatch[1].length : 0;
-      
-      const hasH1 = content.includes("<h1");
-      
+      // Calculate overall SEO score with the correct parameters
       const score = calculateSEOScore({
-        hasTitle,
-        titleLength,
-        hasDescription,
-        descriptionLength,
-        hasH1,
-        keywordInTitle: titleMatch ? titleMatch[1].includes(keyword) : false,
-        keywordInDescription: descMatch ? descMatch[1].includes(keyword) : false,
-        keywordInH1: content.includes(`<h1>${keyword}`) || content.includes(`<h1 `) && content.includes(`>${keyword}<`),
-        keywordDensity: keywordDensityResult.density,
-        hasSocialMeta: content.includes('property="og:') || content.includes('name="twitter:'),
-        hasStructuredData: content.includes('application/ld+json'),
-        pageLoadSpeed: 4, // Simulated
-        mobileOptimized: true, // Simulated
-        hasCanonicalUrl: content.includes('rel="canonical"'),
-        hasAltTags: !content.includes('<img ') || content.includes('alt="'),
+        titleScore: content.includes("<title>") ? 80 : 0,
+        metaDescriptionScore: content.includes('name="description"') ? 85 : 0,
+        headingsScore: content.includes("<h1") ? 90 : 0,
+        contentScore: keywordDensityResult.density > 0.5 && keywordDensityResult.density < 3 ? 85 : 50,
+        linksScore: 70,
+        imageAltScore: content.includes('alt="') ? 90 : 40, 
+        urlScore: urlResult.isSEOFriendly ? 100 : 50,
+        mobileScore: 85,
+        speedScore: 75,
+        schemaScore: content.includes('application/ld+json') ? 100 : 0
       });
       
       setSeoScore(score);

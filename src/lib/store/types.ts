@@ -1,3 +1,4 @@
+
 export interface Job {
   id: string;
   title: string;
@@ -8,7 +9,7 @@ export interface Job {
   salary: string;
   salaryMin: number;
   salaryMax: number;
-  logo?: string;
+  logo: string;  // Changed from optional to required to match the other Job interface
   postedDate: string;
   categoryId: string;
   employerId: string;
@@ -30,7 +31,7 @@ export interface Job {
   applications: number;
   slug: string;
   companyId: string;
-  category: string | JobCategory;  // Made required and consistent with main types
+  category: string | JobCategory;  // Made consistent with main types
   employer?: User;
   
   // Additional properties to match with main types

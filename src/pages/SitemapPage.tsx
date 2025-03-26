@@ -1,4 +1,3 @@
-
 import React, { useEffect } from "react";
 import { generateSitemapXML } from "@/utils/seo";
 import { jobs } from "@/lib/jobs";
@@ -6,10 +5,13 @@ import { jobs } from "@/lib/jobs";
 const SitemapPage: React.FC = () => {
   useEffect(() => {
     const baseUrl = window.location.origin;
-    const sitemapXML = generateSitemapXML(baseUrl, jobs);
+    const sitemapXml = generateSitemapXML(baseUrl, jobs.map(job => ({
+      url: `/jobs/${job.slug}`,
+      lastmod: job.postedDate
+    })));
     
     // Create a blob with the XML content
-    const blob = new Blob([sitemapXML], { type: 'application/xml' });
+    const blob = new Blob([sitemapXml], { type: 'application/xml' });
     const url = URL.createObjectURL(blob);
     
     // Force download or display of the XML content
